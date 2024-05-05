@@ -35,7 +35,6 @@ function putCard(Database $database): string
     $expansionId = $database->getIntParam('expansionId');
     $sql = <<<SQL
         INSERT INTO card (
-            id,
             cardName,
             isAce,
             cardClassId,
@@ -62,7 +61,6 @@ function putCard(Database $database): string
             expansionId
         )
         VALUES (
-            :id,
             :cardName,
             :isAce,
             :cardClassId,
@@ -91,7 +89,6 @@ function putCard(Database $database): string
         SELECT LAST_INSERT_ID();
     SQL;
     $replacements = array(
-        'id' => ['value' => $expansionId, 'type' => PDO::PARAM_INT],
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
         'isAce' => ['value' => $isAce, 'type' => PDO::PARAM_INT],
         'cardClassId' => ['value' => $cardClassId, 'type' => PDO::PARAM_INT],
