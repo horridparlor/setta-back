@@ -1,14 +1,12 @@
 <?php
 
 use system\Database;
-use brain\Brain;
 
 header('Content-Type: application/json');
 
 include("../system/Database.php");
-include("../scripts/Brain.php");
 
-function putCard(Database $database): string
+function postCard(Database $database): string
 {
     $cardName = $database->getStringParam('cardName');
     $isAce = $database->getBooleanParam('isAce');
@@ -123,5 +121,5 @@ function putCard(Database $database): string
 }
 
 $database = new Database();
-$database->handleRequest(null, null, 'putCard');
+$database->handleRequest(null, 'postCard');
 
