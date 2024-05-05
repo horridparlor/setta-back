@@ -152,8 +152,8 @@ class Database
         echo match ($method) {
             'GET' => $this->execute($getFunction, $errorMessage),
             'POST' => $this->executePost($postFunction, $errorMessage),
-            'PUT' => $this->execute($putFunction, $errorMessage),
-            'DELETE' => $this->execute($deleteFunction, $errorMessage),
+            'PUT' => $this->executePost($putFunction, $errorMessage),
+            'DELETE' => $this->executePost($deleteFunction, $errorMessage),
             default => $errorMessage,
         };
     }
