@@ -15,6 +15,7 @@ function putCard(Database $database): string
     $cardClassId = $database->getIntParam('cardClassId');
     $cardTypeId = $database->getIntParam('cardTypeId');
     $subtypeId = $database->getIntParam('subtypeId');
+    $supertypeId = $database->getIntParam('supertypeId');
     $maximumPieceId = $database->getIntParam('maximumPieceId');
     $level = $database->getIntParam('level');
     $atk = $database->getIntParam('atk');
@@ -40,6 +41,7 @@ function putCard(Database $database): string
             cardClassId,
             cardTypeId,
             subtypeId,
+            supertypeId,
             maximumPieceId,
             level,
             atk,
@@ -65,6 +67,7 @@ function putCard(Database $database): string
             :cardClassId,
             :cardTypeId,
             :subtypeId,
+            :supertypeId,
             :maximumPieceId,
             :level,
             :atk,
@@ -91,6 +94,7 @@ function putCard(Database $database): string
         'cardClassId' => ['value' => $cardClassId, 'type' => PDO::PARAM_INT],
         'cardTypeId' => ['value' => $cardTypeId, 'type' => PDO::PARAM_INT],
         'subtypeId' => ['value' => $subtypeId, 'type' => PDO::PARAM_INT],
+        'supertypeId' => ['value' => $supertypeId, 'type' => PDO::PARAM_INT],
         'maximumPieceId' => ['value' => $maximumPieceId, 'type' => PDO::PARAM_INT],
         'level' => ['value' => $level, 'type' => PDO::PARAM_INT],
         'atk' => ['value' => $atk, 'type' => PDO::PARAM_INT],
