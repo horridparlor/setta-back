@@ -22,9 +22,9 @@ function putCard(Database $database): string
     $primaryMaterialId  = $database->getIntParam('primaryMaterialId');
     $secondaryMaterialId = $database->getIntParam('secondaryMaterialId');;
     $tertiaryMaterialId = $database->getIntParam('tertiaryMaterialId');
-    $costText = $database->getStringParam('costEffect');
-    $effectText = $database->getStringParam('effectEffect');
-    $flavourText = $database->getStringParam('flavourEffect');
+    $costText = $database->getStringParam('costText');
+    $effectText = $database->getStringParam('effectText');
+    $flavourText = $database->getStringParam('flavourText');
     $countsAsId = $database->getIntParam('countsAsId');
     $artScale = $database->getFloatParam('artScale');
     $artXOffset = $database->getFloatParam('artXOffset');
