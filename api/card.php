@@ -57,7 +57,6 @@ function putCard(Database $database): string
             nameSize,
             materialsSize,
             effectsSize,
-            expansionId,
             expansionId
         )
         VALUES (
@@ -85,8 +84,6 @@ function putCard(Database $database): string
             :effectsSize,
             :expansionId
         );
-
-        SELECT LAST_INSERT_ID();
     SQL;
     $replacements = array(
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
@@ -113,10 +110,11 @@ function putCard(Database $database): string
         'effectsSize' => ['value' => $effectsSize, 'type' => PDO::PARAM_INT],
         'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT]
     );
-    $result = $database->query($sql, $replacements);
+    $database->query($sql, $replacements);
+    $result = $database->query('SELECT LAST_INSERT_ID() cardId;');
 
     return $database->responseSuccess(array(
-        "cardId" => $result[0],
+        'cardId' => $result[0]['cardId'],
     ));
 }
 
