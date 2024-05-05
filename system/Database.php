@@ -72,7 +72,7 @@ class Database
     private static function getRequestParams(RequestType $requestType): array {
         return match($requestType) {
             RequestType::GET => $_GET,
-            RequestType::POST => json_decode(file_get_contents("php://input"), true) ?? [],
+            default => json_decode(file_get_contents("php://input"), true) ?? [],
         };
     }
 
