@@ -28,17 +28,19 @@ CREATE TABLE `card` (
 
 ALTER TABLE `card`
     ADD PRIMARY KEY (`id`),
-  ADD KEY `primaryMaterialId` (`primaryMaterialId`),
-  ADD KEY `secondaryMaterialId` (`secondaryMaterialId`),
-  ADD KEY `tertiaryMaterialId` (`tertiaryMaterialId`),
-  ADD KEY `countsAsId` (`countsAsId`);
+    ADD KEY `primaryMaterialId` (`primaryMaterialId`),
+    ADD KEY `secondaryMaterialId` (`secondaryMaterialId`),
+    ADD KEY `tertiaryMaterialId` (`tertiaryMaterialId`),
+    ADD KEY `countsAsId` (`countsAsId`),
+    ADD KEY `expansionId` (`expansionId`);
 
 ALTER TABLE `card`
     MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 ALTER TABLE `card`
     ADD CONSTRAINT `card_ibfk_1` FOREIGN KEY (`primaryMaterialId`) REFERENCES `card` (`id`),
-  ADD CONSTRAINT `card_ibfk_2` FOREIGN KEY (`secondaryMaterialId`) REFERENCES `card` (`id`),
-  ADD CONSTRAINT `card_ibfk_3` FOREIGN KEY (`tertiaryMaterialId`) REFERENCES `card` (`id`),
-  ADD CONSTRAINT `card_ibfk_4` FOREIGN KEY (`countsAsId`) REFERENCES `card` (`id`);
+    ADD CONSTRAINT `card_ibfk_2` FOREIGN KEY (`secondaryMaterialId`) REFERENCES `card` (`id`),
+    ADD CONSTRAINT `card_ibfk_3` FOREIGN KEY (`tertiaryMaterialId`) REFERENCES `card` (`id`),
+    ADD CONSTRAINT `card_ibfk_4` FOREIGN KEY (`countsAsId`) REFERENCES `card` (`id`),
+    ADD CONSTRAINT `card_ibfk_5` FOREIGN KEY (`expansionId`) REFERENCES `expansion` (`id`);
 COMMIT;
