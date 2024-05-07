@@ -86,7 +86,7 @@ class Database
     public function getIntParam(string $id, mixed $default = null)
     {
         $value = $this->params[$id];
-        if (is_null($value)) {
+        if (is_null($value) or $value === '') {
             return $default;
         }
         return intval($value);

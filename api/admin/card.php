@@ -10,11 +10,11 @@ function postCard(Database $database): string
 {
     $cardName = $database->getStringParam('cardName');
     $isAce = $database->getBooleanParam('isAce');
-    $cardClassId = $database->getIntParam('cardClassId');
-    $cardTypeId = $database->getIntParam('cardTypeId');
-    $subtypeId = $database->getIntParam('subtypeId');
-    $supertypeId = $database->getIntParam('supertypeId');
-    $maximumPieceId = $database->getIntParam('maximumPieceId');
+    $cardClass = $database->getStringParam('cardClass');
+    $cardType = $database->getStringParam('cardType');
+    $subtype = $database->getStringParam('subtype');
+    $supertype = $database->getStringParam('supertype');
+    $maximumPiece = $database->getStringParam('maximumPiece');
     $level = $database->getIntParam('level');
     $atk = $database->getIntParam('atk');
     $def = $database->getIntParam('def');
@@ -57,16 +57,17 @@ function postCard(Database $database): string
             nameSize,
             materialsSize,
             effectsSize,
-            expansionId
+            expansionId,
+            isDeleted
         )
         VALUES (
             :cardName,
             :isAce,
-            :cardClassId,
-            :cardTypeId,
-            :subtypeId,
-            :supertypeId,
-            :maximumPieceId,
+            (SELECT id FROM cardClass WHERE name = :cardClass),
+            (SELECT id FROM cardType WHERE name = :cardType),
+            (SELECT id FROM cardSubtype WHERE name = :subtype),
+            (SELECT id FROM cardSupertype WHERE name = :supertype),
+            (SELECT id FROM maximumPiece WHERE name = :maximumPiece),
             :level,
             :atk,
             :def,
@@ -83,17 +84,18 @@ function postCard(Database $database): string
             :nameSize,
             :materialsSize,
             :effectsSize,
-            :expansionId
+            :expansionId,
+            0
         );
     SQL;
     $replacements = array(
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
         'isAce' => ['value' => $isAce, 'type' => PDO::PARAM_INT],
-        'cardClassId' => ['value' => $cardClassId, 'type' => PDO::PARAM_INT],
-        'cardTypeId' => ['value' => $cardTypeId, 'type' => PDO::PARAM_INT],
-        'subtypeId' => ['value' => $subtypeId, 'type' => PDO::PARAM_INT],
-        'supertypeId' => ['value' => $supertypeId, 'type' => PDO::PARAM_INT],
-        'maximumPieceId' => ['value' => $maximumPieceId, 'type' => PDO::PARAM_INT],
+        'cardClass' => ['value' => $cardClass, 'type' => PDO::PARAM_STR],
+        'cardType' => ['value' => $cardType, 'type' => PDO::PARAM_STR],
+        'subtype' => ['value' => $subtype, 'type' => PDO::PARAM_STR],
+        'supertype' => ['value' => $supertype, 'type' => PDO::PARAM_STR],
+        'maximumPiece' => ['value' => $maximumPiece, 'type' => PDO::PARAM_STR],
         'level' => ['value' => $level, 'type' => PDO::PARAM_INT],
         'atk' => ['value' => $atk, 'type' => PDO::PARAM_INT],
         'def' => ['value' => $def, 'type' => PDO::PARAM_INT],
@@ -125,11 +127,11 @@ function putCard(Database $database): string
     $cardId = $database->getIntParam('cardId');
     $cardName = $database->getStringParam('cardName');
     $isAce = $database->getBooleanParam('isAce');
-    $cardClassId = $database->getIntParam('cardClassId');
-    $cardTypeId = $database->getIntParam('cardTypeId');
-    $subtypeId = $database->getIntParam('subtypeId');
-    $supertypeId = $database->getIntParam('supertypeId');
-    $maximumPieceId = $database->getIntParam('maximumPieceId');
+    $cardClass = $database->getStringParam('cardClass');
+    $cardType = $database->getStringParam('cardType');
+    $subtype = $database->getStringParam('subtype');
+    $supertype = $database->getStringParam('supertype');
+    $maximumPiece = $database->getStringParam('maximumPiece');
     $level = $database->getIntParam('level');
     $atk = $database->getIntParam('atk');
     $def = $database->getIntParam('def');
@@ -151,11 +153,11 @@ function putCard(Database $database): string
         UPDATE card SET
             cardName = :cardName,
             isAce = :isAce,
-            cardClassId = :cardClassId,
-            cardTypeId = :cardTypeId,
-            subtypeId = :subtypeId,
-            supertypeId = :supertypeId,
-            maximumPieceId = :maximumPieceId,
+            cardClassId = (SELECT id FROM cardClass WHERE name = :cardClass),
+            cardTypeId = (SELECT id FROM cardType WHERE name = :cardType),
+            subtypeId = (SELECT id FROM cardSubtype WHERE name = :subtype),
+            supertypeId = (SELECT id FROM cardSupertype WHERE name = :supertype),
+            maximumPieceId = (SELECT id FROM maximumPiece WHERE name = :maximumPiece),
             level = :level,
             atk = :atk,
             def = :def,
@@ -179,11 +181,11 @@ function putCard(Database $database): string
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
         'isAce' => ['value' => $isAce, 'type' => PDO::PARAM_INT],
-        'cardClassId' => ['value' => $cardClassId, 'type' => PDO::PARAM_INT],
-        'cardTypeId' => ['value' => $cardTypeId, 'type' => PDO::PARAM_INT],
-        'subtypeId' => ['value' => $subtypeId, 'type' => PDO::PARAM_INT],
-        'supertypeId' => ['value' => $supertypeId, 'type' => PDO::PARAM_INT],
-        'maximumPieceId' => ['value' => $maximumPieceId, 'type' => PDO::PARAM_INT],
+        'cardClass' => ['value' => $cardClass, 'type' => PDO::PARAM_STR],
+        'cardType' => ['value' => $cardType, 'type' => PDO::PARAM_STR],
+        'subtype' => ['value' => $subtype, 'type' => PDO::PARAM_STR],
+        'supertype' => ['value' => $supertype, 'type' => PDO::PARAM_STR],
+        'maximumPiece' => ['value' => $maximumPiece, 'type' => PDO::PARAM_STR],
         'level' => ['value' => $level, 'type' => PDO::PARAM_INT],
         'atk' => ['value' => $atk, 'type' => PDO::PARAM_INT],
         'def' => ['value' => $def, 'type' => PDO::PARAM_INT],
@@ -208,6 +210,23 @@ function putCard(Database $database): string
     ));
 }
 
+function deleteCard(Database $database): string
+{
+    $cardId = $database->getIntParam('cardId');
+    $sql = <<<SQL
+        UPDATE card
+        SET isDeleted = 1
+        WHERE id = :cardId;
+    SQL;
+    $replacements = array(
+        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT]
+    );
+    $database->query($sql, $replacements);
+    return $database->responseSuccess(array(
+        'cardId' => $cardId,
+    ));
+}
+
 $database = new Database();
-$database->handleRequest(null, 'postCard', 'putCard');
+$database->handleRequest(null, 'postCard', 'putCard', 'deleteCard');
 

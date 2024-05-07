@@ -10,15 +10,11 @@ function getExpansions(Database $database): string
 {
     $sql = <<<SQL
         SELECT id, name, releaseYear, isReleased
-        from expansion
+        FROM expansion
     SQL;
-    $response = $database->query($sql);
-    $expansions = [];
-    foreach ($response as $expansion) {
-        $expansions[$expansion['id']] = $expansion;
-    }
+    $expansions = $database->query($sql);
     return $database->responseSuccess(array(
-        'countOfExpansions' => count($response),
+        'countOfExpansions' => count($expansions),
         'expansions' => $expansions,
     ));
 }

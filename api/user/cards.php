@@ -10,14 +10,14 @@ function getCards(Database $database): string
 {
     $sql = <<<SQL
         SELECT
-            id,
+            card.id cardId,
             cardName,
             isAce,
-            cardClassId,
-            cardTypeId,
-            subtypeId,
-            supertypeId,
-            maximumPieceId,
+            cardClass.name cardClass,
+            cardType.name cardType,
+            cardSubtype.name subtype,
+            cardSupertype.name supertype,
+            maximumPiece.name maximumPiece,
             level,
             atk,
             def,
@@ -36,14 +36,21 @@ function getCards(Database $database): string
             effectsSize,
             expansionId
         FROM card
+        JOIN cardClass
+            ON cardClass.id = card.cardClassId
+        JOIN cardType
+            ON cardType.id = card.cardTypeId
+        JOIN cardSubtype
+            ON cardSubtype.id = card.subtypeId
+        JOIN cardSupertype
+            ON cardSupertype.id = card.supertypeId
+        JOIN maximumPiece
+            ON maximumPiece.id = card.maximumPieceId
+        WHERE card.isDeleted = 0
     SQL;
-    $response = $database->query($sql);
-    $cards = [];
-    foreach ($response as $card) {
-        $cards[$card['id']] = $card;
-    }
+    $cards = $database->query($sql);
     return $database->responseSuccess(array(
-        'countOfCards' => count($response),
+        'countOfCards' => count($cards),
         'cards' => $cards,
     ));
 }
