@@ -1,2 +1,5 @@
 system/.env
 .idea/
+assets/
+assets.zip
+api/error_log
