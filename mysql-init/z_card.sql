@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 07, 2024 at 06:22 AM
+-- Generation Time: May 07, 2024 at 03:17 PM
 -- Server version: 10.6.17-MariaDB-cll-lve
 -- PHP Version: 8.1.27
 
@@ -57,6 +57,16 @@ CREATE TABLE `card` (
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
+-- Dumping data for table `card`
+--
+
+INSERT INTO `card` (`id`, `cardName`, `isAce`, `cardClassId`, `cardTypeId`, `subtypeId`, `supertypeId`, `maximumPieceId`, `level`, `atk`, `def`, `primaryMaterialId`, `secondaryMaterialId`, `tertiaryMaterialId`, `costText`, `effectText`, `flavourText`, `countsAsId`, `artScale`, `artXOffset`, `artYOffset`, `nameSize`, `materialsSize`, `effectsSize`, `expansionId`, `isDeleted`) VALUES
+                                                                                                                                                                                                                                                                                                                                                                                              (15, 'Undead Catalyst', 0, 4, 1, 4, 1, 1, 6, 1800, 200, 17, 18, NULL, '', '', 'Welcome the slime titan! If someone licks his juice, he turns them into a capybara.', NULL, 4, 0, 13, 2, 3, 5, 2, 0),
+                                                                                                                                                                                                                                                                                                                                                                                              (16, 'Hammer Waifu', 0, 2, 1, 2, 1, 1, 3, 1200, 0, NULL, NULL, NULL, 'Discard a card.{i}Hand{/i}', 'Target monster loses {sb}200{/sb} {b}atk{/b}.{i}All stat changes only last until the end of the turn{/i}', '', NULL, 0, 0, 3, 4, 5, 5, 1, 0),
+                                                                                                                                                                                                                                                                                                                                                                                              (17, '{i}The{/i}Guildmaster', 0, 4, 1, 2, 1, 1, 7, 2100, 0, NULL, NULL, NULL, 'Mill {sb}2{/sb}.{i}From your deck{/i}', 'Gains {sb}400{/sb} {b}atk{/b} for each level-{sb}5{/sb} and {sb}higher{/sb} {sb}normal{/sb} {b}Slime{/b} in your grave.{i}Yellow{/i}', '', NULL, 0, 0, 0, 3, 5, 5, 2, 0),
+                                                                                                                                                                                                                                                                                                                                                                                              (18, 'Pitch-Black Ooze', 0, 4, 1, 1, 1, 1, 5, 1300, 0, NULL, NULL, NULL, '', '', 'Monsters so black that everyone fears them. They eat all the light, making them even darker than yo\' asshole.', NULL, 1, 0, 14, 2, 5, 5, 1, 0);
+
+--
 -- Indexes for dumped tables
 --
 
@@ -64,7 +74,7 @@ CREATE TABLE `card` (
 -- Indexes for table `card`
 --
 ALTER TABLE `card`
-    ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id`),
   ADD KEY `primaryMaterialId` (`primaryMaterialId`),
   ADD KEY `secondaryMaterialId` (`secondaryMaterialId`),
   ADD KEY `tertiaryMaterialId` (`tertiaryMaterialId`),
@@ -79,7 +89,7 @@ ALTER TABLE `card`
 -- AUTO_INCREMENT for table `card`
 --
 ALTER TABLE `card`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- Constraints for dumped tables
@@ -89,7 +99,7 @@ ALTER TABLE `card`
 -- Constraints for table `card`
 --
 ALTER TABLE `card`
-    ADD CONSTRAINT `card_ibfk_1` FOREIGN KEY (`primaryMaterialId`) REFERENCES `card` (`id`),
+  ADD CONSTRAINT `card_ibfk_1` FOREIGN KEY (`primaryMaterialId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_2` FOREIGN KEY (`secondaryMaterialId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_3` FOREIGN KEY (`tertiaryMaterialId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_4` FOREIGN KEY (`countsAsId`) REFERENCES `card` (`id`),
