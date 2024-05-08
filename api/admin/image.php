@@ -5,11 +5,16 @@ use system\Database;
 header('Content-Type: application/json');
 
 include("../../system/Database.php");
+include("../../system/User.php");
 
 const ASSETS_PATH = "../../../setta-assets/";
 function postImage(Database $database): string
 {
-    $expansionId = $database->getIntParam('expansionId');
+    $user = $database->getUser();
+    if (!$user) {
+        return $database->responseUnauthorized();
+    }
+
     $imageName = $database->getStringParam('imageName');
     $imageMime = $database->getStringParam('imageMime');
     $base64String = $database->getRawStringParam('base64String');
@@ -20,7 +25,7 @@ function postImage(Database $database): string
     }
 
     $imageData = base64_decode($base64String);
-    $fullSizePath = ASSETS_PATH . 'card-art/' . $expansionId . '/';
+    $fullSizePath = ASSETS_PATH . 'card-art/' . $user->getId() . '/';
     if (!file_exists($fullSizePath)) {
         mkdir($fullSizePath, 0777, true);
     }
@@ -43,7 +48,7 @@ function postImage(Database $database): string
     $smallImg = imagescale($img, 256, 256);
 
     // Prepare the path for small-sized images
-    $smallPath = ASSETS_PATH . 'small-art/' . $expansionId . '/';
+    $smallPath = ASSETS_PATH . 'small-art/' . $user->getId() . '/';
     if (!file_exists($smallPath)) {
         mkdir($smallPath, 0777, true);
     }

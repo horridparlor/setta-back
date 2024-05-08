@@ -191,13 +191,52 @@ class Database
         return json_encode($json);
     }
 
-    public static function responseNotFound(): string {
+    public static function responseNotFound(array $json): string {
         http_response_code(204);
-        return "";
+        return json_encode($json);
     }
 
     public static function responseUnsupported(array $json): string {
         http_response_code(415);
         return json_encode($json);
+    }
+
+    public static function responseUnauthorized(array $json = array(
+        'error' => 'Please authenticate'
+    )): string {
+        http_response_code(401);
+        return json_encode($json);
+    }
+
+    public function getUser(): User|null {
+        $headers = apache_request_headers();
+        $authHeader = $headers["Authorization"] ?? $headers["authorization"] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? null;
+
+        $token = null;
+        if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+            $token = $matches[1];
+        }
+        if (!$token) {
+            return null;
+        }
+        $sql = <<<SQL
+            SELECT
+                user.id id,
+                username,
+                isAdmin
+            FROM authToken
+            JOIN user
+                ON user.id = authToken.userId
+            WHERE token = :token
+            AND expiration > NOW();
+        SQL;
+        $replacements = array(
+            'token' => ['value' => $token, 'type' => \PDO::PARAM_STR],
+        );
+        $user = self::query($sql, $replacements);
+        if (!sizeof($user)) {
+            return null;
+        }
+        return new User(intval($user[0]['id']), $user[0]['username'], boolval($user[0]['isAdmin']));
     }
 }

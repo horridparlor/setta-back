@@ -5,9 +5,15 @@ use system\Database;
 header('Content-Type: application/json');
 
 include("../../system/Database.php");
+include("../../system/User.php");
 
 function postCard(Database $database): string
 {
+    $user = $database->getUser();
+    if (!$user) {
+        return $database->responseUnauthorized();
+    }
+
     $cardName = $database->getStringParam('cardName');
     $isAce = $database->getBooleanParam('isAce');
     $cardClass = $database->getStringParam('cardClass');
@@ -124,6 +130,11 @@ function postCard(Database $database): string
 
 function putCard(Database $database): string
 {
+    $user = $database->getUser();
+    if (!$user) {
+        return $database->responseUnauthorized();
+    }
+
     $cardId = $database->getIntParam('cardId');
     $cardName = $database->getStringParam('cardName');
     $isAce = $database->getBooleanParam('isAce');
@@ -212,6 +223,11 @@ function putCard(Database $database): string
 
 function deleteCard(Database $database): string
 {
+    $user = $database->getUser();
+    if (!$user) {
+        return $database->responseUnauthorized();
+    }
+
     $cardId = $database->getIntParam('cardId');
     $sql = <<<SQL
         UPDATE card
