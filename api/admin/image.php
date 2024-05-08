@@ -55,7 +55,7 @@ function postImage(Database $database): string
     imagedestroy($smallImg);
 
     return $database->responseSuccess(array(
-        'imagePath' => './images/' . $imageName . '.png',
+        'imagePath' => ASSETS_PATH . 'card-art/' . $imageName . '.png',
     ));
 }
 
