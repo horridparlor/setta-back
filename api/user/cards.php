@@ -5,12 +5,16 @@ use system\Database;
 header('Content-Type: application/json');
 
 include("../../system/Database.php");
+include("../../system/User.php");
 
 function getCards(Database $database): string
 {
+    $user = $database->getUser();
+
     $sql = <<<SQL
         SELECT
             card.id cardId,
+            userId ownerId,
             cardName,
             isAce,
             cardClass.name cardClass,
@@ -36,6 +40,8 @@ function getCards(Database $database): string
             effectsSize,
             expansionId
         FROM card
+        JOIN user
+            ON user.id = card.userId
         JOIN cardClass
             ON cardClass.id = card.cardClassId
         JOIN cardType
@@ -48,7 +54,21 @@ function getCards(Database $database): string
             ON maximumPiece.id = card.maximumPieceId
         WHERE card.isDeleted = 0
     SQL;
-    $cards = $database->query($sql);
+    $replacements = array();
+    if (!$user) {
+        $sql .= <<<SQL
+            AND user.isAdmin = 1
+        SQL;
+    } elseif (!$user->isAdmin()) {
+        $sql .= <<<SQL
+            AND (
+                user.isAdmin = 1
+                OR user.id = :userId
+            )
+        SQL;
+        $replacements['userId'] = ['value' => $user->getId(), 'type' => PDO::PARAM_INT];
+    }
+    $cards = $database->query($sql, $replacements);
     return $database->responseSuccess(array(
         'countOfCards' => count($cards),
         'cards' => $cards,

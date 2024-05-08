@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 07, 2024 at 03:17 PM
+-- Generation Time: May 09, 2024 at 01:37 AM
 -- Server version: 10.6.17-MariaDB-cll-lve
 -- PHP Version: 8.1.27
 
@@ -29,6 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `card` (
                         `id` int(11) NOT NULL,
+                        `userId` int(11) NOT NULL,
                         `cardName` varchar(32) NOT NULL,
                         `isAce` tinyint(4) NOT NULL,
                         `cardClassId` int(11) NOT NULL,
@@ -60,11 +61,35 @@ CREATE TABLE `card` (
 -- Dumping data for table `card`
 --
 
-INSERT INTO `card` (`id`, `cardName`, `isAce`, `cardClassId`, `cardTypeId`, `subtypeId`, `supertypeId`, `maximumPieceId`, `level`, `atk`, `def`, `primaryMaterialId`, `secondaryMaterialId`, `tertiaryMaterialId`, `costText`, `effectText`, `flavourText`, `countsAsId`, `artScale`, `artXOffset`, `artYOffset`, `nameSize`, `materialsSize`, `effectsSize`, `expansionId`, `isDeleted`) VALUES
-                                                                                                                                                                                                                                                                                                                                                                                              (15, 'Undead Catalyst', 0, 4, 1, 4, 1, 1, 6, 1800, 200, 17, 18, NULL, '', '', 'Welcome the slime titan! If someone licks his juice, he turns them into a capybara.', NULL, 4, 0, 13, 2, 3, 5, 2, 0),
-                                                                                                                                                                                                                                                                                                                                                                                              (16, 'Hammer Waifu', 0, 2, 1, 2, 1, 1, 3, 1200, 0, NULL, NULL, NULL, 'Discard a card.{i}Hand{/i}', 'Target monster loses {sb}200{/sb} {b}atk{/b}.{i}All stat changes only last until the end of the turn{/i}', '', NULL, 0, 0, 3, 4, 5, 5, 1, 0),
-                                                                                                                                                                                                                                                                                                                                                                                              (17, '{i}The{/i}Guildmaster', 0, 4, 1, 2, 1, 1, 7, 2100, 0, NULL, NULL, NULL, 'Mill {sb}2{/sb}.{i}From your deck{/i}', 'Gains {sb}400{/sb} {b}atk{/b} for each level-{sb}5{/sb} and {sb}higher{/sb} {sb}normal{/sb} {b}Slime{/b} in your grave.{i}Yellow{/i}', '', NULL, 0, 0, 0, 3, 5, 5, 2, 0),
-                                                                                                                                                                                                                                                                                                                                                                                              (18, 'Pitch-Black Ooze', 0, 4, 1, 1, 1, 1, 5, 1300, 0, NULL, NULL, NULL, '', '', 'Monsters so black that everyone fears them. They eat all the light, making them even darker than yo\' asshole.', NULL, 1, 0, 14, 2, 5, 5, 1, 0);
+INSERT INTO `card` (`id`, `userId`, `cardName`, `isAce`, `cardClassId`, `cardTypeId`, `subtypeId`, `supertypeId`, `maximumPieceId`, `level`, `atk`, `def`, `primaryMaterialId`, `secondaryMaterialId`, `tertiaryMaterialId`, `costText`, `effectText`, `flavourText`, `countsAsId`, `artScale`, `artXOffset`, `artYOffset`, `nameSize`, `materialsSize`, `effectsSize`, `expansionId`, `isDeleted`) VALUES
+                                                                                                                                                                                                                                                                                                                                                                                                        (15, 1, 'Undead Catalyst', 0, 4, 1, 4, 1, 1, 6, 1800, 200, 17, 18, NULL, '', '', 'Welcome the slime titan! If someone licks his juice, he turns them into a capybara.', NULL, 4, 0, 13, 2, 3, 5, 2, 0),
+                                                                                                                                                                                                                                                                                                                                                                                                        (16, 1, 'Hammer Waifu', 0, 2, 1, 2, 1, 1, 3, 1200, 0, NULL, NULL, NULL, 'Discard a card.{i}Hand{/i}', 'Target monster loses {sb}200{/sb} {b}atk{/b}.{i}All stat changes only last until the end of the turn{/i}', '', NULL, 0, 0, 3, 4, 5, 5, 1, 0),
+                                                                                                                                                                                                                                                                                                                                                                                                        (17, 1, '{i}The{/i}Guildmaster', 0, 4, 1, 2, 1, 1, 7, 2100, 0, NULL, NULL, NULL, 'Mill {sb}2{/sb}.{i}From your deck{/i}', 'Gains {sb}400{/sb} {b}atk{/b} for each level-{sb}5{/sb} and {sb}higher{/sb} {sb}normal{/sb} {b}Slime{/b} in your grave.{i}Yellow{/i}', '', NULL, 0, 0, 0, 3, 5, 5, 2, 0),
+                                                                                                                                                                                                                                                                                                                                                                                                        (18, 1, 'Pitch-Black Ooze', 0, 4, 1, 1, 1, 1, 5, 1300, 0, NULL, NULL, NULL, '', '', 'Monsters so black that everyone fears them. They eat all the light, making them even darker than yo\' asshole.', NULL, 1, 0, 14, 2, 5, 5, 1, 0),
+(19, 1, 'Cute Lady Anis', 0, 3, 1, 2, 1, 1, 6, 1600, 1600, NULL, NULL, NULL, 'None.{i}Tribute 1 monster to summon a level-5 or 6{/i}', 'Deal {sb}600{/sb} damage.{i}Opponent loses 600 life{/i}', '', NULL, 3, 9, 0, 4, 5, 5, 1, 0),
+(20, 1, 'Apocalypse!', 0, 1, 3, 1, 1, 1, 1, 0, 0, NULL, NULL, NULL, 'Level-{sb}7{/sb} or {sb}8{/sb} attacks.', 'Reborn a {sb}normal{/sb} {b}Zombie{/b}.{i}Traps can only be used on the opponent\'s turn{/i}', '', NULL, 0, 0, 0, 4, 5, 5, 1, 0),
+                                                                                                                                                                                                                                                                                                                                                                                                        (21, 1, 'Fernir\'s Curse', 0, 6, 1, 1, 1, 1, 5, 1700, 0, NULL, NULL, NULL, '', '', 'It has fangs so sharp that it can bite panties off highschool girls without them even noticing the rising wind.', NULL, 4, 9, 6, 4, 5, 5, 1, 0),
+(22, 1, 'Pet of Misery', 0, 6, 1, 1, 1, 1, 2, 200, 1200, NULL, NULL, NULL, '', '', 'Dan got depressed after reincarnating as a pidgeon in a zombie apocalypse where cute girls are long since dead.', NULL, 0, 0, 0, 4, 5, 5, 1, 0),
+(23, 1, 'Furry Chicken', 0, 6, 1, 3, 1, 1, 7, 2100, 0, 21, 22, NULL, 'None.{i}This is a Fusion{/i}', 'Opponent discards their hand.{i}All cards in their hand{/i}', '', NULL, 2, 2, 0, 4, 4, 5, 1, 0),
+(24, 1, 'Venom Pit', 0, 1, 3, 1, 1, 1, 1, 0, 0, NULL, NULL, NULL, 'Summons a level-{sb}2{/sb} or {sb}lower{/sb}; pay {sb}500{/sb}.{i}Life points when opponent summons{/i}', 'Destroy it.{i}To grave{/i}', '', NULL, 3, 8, 8, 4, 5, 5, 1, 0),
+(25, 1, 'Greedy Treasure', 0, 1, 2, 1, 1, 1, 1, 0, 0, NULL, NULL, NULL, 'You control {sb}2{/sb} level-{sb}2{/sb} {sb}normal{/sb} monsters.{i}Face-up{/i}', 'Draw {sb}2{/sb} cards.{i}Place 2 cards from your deck to hand{/i}', '', NULL, 5, 12, 15, 2, 5, 5, 1, 0),
+(26, 1, 'Sugar Bomb', 0, 1, 3, 1, 1, 1, 1, 0, 0, NULL, NULL, NULL, 'Attacks.{i}Opponent does{/i}', 'Opponent mills {sb}3{/sb}.{i}They send cards from the top of their deck to their grave{/i}', '', NULL, 6, 13, 14, 4, 5, 5, 1, 0),
+(27, 1, 'Mariam, Sheep', 0, 3, 1, 1, 1, 1, 1, 100, 1100, NULL, NULL, NULL, '', '', 'She travelled half the world to find her best friend, Benny the horse. But Benny was not a little boy anymore, oh no...', NULL, 3, 6, 7, 4, 5, 5, 1, 0),
+(28, 1, 'Dotted Alive', 0, 6, 1, 2, 1, 1, 2, 1100, 0, NULL, NULL, NULL, 'Mill {sb}2{/sb}.{i}From your deck{/i}', 'Counts as {sb}2{/sb} tributes for a level-{sb}7{/sb} {b}Zombie{/b} with {sb}0{/sb} {b}def{/b}.{i}During this turn{/i}', '', NULL, 2, 6, 5, 4, 5, 5, 1, 0),
+(29, 1, 'Dotted Alive', 0, 6, 1, 2, 1, 1, 2, 1100, 0, NULL, NULL, NULL, 'Mill {sb}2{/sb}.{i}From your deck{/i}', 'Counts as {sb}2{/sb} tributes for a level-{sb}7{/sb} {b}Zombie{/b} with {sb}0{/sb} {b}def{/b}.{i}During this turn{/i}', '', NULL, 0, 0, 0, 4, 5, 5, 1, 1),
+(30, 1, 'Fallen Mantista', 0, 6, 1, 2, 1, 1, 7, 1900, 0, NULL, NULL, NULL, 'Mill {sb}2{/sb}{i}From your deck{/i}', 'Reborn a {sb}normal{/sb} {b}Zombie{/b} with {sb}0{/sb} {b}def{/b}. It gains {sb}1000{/sb} {b}atk{/b}.{i}From your grave{/i}', '', NULL, 0, 0, 0, 4, 5, 5, 1, 0),
+(31, 1, 'Time to Isekai!', 1, 1, 3, 1, 1, 1, 1, 0, 0, NULL, NULL, NULL, 'Level-{sb}6{/sb} or {sb}7{/sb} attacks.', 'Destroy it. Opponent reveals {sb}top{/sb} card, and {sb}may{/sb} summon it.{i}Of their deck{/i}', '', NULL, 1, 5, 1, 4, 5, 5, 1, 0),
+(32, 1, 'Thousand-Fold', 0, 6, 1, 1, 1, 1, 4, 1300, 0, NULL, NULL, NULL, '', '', 'Giant sea urchins love to eat mermaids from bottom up. If you enjoy tentacles, then wait what you can do with spikes...', NULL, 4, 11, 11, 4, 5, 5, 1, 0),
+(33, 1, 'Spawn of Evil', 0, 6, 1, 1, 1, 1, 5, 2300, 0, NULL, NULL, NULL, '', '', 'From the infernos rose a man with a mission, to have his revenge on the n**ger who never read. Read n**ga, read!', NULL, 8, 15, 6, 4, 5, 5, 1, 0),
+(34, 1, 'Poison Scales', 0, 6, 1, 1, 1, 1, 2, 900, 300, NULL, NULL, NULL, '', '', 'These snakes hunt ogres at the swamp, their scales blown up from all the times they were used as balloons.', NULL, 0, 0, 0, 4, 5, 5, 1, 0),
+(35, 1, 'Fallen in Death', 0, 6, 1, 1, 1, 1, 3, 1100, 300, NULL, NULL, NULL, '', '', 'They say that naughty girls who fall in love with pirates, get cursed to live an eternity as mermaids with them.', NULL, 5, 10, 8, 4, 5, 5, 1, 0),
+(36, 1, 'Giant Blue Ogre', 0, 6, 1, 1, 1, 1, 7, 2100, 0, NULL, NULL, NULL, '', '', 'Their skin became blue after the ogres inhaled all the nitrogen in the air, beginning the zombie apocalypse.', NULL, 1, 3, 0, 3, 5, 5, 1, 0),
+(37, 1, 'Grandson\'s Fate', 0, 1, 3, 1, 1, 1, 1, 0, 0, NULL, NULL, NULL, 'Level-{sb}7{/sb} or {sb}lower{/sb} attacks.', 'Attacker loses {sb}100{/sb} {b}atk{/b} for each card with same {sb}class{/sb} in their grave.{i}Opponent\'s{/i}', '', NULL, 0, 0, 0, 3, 5, 5, 1, 0),
+(38, 1, 'Evolved Hydra', 0, 6, 1, 3, 1, 1, 7, 2000, 300, 36, 34, NULL, 'Mill {sb}1{/sb}.{i}From your deck{/i}', 'Gains {sb}200{/sb} {b}atk{/b} for each {sb}normal{/sb} {b}Zombie{/b} in your grave.', '', NULL, 2, 6, 0, 4, 3, 5, 1, 0),
+(39, 1, 'Insect Priestess', 0, 6, 1, 3, 1, 1, 7, 2600, 0, 30, 28, NULL, 'Summoned {sb}this{/sb} turn; you have {sb}10{/sb} {b}Zombies{/b} in grave.', 'Retrieve a {b}Spell{/b}.{i}Grave{/i}', '', NULL, 6, 18, 5, 3, 4, 5, 1, 0),
+(40, 1, 'Spinal Urchin', 0, 6, 1, 3, 1, 1, 5, 1600, 300, 32, 35, NULL, 'Reshuffle a {b}Zombie{/b}.{i}Shuffle from grave to deck{/i}', 'Opponent mills {sb}3{/sb}.', '', NULL, 3, 6, 1, 4, 3, 5, 1, 0),
+(41, 1, 'wqeqwe', 0, 1, 1, 3, 1, 1, 1, 0, 0, NULL, NULL, NULL, '', '', '', NULL, 0, 0, 0, 4, 5, 5, 1, 1),
+(42, 1, '11222222', 0, 1, 1, 3, 1, 1, 1, 0, 0, NULL, NULL, NULL, '', '', '', NULL, 0, 0, 0, 4, 5, 5, 1, 1);
 
 --
 -- Indexes for dumped tables
@@ -79,7 +104,8 @@ ALTER TABLE `card`
   ADD KEY `secondaryMaterialId` (`secondaryMaterialId`),
   ADD KEY `tertiaryMaterialId` (`tertiaryMaterialId`),
   ADD KEY `countsAsId` (`countsAsId`),
-  ADD KEY `expansionId` (`expansionId`);
+  ADD KEY `expansionId` (`expansionId`),
+  ADD KEY `userId` (`userId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -89,7 +115,7 @@ ALTER TABLE `card`
 -- AUTO_INCREMENT for table `card`
 --
 ALTER TABLE `card`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=43;
 
 --
 -- Constraints for dumped tables
@@ -103,7 +129,8 @@ ALTER TABLE `card`
   ADD CONSTRAINT `card_ibfk_2` FOREIGN KEY (`secondaryMaterialId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_3` FOREIGN KEY (`tertiaryMaterialId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_4` FOREIGN KEY (`countsAsId`) REFERENCES `card` (`id`),
-  ADD CONSTRAINT `card_ibfk_5` FOREIGN KEY (`expansionId`) REFERENCES `expansion` (`id`);
+  ADD CONSTRAINT `card_ibfk_5` FOREIGN KEY (`expansionId`) REFERENCES `expansion` (`id`),
+  ADD CONSTRAINT `card_ibfk_6` FOREIGN KEY (`userId`) REFERENCES `user` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

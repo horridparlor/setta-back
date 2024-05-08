@@ -1,6 +1,7 @@
 <?php
 
 use system\Database;
+use system\User;
 
 header('Content-Type: application/json');
 
@@ -40,6 +41,7 @@ function postCard(Database $database): string
     $expansionId = $database->getIntParam('expansionId');
     $sql = <<<SQL
         INSERT INTO card (
+            userId,
             cardName,
             isAce,
             cardClassId,
@@ -67,6 +69,7 @@ function postCard(Database $database): string
             isDeleted
         )
         VALUES (
+            :userId,
             :cardName,
             :isAce,
             (SELECT id FROM cardClass WHERE name = :cardClass),
@@ -95,6 +98,7 @@ function postCard(Database $database): string
         );
     SQL;
     $replacements = array(
+        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
         'isAce' => ['value' => $isAce, 'type' => PDO::PARAM_INT],
         'cardClass' => ['value' => $cardClass, 'type' => PDO::PARAM_STR],
@@ -128,14 +132,31 @@ function postCard(Database $database): string
     ));
 }
 
+function hasAccessToCard(int $cardId, User $user, Database $database): bool {
+    $sql = <<<SQL
+        SELECT userId
+        FROM card
+        WHERE id = :id
+    SQL;
+    $replacements = array(
+        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT]
+    );
+    $result = $database->query($sql, $replacements);
+    return sizeof($result) && $result[0]['userId'] == $user->getId();
+}
+
 function putCard(Database $database): string
 {
     $user = $database->getUser();
+    $cardId = $database->getIntParam('cardId');
     if (!$user) {
         return $database->responseUnauthorized();
+    } elseif (!$user->isAdmin() && !hasAccessToCard($cardId, $user, $database)) {
+        return $database->responseUnauthorized(array(
+            'error' => 'You do not own this card.'
+        ));
     }
 
-    $cardId = $database->getIntParam('cardId');
     $cardName = $database->getStringParam('cardName');
     $isAce = $database->getBooleanParam('isAce');
     $cardClass = $database->getStringParam('cardClass');
@@ -160,6 +181,7 @@ function putCard(Database $database): string
     $materialsSize = $database->getIntParam('materialsSize');
     $effectsSize = $database->getIntParam('effectsSize');
     $expansionId = $database->getIntParam('expansionId');
+
     $sql = <<<SQL
         UPDATE card SET
             cardName = :cardName,
@@ -224,11 +246,15 @@ function putCard(Database $database): string
 function deleteCard(Database $database): string
 {
     $user = $database->getUser();
+    $cardId = $database->getIntParam('cardId');
     if (!$user) {
         return $database->responseUnauthorized();
+    } elseif (!$user->isAdmin() && !hasAccessToCard($cardId, $user, $database)) {
+        return $database->responseUnauthorized(array(
+            'error' => 'You do not own this card.'
+        ));
     }
 
-    $cardId = $database->getIntParam('cardId');
     $sql = <<<SQL
         UPDATE card
         SET isDeleted = 1

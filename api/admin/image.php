@@ -15,6 +15,7 @@ function postImage(Database $database): string
         return $database->responseUnauthorized();
     }
 
+    $ownerId = $database->getIntParam('ownerId');
     $imageName = $database->getStringParam('imageName');
     $imageMime = $database->getStringParam('imageMime');
     $base64String = $database->getRawStringParam('base64String');
@@ -25,7 +26,7 @@ function postImage(Database $database): string
     }
 
     $imageData = base64_decode($base64String);
-    $fullSizePath = ASSETS_PATH . 'card-art/' . $user->getId() . '/';
+    $fullSizePath = ASSETS_PATH . 'card-art/' . $ownerId . '/';
     if (!file_exists($fullSizePath)) {
         mkdir($fullSizePath, 0777, true);
     }
@@ -48,7 +49,7 @@ function postImage(Database $database): string
     $smallImg = imagescale($img, 256, 256);
 
     // Prepare the path for small-sized images
-    $smallPath = ASSETS_PATH . 'small-art/' . $user->getId() . '/';
+    $smallPath = ASSETS_PATH . 'small-art/' . $ownerId . '/';
     if (!file_exists($smallPath)) {
         mkdir($smallPath, 0777, true);
     }
