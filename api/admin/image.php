@@ -18,15 +18,22 @@ function postImage(Database $database): string
     if ($imageMime === 'image/webp') {
         $fileExtension = 'webp';
     }
+
     $imageData = base64_decode($base64String);
-    $fullfSizePath = ASSETS_PATH . 'card-art/' . $expansionId . '/' . $imageName . '.' . $fileExtension;
-    file_put_contents($fullfSizePath, $imageData);
+    $fullSizePath = ASSETS_PATH . 'card-art/' . $expansionId . '/';
+    if (!file_exists($fullSizePath)) {
+        mkdir($fullSizePath, 0777, true);
+    }
+    $fullSizePath .= $imageName . '.' . $fileExtension;
+
+    file_put_contents($fullSizePath, $imageData);
+
     switch ($fileExtension) {
         case 'png':
-            $img = imagecreatefrompng($fullfSizePath);
+            $img = imagecreatefrompng($fullSizePath);
             break;
         case 'webp':
-            $img = imagecreatefromwebp($fullfSizePath);
+            $img = imagecreatefromwebp($fullSizePath);
             break;
         default:
             return $database->responseUnsupported(array(
@@ -35,7 +42,13 @@ function postImage(Database $database): string
     }
     $smallImg = imagescale($img, 256, 256);
 
-    $smallPath = ASSETS_PATH . 'small-art/' . $expansionId . '/' . $imageName . '.png';
+    // Prepare the path for small-sized images
+    $smallPath = ASSETS_PATH . 'small-art/' . $expansionId . '/';
+    if (!file_exists($smallPath)) {
+        mkdir($smallPath, 0777, true);
+    }
+    $smallPath .= $imageName . '.png';
+
     imagepng($smallImg, $smallPath);
 
     imagedestroy($img);
@@ -45,6 +58,7 @@ function postImage(Database $database): string
         'imagePath' => './images/' . $imageName . '.png',
     ));
 }
+
 
 
 $database = new Database();
