@@ -15,6 +15,8 @@ function getCards(Database $database): string
         SELECT
             card.id cardId,
             userId ownerId,
+            user.firstname ownerFirstname,
+            user.lastname ownerLastname,
             cardName,
             isAce,
             cardClass.name cardClass,
@@ -42,6 +44,8 @@ function getCards(Database $database): string
         FROM card
         JOIN user
             ON user.id = card.userId
+        JOIN expansion
+            ON expansion.id = card.expansionId
         JOIN cardClass
             ON cardClass.id = card.cardClassId
         JOIN cardType
@@ -57,12 +61,12 @@ function getCards(Database $database): string
     $replacements = array();
     if (!$user) {
         $sql .= <<<SQL
-            AND user.isAdmin = 1
+            AND (user.isAdmin = 1 AND expansion.isReleased = 1)
         SQL;
     } elseif (!$user->isAdmin()) {
         $sql .= <<<SQL
             AND (
-                user.isAdmin = 1
+                (user.isAdmin = 1 AND expansion.isReleased = 1 )
                 OR user.id = :userId
             )
         SQL;

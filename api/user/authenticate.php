@@ -11,7 +11,7 @@ function authenticate(Database $database): string
     $username = $database->getStringParam('username');
     $password = $database->getStringParam('password');
     $sql = <<<SQL
-        SELECT id, passwordHash
+        SELECT id, firstname, lastname, passwordHash
         FROM user
         WHERE username = :username
     SQL;
@@ -34,7 +34,8 @@ function authenticate(Database $database): string
     $token = bin2hex(random_bytes(16));
     $expiration = time() + 24 * 3600;
     $expirationDate = date('Y-m-d H:i:s', $expiration);
-    $userId = $user[0]['id'];
+    $user = $user[0];
+    $userId = $user['id'];
     $sql = <<<SQL
         INSERT INTO authToken ( 
             userId,
@@ -55,7 +56,9 @@ function authenticate(Database $database): string
 
     return $database->responseSuccess(array(
         'authToken' => $token,
-        'userId' => $userId
+        'userId' => $userId,
+        'firstname' => $user['firstname'],
+        'lastname' => $user['lastname'],
     ));
 }
 
