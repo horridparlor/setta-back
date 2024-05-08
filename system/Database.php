@@ -186,4 +186,9 @@ class Database
         http_response_code(204);
         return "";
     }
+
+    public static function responseUnsupported(array $json): string {
+        http_response_code(415);
+        return json_encode($json);
+    }
 }
