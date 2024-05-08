@@ -109,6 +109,15 @@ class Database
         return urldecode($value);
     }
 
+    public function getRawStringParam(string $id, mixed $default = null)
+    {
+        $value = $this->params[$id];
+        if (is_null($value)) {
+            return $default;
+        }
+        return $this->params[$id];
+    }
+
     public function getBooleanParam(string $id, mixed $default = null)
     {
         $value = $this->params[$id];

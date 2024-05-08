@@ -12,7 +12,7 @@ function postImage(Database $database): string
     $expansionId = $database->getIntParam('expansionId');
     $imageName = $database->getStringParam('imageName');
     $imageMime = $database->getStringParam('imageMime');
-    $base64String = $database->getStringParam('base64String');
+    $base64String = $database->getRawStringParam('base64String');
 
     $fileExtension = 'png';
     if ($imageMime === 'image/webp') {
