@@ -7,6 +7,7 @@ header('Content-Type: application/json');
 
 include("../../system/Database.php");
 include("../../system/User.php");
+include("../../system/util/images.php");
 
 function postCard(Database $database): string
 {
@@ -158,6 +159,7 @@ function putCard(Database $database): string
     }
 
     $cardName = $database->getStringParam('cardName');
+    $serializedName = $database->getStringParam('serializedName');
     $isAce = $database->getBooleanParam('isAce');
     $cardClass = $database->getStringParam('cardClass');
     $cardType = $database->getStringParam('cardType');
@@ -209,6 +211,10 @@ function putCard(Database $database): string
             effectsSize = :effectsSize,
             expansionId = :expansionId
         WHERE id = :cardId;
+
+        SELECT userId
+        FROM card
+        WHERE id = :cardId;
     SQL;
     $replacements = array(
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
@@ -237,7 +243,14 @@ function putCard(Database $database): string
         'effectsSize' => ['value' => $effectsSize, 'type' => PDO::PARAM_INT],
         'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT]
     );
-    $database->query($sql, $replacements);
+    $card = $database->query($sql, $replacements);
+    $ownerId = intval($card[0]['userId']);
+
+    $error = updateThumbnail($ownerId, $serializedName, $artScale, $artXOffset, $artYOffset, $database);
+    if (strlen($error)) {
+        return $error;
+    }
+
     return $database->responseSuccess(array(
         'cardId' => $cardId,
     ));
