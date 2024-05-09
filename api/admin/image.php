@@ -8,6 +8,9 @@ include("../../system/Database.php");
 include("../../system/User.php");
 
 const ASSETS_PATH = "../../../setta-assets/";
+const IMAGE_WIDTH = 108;
+const IMAGE_HEIGHT = 96;
+const WIDTH_MULTIPLIER = IMAGE_WIDTH / IMAGE_HEIGHT;
 function postImage(Database $database): string
 {
     $user = $database->getUser();
@@ -18,6 +21,9 @@ function postImage(Database $database): string
     $ownerId = $database->getIntParam('ownerId');
     $imageName = $database->getStringParam('imageName');
     $imageMime = $database->getStringParam('imageMime');
+    $artScale = $database->getFloatParam('artScale');
+    $artXOffset = $database->getFloatParam('artXOffset');
+    $artYOffset = $database->getFloatParam('artYOffset');
     $base64String = $database->getRawStringParam('base64String');
 
     $fileExtension = 'png';
@@ -31,19 +37,33 @@ function postImage(Database $database): string
 
     file_put_contents($fullSizePath, $imageData);
 
-    switch ($fileExtension) {
-        case 'png':
+    switch ($imageMime) {
+        case 'image/png':
             $img = imagecreatefrompng($fullSizePath);
             break;
-        case 'webp':
+        case 'image/webp':
             $img = imagecreatefromwebp($fullSizePath);
             break;
         default:
             return $database->responseUnsupported(array(
-                'error' => 'Unsupported image type: ' . $fileExtension,
+                'error' => 'Unsupported image type: ' . $imageMime,
             ));
     }
-    $smallImg = imagescale($img, 256, 256);
+    $imageWidth = imagesx($img);
+    $imageHeight = imagesy($img);
+    $scaledHeight = (1 + $artScale / 32) * $imageHeight;
+    $actualHeight = $imageHeight / $scaledHeight;
+    $cropRect = array(
+        'x' => $artXOffset,
+        'y' => $artYOffset,
+        'width' => min(WIDTH_MULTIPLIER * $actualHeight + $artXOffset, $imageWidth),
+        'height' => min($actualHeight + $artYOffset, $imageHeight),
+    );
+    $croppedImg = imagecrop($img, $cropRect);
+    if ($croppedImg === FALSE) {
+        $croppedImg = $img;
+    }
+    $smallImg = imagescale($croppedImg, 256, 256);
 
     $smallPath = ASSETS_PATH . 'small-art/' . $ownerId . '/';
     if (!file_exists($smallPath)) {
@@ -54,6 +74,7 @@ function postImage(Database $database): string
     imagepng($smallImg, $smallPath);
 
     imagedestroy($img);
+    imagedestroy($croppedImg);
     imagedestroy($smallImg);
 
     return $database->responseSuccess(array(
