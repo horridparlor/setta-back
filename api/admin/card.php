@@ -136,7 +136,7 @@ function hasAccessToCard(int $cardId, User $user, Database $database): bool {
     $sql = <<<SQL
         SELECT userId
         FROM card
-        WHERE id = :id
+        WHERE id = :cardId
     SQL;
     $replacements = array(
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT]
