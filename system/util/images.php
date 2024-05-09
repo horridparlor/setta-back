@@ -6,7 +6,7 @@ const ASSETS_PATH = "../../../setta-assets/";
 const THUMBNAILS_PATH = "../../../setta-assets/small-art/";
 const FILE_EXTENSION = 'png';
 const PIXELS_PER_REM = 16;
-const OFFSET_MULTIPLIER = 4;
+const OFFSET_MULTIPLIER = 2.275;
 const SCALE_MULTIPLIER = 2;
 const ORIGINAL_SIZE = 1024;
 const RESULT_SIZE = 256;
@@ -48,13 +48,13 @@ function updateThumbnail(
             ));
     }
     $imageScale = 1 + $artScale / (SCALE_MULTIPLIER * PIXELS_PER_REM);
-    $xOffset = OFFSET_MULTIPLIER * $artXOffset * $imageScale;
-    $yOffset = OFFSET_MULTIPLIER * $artYOffset * $imageScale;
+    $xOffset = PIXELS_PER_REM / OFFSET_MULTIPLIER * $artXOffset;
+    $yOffset = PIXELS_PER_REM / OFFSET_MULTIPLIER * $artYOffset;
     $cropRect = array(
         'x' => $xOffset,
         'y' => $yOffset,
-        'width' => $xOffset + ORIGINAL_SIZE / $imageScale,
-        'height' => $yOffset + ORIGINAL_SIZE / $imageScale,
+        'width' => ORIGINAL_SIZE / $imageScale,
+        'height' => ORIGINAL_SIZE / $imageScale,
     );
     $croppedImg = imagecrop($img, $cropRect);
     if ($croppedImg === FALSE) {
