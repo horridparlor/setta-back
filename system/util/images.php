@@ -7,7 +7,9 @@ const THUMBNAILS_PATH = "../../../setta-assets/small-art/";
 const FILE_EXTENSION = 'png';
 const IMAGE_WIDTH = 108;
 const IMAGE_HEIGHT = 96;
-const WIDTH_MULTIPLIER = IMAGE_WIDTH / IMAGE_HEIGHT;
+const PIXELS_PER_REM = 6;
+const HEIGHT_MULTIPLIER = IMAGE_HEIGHT / IMAGE_WIDTH;
+const RESULT_SIZE = 256;
 
 function getFullSizeFolderPath(int $ownerId): string {
     return ASSETS_PATH . 'card-art/' . $ownerId . '/';
@@ -47,19 +49,21 @@ function updateThumbnail(
     }
     $imageWidth = imagesx($img);
     $imageHeight = imagesy($img);
-    $scaledHeight = (1 + $artScale / 24) * $imageHeight;
+    $scaledHeight = (1 + $artScale / (4 * PIXELS_PER_REM)) * $imageHeight;
     $actualHeight = ($imageHeight / $scaledHeight) * $imageHeight;
+    $xOffset = PIXELS_PER_REM * $artXOffset;
+    $yOffset = PIXELS_PER_REM * $artYOffset;
     $cropRect = array(
-        'x' => 6 * $artXOffset,
-        'y' => 6 * $artYOffset,
-        'width' => min(WIDTH_MULTIPLIER * $actualHeight + $artXOffset, $imageWidth),
-        'height' => min($actualHeight + $artYOffset, $imageHeight),
+        'x' => $xOffset,
+        'y' => $yOffset,
+        'width' => min($actualHeight + $xOffset, $imageWidth),
+        'height' => min(HEIGHT_MULTIPLIER * $actualHeight + $yOffset, $imageHeight),
     );
     $croppedImg = imagecrop($img, $cropRect);
     if ($croppedImg === FALSE) {
         $croppedImg = $img;
     }
-    $smallImg = imagescale($croppedImg, 256, 256);
+    $smallImg = imagescale($croppedImg, RESULT_SIZE,  HEIGHT_MULTIPLIER * RESULT_SIZE);
 
     $smallPath = THUMBNAILS_PATH . $ownerId . '/';
     if (!file_exists($smallPath)) {
