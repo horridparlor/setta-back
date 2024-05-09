@@ -5,10 +5,10 @@ use system\Database;
 const ASSETS_PATH = "../../../setta-assets/";
 const THUMBNAILS_PATH = "../../../setta-assets/small-art/";
 const FILE_EXTENSION = 'png';
-const IMAGE_WIDTH = 108;
-const IMAGE_HEIGHT = 96;
-const PIXELS_PER_REM = 8;
-const HEIGHT_MULTIPLIER = IMAGE_HEIGHT / IMAGE_WIDTH;
+const PIXELS_PER_REM = 16;
+const OFFSET_MULTIPLIER = 4;
+const SCALE_MULTIPLIER = 2;
+const ORIGINAL_SIZE = 1024;
 const RESULT_SIZE = 256;
 
 function getFullSizeFolderPath(int $ownerId): string {
@@ -47,24 +47,20 @@ function updateThumbnail(
                 'error' => 'Unsupported image type: ' . $imageMime,
             ));
     }
-    $imageWidth = imagesx($img);
-    $imageHeight = imagesy($img);
-    $imageScale = (1 + $artScale / (4 * PIXELS_PER_REM));
-    $actualHeight = ($imageHeight / ($imageScale * $imageHeight)) * $imageHeight;
-    $actualWidth = ($imageWidth / ($imageScale * $imageWidth)) * $imageWidth * HEIGHT_MULTIPLIER;
-    $xOffset = PIXELS_PER_REM * $artXOffset * $imageScale;
-    $yOffset = PIXELS_PER_REM * $artYOffset * $imageScale * HEIGHT_MULTIPLIER;
+    $imageScale = 1 + $artScale / (SCALE_MULTIPLIER * PIXELS_PER_REM);
+    $xOffset = OFFSET_MULTIPLIER * $artXOffset * $imageScale;
+    $yOffset = OFFSET_MULTIPLIER * $artYOffset * $imageScale;
     $cropRect = array(
         'x' => $xOffset,
         'y' => $yOffset,
-        'width' => min($actualWidth + $xOffset, $imageWidth),
-        'height' => min(HEIGHT_MULTIPLIER * $actualHeight + $yOffset, $imageHeight),
+        'width' => $xOffset + ORIGINAL_SIZE / $imageScale,
+        'height' => $yOffset + ORIGINAL_SIZE / $imageScale,
     );
     $croppedImg = imagecrop($img, $cropRect);
     if ($croppedImg === FALSE) {
         $croppedImg = $img;
     }
-    $smallImg = imagescale($croppedImg, RESULT_SIZE,   RESULT_SIZE);
+    $smallImg = imagescale($croppedImg, RESULT_SIZE, RESULT_SIZE);
 
     $smallPath = THUMBNAILS_PATH . $ownerId . '/';
     if (!file_exists($smallPath)) {
