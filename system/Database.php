@@ -192,7 +192,7 @@ class Database
     }
 
     public static function responseNotFound(array $json): string {
-        http_response_code(204);
+        http_response_code(404);
         return json_encode($json);
     }
 
