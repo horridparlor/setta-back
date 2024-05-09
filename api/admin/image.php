@@ -7,9 +7,6 @@ header('Content-Type: application/json');
 include("../../system/Database.php");
 include("../../system/User.php");
 include("../../system/util/images.php");
-const IMAGE_WIDTH = 108;
-const IMAGE_HEIGHT = 96;
-const WIDTH_MULTIPLIER = IMAGE_WIDTH / IMAGE_HEIGHT;
 
 function postImage(Database $database): string
 {

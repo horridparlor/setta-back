@@ -5,6 +5,9 @@ use system\Database;
 const ASSETS_PATH = "../../../setta-assets/";
 const THUMBNAILS_PATH = "../../../setta-assets/small-art/";
 const FILE_EXTENSION = 'png';
+const IMAGE_WIDTH = 108;
+const IMAGE_HEIGHT = 96;
+const WIDTH_MULTIPLIER = IMAGE_WIDTH / IMAGE_HEIGHT;
 
 function getFullSizeFolderPath(int $ownerId): string {
     return ASSETS_PATH . 'card-art/' . $ownerId . '/';

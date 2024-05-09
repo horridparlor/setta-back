@@ -211,10 +211,6 @@ function putCard(Database $database): string
             effectsSize = :effectsSize,
             expansionId = :expansionId
         WHERE id = :cardId;
-
-        SELECT userId
-        FROM card
-        WHERE id = :cardId;
     SQL;
     $replacements = array(
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
@@ -243,7 +239,18 @@ function putCard(Database $database): string
         'effectsSize' => ['value' => $effectsSize, 'type' => PDO::PARAM_INT],
         'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT]
     );
+    $database->query($sql, $replacements);
+
+    $sql = <<<SQL
+        SELECT userId
+        FROM card
+        WHERE id = :cardId;
+    SQL;
+    $replacements = array(
+        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
+    );
     $card = $database->query($sql, $replacements);
+
     $ownerId = intval($card[0]['userId']);
 
     $error = updateThumbnail($ownerId, $serializedName, $artScale, $artXOffset, $artYOffset, $database);
