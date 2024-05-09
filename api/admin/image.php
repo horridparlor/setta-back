@@ -31,7 +31,18 @@ function postImage(Database $database): string
 
     file_put_contents($fullSizePath, $imageData);
 
-    $img = imagecreatefromwebp($fullSizePath);
+    switch ($fileExtension) {
+        case 'png':
+            $img = imagecreatefrompng($fullSizePath);
+            break;
+        case 'webp':
+            $img = imagecreatefromwebp($fullSizePath);
+            break;
+        default:
+            return $database->responseUnsupported(array(
+                'error' => 'Unsupported image type: ' . $fileExtension,
+            ));
+    }
     $smallImg = imagescale($img, 256, 256);
 
     $smallPath = ASSETS_PATH . 'small-art/' . $ownerId . '/';
