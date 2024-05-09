@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 07, 2024 at 06:22 AM
+-- Generation Time: May 09, 2024 at 12:11 PM
 -- Server version: 10.6.17-MariaDB-cll-lve
--- PHP Version: 8.1.27
+-- PHP Version: 8.1.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -45,7 +45,8 @@ INSERT INTO `expansion` (`id`, `name`, `releaseYear`, `isReleased`) VALUES
                                                                         (4, 'Mini 3', 2024, 1),
                                                                         (5, 'Mini 4', 2024, 1),
                                                                         (6, 'Mini 5', 2024, 1),
-                                                                        (7, 'Set 2', 2024, 1);
+                                                                        (7, 'Set 2', 2024, 1),
+                                                                        (8, 'Unreleased', 2024, 0);
 
 --
 -- Indexes for dumped tables
@@ -66,7 +67,7 @@ ALTER TABLE `expansion`
 -- AUTO_INCREMENT for table `expansion`
 --
 ALTER TABLE `expansion`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

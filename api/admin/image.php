@@ -51,11 +51,11 @@ function postImage(Database $database): string
     }
     $imageWidth = imagesx($img);
     $imageHeight = imagesy($img);
-    $scaledHeight = (1 + $artScale / 32) * $imageHeight;
-    $actualHeight = $imageHeight / $scaledHeight;
+    $scaledHeight = (1 + $artScale / 16) * $imageHeight;
+    $actualHeight = ($imageHeight / $scaledHeight) * $imageHeight;
     $cropRect = array(
-        'x' => $artXOffset,
-        'y' => $artYOffset,
+        'x' => 2 * $artXOffset,
+        'y' => 2 * $artYOffset,
         'width' => min(WIDTH_MULTIPLIER * $actualHeight + $artXOffset, $imageWidth),
         'height' => min($actualHeight + $artYOffset, $imageHeight),
     );
