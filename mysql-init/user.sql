@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 08, 2024 at 10:41 PM
+-- Generation Time: May 09, 2024 at 03:30 AM
 -- Server version: 10.6.17-MariaDB-cll-lve
 -- PHP Version: 8.1.27
 
@@ -28,14 +28,21 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `user` (
-`id` int(11) NOT NULL,
-`username` varchar(16) NOT NULL,
-`email` varchar(32) NOT NULL,
-`firstname` varchar(16) NOT NULL,
-`lastname` varchar(16) NOT NULL,
-`passwordHash` varchar(256) NOT NULL,
-`isAdmin` tinyint(4) NOT NULL
+                        `id` int(11) NOT NULL,
+                        `username` varchar(16) NOT NULL,
+                        `email` varchar(32) NOT NULL,
+                        `firstname` varchar(16) NOT NULL,
+                        `lastname` varchar(16) NOT NULL,
+                        `passwordHash` varchar(256) NOT NULL,
+                        `isAdmin` tinyint(4) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+
+--
+-- Dumping data for table `user`
+--
+
+INSERT INTO `user` (`id`, `username`, `email`, `firstname`, `lastname`, `passwordHash`, `isAdmin`) VALUES
+                                                                                                       (1, 'metaRakuel', 'eero.laine.posti@gmail.com', 'Eero', 'Laine', '$2y$10$hCoF1ZFFh0S6baGWRAlWwOqZvo.k2QjXXan3QfZ4qCRqKno97xrqC', 1);
 
 --
 -- Indexes for dumped tables
@@ -56,7 +63,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
