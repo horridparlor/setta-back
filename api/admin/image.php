@@ -21,9 +21,6 @@ function postImage(Database $database): string
     $base64String = $database->getRawStringParam('base64String');
 
     $fileExtension = 'png';
-    if ($imageMime === 'image/webp') {
-        $fileExtension = 'webp';
-    }
 
     $imageData = base64_decode($base64String);
     $fullSizePath = ASSETS_PATH . 'card-art/' . $ownerId . '/';
@@ -34,21 +31,9 @@ function postImage(Database $database): string
 
     file_put_contents($fullSizePath, $imageData);
 
-    switch ($fileExtension) {
-        case 'png':
-            $img = imagecreatefrompng($fullSizePath);
-            break;
-        case 'webp':
-            $img = imagecreatefromwebp($fullSizePath);
-            break;
-        default:
-            return $database->responseUnsupported(array(
-                'error' => 'Unsupported image type: ' . $fileExtension,
-            ));
-    }
+    $img = imagecreatefromwebp($fullSizePath);
     $smallImg = imagescale($img, 256, 256);
 
-    // Prepare the path for small-sized images
     $smallPath = ASSETS_PATH . 'small-art/' . $ownerId . '/';
     if (!file_exists($smallPath)) {
         mkdir($smallPath, 0777, true);
