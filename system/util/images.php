@@ -39,6 +39,12 @@ function updateThumbnail(
         case 'image/png':
             $img = imagecreatefrompng($fullSizePath);
             break;
+        case 'image/jpeg':
+            $img = imagecreatefromjpeg($fullSizePath);
+            break;
+        case 'image/gif':
+            $img = imagecreatefromgif($fullSizePath);
+            break;
         case 'image/webp':
             $img = imagecreatefromwebp($fullSizePath);
             break;
