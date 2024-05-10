@@ -47,7 +47,7 @@ INSERT INTO `expansion` (`id`, `ownerId`, `name`, `releaseYear`, `isReleased`) V
                                                                                    (5, 1, 'Mini 4', 2024, 1),
                                                                                    (6, 1, 'Mini 5', 2024, 1),
                                                                                    (7, 1, 'Set 2', 2024, 1),
-                                                                                   (8, 1, 'Unreleased', 2024, 0);
+                                                                                   (8, 0, 'Unreleased', 2024, 0);
 
 --
 -- Indexes for dumped tables

@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 09, 2024 at 03:30 AM
+-- Generation Time: May 11, 2024 at 02:33 AM
 -- Server version: 10.6.17-MariaDB-cll-lve
--- PHP Version: 8.1.27
+-- PHP Version: 8.1.28
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -42,7 +42,9 @@ CREATE TABLE `user` (
 --
 
 INSERT INTO `user` (`id`, `username`, `email`, `firstname`, `lastname`, `passwordHash`, `isAdmin`) VALUES
-                                                                                                       (1, 'metaRakuel', 'eero.laine.posti@gmail.com', 'Eero', 'Laine', '$2y$10$hCoF1ZFFh0S6baGWRAlWwOqZvo.k2QjXXan3QfZ4qCRqKno97xrqC', 1);
+                                                                                                       (1, 'metaRakuel', 'eero.laine.posti@gmail.com', 'Eero', 'Laine', '$2y$10$t.H.Gz0ZJ3MB2VLoYa8H0OB5EPSOPH0ySucULCDimOL3hVJz62dPe', 1),
+                                                                                                       (2, 'tuomas', 'munEmail@gmail.com', 'Tuomas', 'Lehtonen', '$2y$10$WVqOKFBlej5hes/CmpauAOG7m6DwFwG6kzSG/8IEuwDWAXu0V1JnW', 0),
+                                                                                                       (3, 'null', 'null', 'null', 'null', 'null', 0);
 
 --
 -- Indexes for dumped tables
@@ -63,7 +65,7 @@ ALTER TABLE `user`
 -- AUTO_INCREMENT for table `user`
 --
 ALTER TABLE `user`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
