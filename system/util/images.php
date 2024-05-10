@@ -6,10 +6,13 @@ const ASSETS_PATH = "../../../setta-assets/";
 const THUMBNAILS_PATH = "../../../setta-assets/small-art/";
 const FILE_EXTENSION = 'png';
 const PIXELS_PER_REM = 16;
-const OFFSET_MULTIPLIER = 4;
+const OFFSET_MULTIPLIER = 0.25;
 const SCALE_MULTIPLIER = 2;
-const ORIGINAL_SIZE = 1024;
-const RESULT_SIZE = 256;
+const IMAGE_WIDTH = 27 * PIXELS_PER_REM;
+const IMAGE_HEIGHT = 24 * PIXELS_PER_REM;
+const WIDTH_MULTIPLIER = IMAGE_WIDTH / IMAGE_HEIGHT;
+const HEIGHT_MULTIPLIER = IMAGE_HEIGHT / IMAGE_WIDTH;
+const RESULT_SCALE = 2.5;
 
 function getFullSizeFolderPath(int $ownerId): string {
     return ASSETS_PATH . 'card-art/' . $ownerId . '/';
@@ -53,20 +56,26 @@ function updateThumbnail(
                 'error' => 'Unsupported image type: ' . $imageMime,
             ));
     }
+    $imageWidth = imagesx($img);
+    $imageHeight = imagesy($img);
+    $originalSize = min($imageWidth, $imageHeight);
+    if ($imageWidth > $imageHeight) {
+        $originalSize = WIDTH_MULTIPLIER * $originalSize;
+    }
     $imageScale = 1 + $artScale / (SCALE_MULTIPLIER * PIXELS_PER_REM);
-    $xOffset = PIXELS_PER_REM / OFFSET_MULTIPLIER * $artXOffset;
-    $yOffset = PIXELS_PER_REM / OFFSET_MULTIPLIER * $artYOffset;
+    $xOffset = $artXOffset * (PIXELS_PER_REM * OFFSET_MULTIPLIER / IMAGE_WIDTH) * $originalSize / $imageScale;
+    $yOffset = $artYOffset * (PIXELS_PER_REM * OFFSET_MULTIPLIER / IMAGE_WIDTH) * $originalSize / $imageScale;
     $cropRect = array(
         'x' => $xOffset,
         'y' => $yOffset,
-        'width' => ORIGINAL_SIZE / $imageScale,
-        'height' => ORIGINAL_SIZE / $imageScale,
+        'width' => $originalSize / $imageScale,
+        'height' => HEIGHT_MULTIPLIER * $originalSize / $imageScale,
     );
     $croppedImg = imagecrop($img, $cropRect);
     if ($croppedImg === FALSE) {
         $croppedImg = $img;
     }
-    $smallImg = imagescale($croppedImg, RESULT_SIZE, RESULT_SIZE);
+    $smallImg = imagescale($croppedImg, RESULT_SCALE * IMAGE_WIDTH, RESULT_SCALE * IMAGE_HEIGHT);
 
     $smallPath = THUMBNAILS_PATH . $ownerId . '/';
     if (!file_exists($smallPath)) {
