@@ -40,9 +40,15 @@ function postCard(Database $database): string
     $materialsSize = $database->getIntParam('materialsSize');
     $effectsSize = $database->getIntParam('effectsSize');
     $expansionId = $database->getIntParam('expansionId');
+
+    $error = hasAccessToExpansion($expansionId, $user, $database);
+    if ($error) {
+        return $error;
+    }
+
     $sql = <<<SQL
         INSERT INTO card (
-            userId,
+            ownerId,
             cardName,
             isAce,
             cardClassId,
@@ -70,7 +76,7 @@ function postCard(Database $database): string
             isDeleted
         )
         VALUES (
-            :userId,
+            :ownerId,
             :cardName,
             :isAce,
             (SELECT id FROM cardClass WHERE name = :cardClass),
@@ -99,7 +105,7 @@ function postCard(Database $database): string
         );
     SQL;
     $replacements = array(
-        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
+        'ownerId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
         'isAce' => ['value' => $isAce, 'type' => PDO::PARAM_INT],
         'cardClass' => ['value' => $cardClass, 'type' => PDO::PARAM_STR],
@@ -133,17 +139,48 @@ function postCard(Database $database): string
     ));
 }
 
-function hasAccessToCard(int $cardId, User $user, Database $database): bool {
+function hasAccessToCard(int $cardId, User $user, Database $database): string|null {
     $sql = <<<SQL
-        SELECT userId
+        SELECT card.ownerId cardOwnerId, expansion.ownerId expansionOwnerId
         FROM card
-        WHERE id = :cardId
+        JOIN expansion
+            ON card.expansionId = expansion.id
+        WHERE card.id = :cardId
     SQL;
     $replacements = array(
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT]
     );
     $result = $database->query($sql, $replacements);
-    return sizeof($result) && $result[0]['userId'] == $user->getId();
+    if (!sizeof($result) || $result[0]['cardOwnerId'] != $user->getId()) {
+        return $database->responseUnauthorized(array(
+            'error' => 'You do not own this card.'
+        ));
+    }
+    $expansionOwnerId = $result[0]['expansionOwnerId'];
+    if ($expansionOwnerId != 0 && $expansionOwnerId != $user->getId()) {
+        return $database->responseUnauthorized(array(
+            'error' => 'The card is moved to an expansion not owned by you.'
+        ));
+    }
+    return null;
+}
+
+function hasAccessToExpansion(int $expansionId, User $user, Database $database): string|null {
+    $sql = <<<SQL
+        SELECT ownerId
+        FROM expansion
+        WHERE id = :expansionId
+    SQL;
+    $replacements = array(
+        'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT],
+    );
+    $expansion = $database->query($sql, $replacements);
+    if (!sizeof($expansion) || ($expansion[0]['ownerId'] != 0 && $expansion[0]['ownerId'] != $user->getId())) {
+        return $database->responseUnauthorized(array(
+            'error' => 'You do not own this expansion.'
+        ));
+    }
+    return null;
 }
 
 function putCard(Database $database): string
@@ -152,11 +189,25 @@ function putCard(Database $database): string
     $cardId = $database->getIntParam('cardId');
     if (!$user) {
         return $database->responseUnauthorized();
-    } elseif (!$user->isAdmin() && !hasAccessToCard($cardId, $user, $database)) {
-        return $database->responseUnauthorized(array(
-            'error' => 'You do not own this card.'
-        ));
+    } elseif (!$user->isAdmin()) {
+        $error = hasAccessToCard($cardId, $user, $database);
+        if ($error) {
+            return $error;
+        }
     }
+
+    $sql = <<<SQL
+        SELECT artScale, artXOffset, artYOffset
+        FROM card
+        WHERE id = :cardId
+    SQL;
+    $replacements = array(
+        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
+    );
+    $oldCard = $database->query($sql, $replacements);
+    $oldArtScale = floatval($oldCard[0]['artScale']);
+    $oldArtXOffset = floatval($oldCard[0]['artXOffset']);
+    $oldArtYOffset = floatval($oldCard[0]['artYOffset']);
 
     $cardName = $database->getStringParam('cardName');
     $serializedName = $database->getStringParam('serializedName');
@@ -183,6 +234,11 @@ function putCard(Database $database): string
     $materialsSize = $database->getIntParam('materialsSize');
     $effectsSize = $database->getIntParam('effectsSize');
     $expansionId = $database->getIntParam('expansionId');
+
+    $error = hasAccessToExpansion($expansionId, $user, $database);
+    if ($error) {
+        return $error;
+    }
 
     $sql = <<<SQL
         UPDATE card SET
@@ -242,20 +298,22 @@ function putCard(Database $database): string
     $database->query($sql, $replacements);
 
     $sql = <<<SQL
-        SELECT userId
+        SELECT ownerId
         FROM card
-        WHERE id = :cardId;
+        WHERE id = :ownerId;
     SQL;
     $replacements = array(
-        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
+        'ownerId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
     );
     $card = $database->query($sql, $replacements);
 
-    $ownerId = intval($card[0]['userId']);
+    $ownerId = intval($card[0]['ownerId']);
 
-    $error = updateThumbnail($ownerId, $serializedName, $artScale, $artXOffset, $artYOffset, $database);
-    if (strlen($error)) {
-        return $error;
+    if ($artScale != $oldArtScale || $artXOffset != $oldArtXOffset || $artYOffset != $oldArtYOffset) {
+        $error = updateThumbnail($ownerId, $serializedName, $artScale, $artXOffset, $artYOffset, $database);
+        if (strlen($error)) {
+            return $error;
+        }
     }
 
     return $database->responseSuccess(array(
@@ -269,10 +327,11 @@ function deleteCard(Database $database): string
     $cardId = $database->getIntParam('cardId');
     if (!$user) {
         return $database->responseUnauthorized();
-    } elseif (!$user->isAdmin() && !hasAccessToCard($cardId, $user, $database)) {
-        return $database->responseUnauthorized(array(
-            'error' => 'You do not own this card.'
-        ));
+    } elseif (!$user->isAdmin()) {
+        $error = hasAccessToCard($cardId, $user, $database);
+        if ($error) {
+            return $error;
+        }
     }
 
     $sql = <<<SQL

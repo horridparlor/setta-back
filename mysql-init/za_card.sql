@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `card` (
                         `id` int(11) NOT NULL,
-                        `userId` int(11) NOT NULL,
+                        `ownerId` int(11) NOT NULL,
                         `cardName` varchar(32) NOT NULL,
                         `isAce` tinyint(4) NOT NULL,
                         `cardClassId` int(11) NOT NULL,
@@ -61,7 +61,7 @@ CREATE TABLE `card` (
 -- Dumping data for table `card`
 --
 
-INSERT INTO `card` (`id`, `userId`, `cardName`, `isAce`, `cardClassId`, `cardTypeId`, `subtypeId`, `supertypeId`, `maximumPieceId`, `level`, `atk`, `def`, `primaryMaterialId`, `secondaryMaterialId`, `tertiaryMaterialId`, `costText`, `effectText`, `flavourText`, `countsAsId`, `artScale`, `artXOffset`, `artYOffset`, `nameSize`, `materialsSize`, `effectsSize`, `expansionId`, `isDeleted`) VALUES
+INSERT INTO `card` (`id`, `ownerId`, `cardName`, `isAce`, `cardClassId`, `cardTypeId`, `subtypeId`, `supertypeId`, `maximumPieceId`, `level`, `atk`, `def`, `primaryMaterialId`, `secondaryMaterialId`, `tertiaryMaterialId`, `costText`, `effectText`, `flavourText`, `countsAsId`, `artScale`, `artXOffset`, `artYOffset`, `nameSize`, `materialsSize`, `effectsSize`, `expansionId`, `isDeleted`) VALUES
                                                                                                                                                                                                                                                                                                                                                                                                         (15, 1, 'Undead Catalyst', 0, 4, 1, 4, 1, 1, 6, 1800, 200, 17, 18, NULL, '', '', 'Welcome the slime titan! If someone licks his juice, he turns them into a capybara.', NULL, 4, 0, 13, 2, 3, 5, 2, 0),
                                                                                                                                                                                                                                                                                                                                                                                                         (16, 1, 'Hammer Waifu', 0, 2, 1, 2, 1, 1, 3, 1200, 0, NULL, NULL, NULL, 'Discard a card.{i}Hand{/i}', 'Target monster loses {sb}200{/sb} {b}atk{/b}.{i}All stat changes only last until the end of the turn{/i}', '', NULL, 0, 0, 3, 4, 5, 5, 1, 0),
                                                                                                                                                                                                                                                                                                                                                                                                         (17, 1, '{i}The{/i}Guildmaster', 0, 4, 1, 2, 1, 1, 7, 2100, 0, NULL, NULL, NULL, 'Mill {sb}2{/sb}.{i}From your deck{/i}', 'Gains {sb}400{/sb} {b}atk{/b} for each level-{sb}5{/sb} and {sb}higher{/sb} {sb}normal{/sb} {b}Slime{/b} in your grave.{i}Yellow{/i}', '', NULL, 0, 0, 0, 3, 5, 5, 2, 0),
@@ -105,7 +105,7 @@ ALTER TABLE `card`
   ADD KEY `tertiaryMaterialId` (`tertiaryMaterialId`),
   ADD KEY `countsAsId` (`countsAsId`),
   ADD KEY `expansionId` (`expansionId`),
-  ADD KEY `userId` (`userId`);
+  ADD KEY `ownerId` (`ownerId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -130,7 +130,7 @@ ALTER TABLE `card`
   ADD CONSTRAINT `card_ibfk_3` FOREIGN KEY (`tertiaryMaterialId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_4` FOREIGN KEY (`countsAsId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_5` FOREIGN KEY (`expansionId`) REFERENCES `expansion` (`id`),
-  ADD CONSTRAINT `card_ibfk_6` FOREIGN KEY (`userId`) REFERENCES `user` (`id`);
+  ADD CONSTRAINT `card_ibfk_6` FOREIGN KEY (`ownerId`) REFERENCES `user` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

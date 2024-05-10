@@ -16,7 +16,6 @@ function changePassword(Database $database): string
 
     $password = $database->getStringParam('password');
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
-    echo $passwordHash;
     $sql = <<<SQL
         UPDATE user
         SET passwordHash = :passwordHash

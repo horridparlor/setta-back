@@ -9,7 +9,7 @@ include("../../system/Database.php");
 function getExpansions(Database $database): string
 {
     $sql = <<<SQL
-        SELECT id, name, releaseYear, isReleased
+        SELECT id, ownerId, name, releaseYear, isReleased
         FROM expansion
     SQL;
     $expansions = $database->query($sql);

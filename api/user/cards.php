@@ -14,9 +14,9 @@ function getCards(Database $database): string
     $sql = <<<SQL
         SELECT
             card.id cardId,
-            userId ownerId,
-            user.firstname ownerFirstname,
-            user.lastname ownerLastname,
+            card.ownerId,
+            cardOwner.firstname ownerFirstname,
+            cardOwner.lastname ownerLastname,
             cardName,
             isAce,
             cardClass.name cardClass,
@@ -42,10 +42,12 @@ function getCards(Database $database): string
             effectsSize,
             expansionId
         FROM card
-        JOIN user
-            ON user.id = card.userId
+        JOIN user cardOwner
+            ON cardOwner.id = card.ownerId
         JOIN expansion
             ON expansion.id = card.expansionId
+        LEFT JOIN user expansionOwner
+            ON expansionOwner.id = expansion.ownerId
         JOIN cardClass
             ON cardClass.id = card.cardClassId
         JOIN cardType
@@ -61,13 +63,14 @@ function getCards(Database $database): string
     $replacements = array();
     if (!$user) {
         $sql .= <<<SQL
-            AND (user.isAdmin = 1 AND expansion.isReleased = 1)
+            AND (expansionOwner.isAdmin = 1 AND expansion.isReleased = 1)
         SQL;
     } elseif (!$user->isAdmin()) {
         $sql .= <<<SQL
             AND (
-                (user.isAdmin = 1 AND expansion.isReleased = 1 )
-                OR user.id = :userId
+                (expansionOwner.isAdmin = 1 AND expansion.isReleased = 1 )
+                OR cardOwner.id = :userId
+                OR expansionOwner.id = :userId
             )
         SQL;
         $replacements['userId'] = ['value' => $user->getId(), 'type' => PDO::PARAM_INT];
