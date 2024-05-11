@@ -44,7 +44,7 @@ CREATE TABLE `user` (
 INSERT INTO `user` (`id`, `username`, `email`, `firstname`, `lastname`, `passwordHash`, `isAdmin`) VALUES
                                                                                                        (1, 'metaRakuel', 'eero.laine.posti@gmail.com', 'Eero', 'Laine', '$2y$10$t.H.Gz0ZJ3MB2VLoYa8H0OB5EPSOPH0ySucULCDimOL3hVJz62dPe', 1),
                                                                                                        (2, 'tuomas', 'munEmail@gmail.com', 'Tuomas', 'Lehtonen', '$2y$10$WVqOKFBlej5hes/CmpauAOG7m6DwFwG6kzSG/8IEuwDWAXu0V1JnW', 0),
-                                                                                                       (3, 'null', 'null', 'null', 'null', 'null', 0);
+                                                                                                       (0, 'null', 'null', 'null', 'null', 'null', 0);
 
 --
 -- Indexes for dumped tables
