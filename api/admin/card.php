@@ -73,7 +73,8 @@ function postCard(Database $database): string
             materialsSize,
             effectsSize,
             expansionId,
-            isDeleted
+            isDeleted,
+            modifiedBy
         )
         VALUES (
             :ownerId,
@@ -101,7 +102,8 @@ function postCard(Database $database): string
             :materialsSize,
             :effectsSize,
             :expansionId,
-            0
+            0,
+            :ownerId
         );
     SQL;
     $replacements = array(
@@ -265,7 +267,8 @@ function putCard(Database $database): string
             nameSize = :nameSize,
             materialsSize = :materialsSize,
             effectsSize = :effectsSize,
-            expansionId = :expansionId
+            expansionId = :expansionId,
+            modifiedBy = :userId
         WHERE id = :cardId;
     SQL;
     $replacements = array(
@@ -293,7 +296,8 @@ function putCard(Database $database): string
         'nameSize' => ['value' => $nameSize, 'type' => PDO::PARAM_INT],
         'materialsSize' => ['value' => $materialsSize, 'type' => PDO::PARAM_INT],
         'effectsSize' => ['value' => $effectsSize, 'type' => PDO::PARAM_INT],
-        'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT]
+        'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT],
+        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
     );
     $database->query($sql, $replacements);
 
@@ -336,11 +340,14 @@ function deleteCard(Database $database): string
 
     $sql = <<<SQL
         UPDATE card
-        SET isDeleted = 1
+        SET
+            isDeleted = 1,
+            modifiedBy = :userId
         WHERE id = :cardId;
     SQL;
     $replacements = array(
-        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT]
+        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
+        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
     );
     $database->query($sql, $replacements);
     return $database->responseSuccess(array(

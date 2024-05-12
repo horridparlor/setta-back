@@ -37,6 +37,8 @@ function authenticate(Database $database): string
     $user = $user[0];
     $userId = $user['id'];
     $sql = <<<SQL
+        DELETE FROM authToken
+        WHERE userId = :userId;
         INSERT INTO authToken ( 
             userId,
             token,
