@@ -4,7 +4,6 @@ use system\Database;
 
 const ASSETS_PATH = "../../../setta-assets/";
 const THUMBNAILS_PATH = "../../../setta-assets/small-art/";
-const FILE_EXTENSION = 'png';
 const PIXELS_PER_REM = 16;
 const OFFSET_MULTIPLIER = 0.25;
 const SCALE_MULTIPLIER = 2;
@@ -18,7 +17,7 @@ function getFullSizeFolderPath(int $ownerId): string {
     return ASSETS_PATH . 'card-art/' . $ownerId . '/';
 }
 function getFullSizePath(int $ownerId, string $imageName): string {
-    return getFullSizeFolderPath($ownerId) . $imageName . '.' . FILE_EXTENSION;
+    return getFullSizeFolderPath($ownerId) . $imageName;
 }
 
 function updateThumbnail(
@@ -83,7 +82,7 @@ function updateThumbnail(
     }
     $smallPath .= $imageName . '.png';
 
-    imagepng($smallImg, $smallPath);
+    imagewebp($smallImg, $smallPath);
 
     imagedestroy($img);
     imagedestroy($croppedImg);
