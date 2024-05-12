@@ -143,7 +143,7 @@ function postCard(Database $database): string
 
 function hasAccessToCard(int $cardId, User $user, Database $database): string|null {
     $sql = <<<SQL
-        SELECT card.ownerId cardOwnerId, expansion.ownerId expansionOwnerId
+        SELECT card.ownerId cardOwnerId, expansion.ownerId expansionOwnerId, expansion.isReleased isReleased
         FROM card
         JOIN expansion
             ON card.expansionId = expansion.id
@@ -163,6 +163,10 @@ function hasAccessToCard(int $cardId, User $user, Database $database): string|nu
         return $database->responseUnauthorized(array(
             'error' => 'The card is moved to an expansion not owned by you.'
         ));
+    } else if (intval($result[0]['isReleased']) == 1) {
+       return $database->responseForbidden(array(
+           'error' => 'Released cards cannot be altered.'
+       ));
     }
     return null;
 }

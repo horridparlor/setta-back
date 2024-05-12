@@ -201,6 +201,11 @@ class Database
         return json_encode($json);
     }
 
+    public static function responseForbidden(array $json): string {
+        http_response_code(403);
+        return json_encode($json);
+    }
+
     public static function responseUnauthorized(array $json = array(
         'error' => 'Please authenticate'
     )): string {
