@@ -153,13 +153,13 @@ function hasAccessToCard(int $cardId, User $user, Database $database): string|nu
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT]
     );
     $result = $database->query($sql, $replacements);
-    if (!sizeof($result) || $result[0]['cardOwnerId'] != $user->getId()) {
+    if (!$user->isAdmin() && (!sizeof($result) || $result[0]['cardOwnerId'] != $user->getId())) {
         return $database->responseUnauthorized(array(
             'error' => 'You do not own this card.'
         ));
     }
     $expansionOwnerId = $result[0]['expansionOwnerId'];
-    if ($expansionOwnerId != 0 && $expansionOwnerId != $user->getId()) {
+    if (!$user->isAdmin() && $expansionOwnerId != 0 && $expansionOwnerId != $user->getId()) {
         return $database->responseUnauthorized(array(
             'error' => 'The card is moved to an expansion not owned by you.'
         ));
@@ -195,11 +195,10 @@ function putCard(Database $database): string
     $cardId = $database->getIntParam('cardId');
     if (!$user) {
         return $database->responseUnauthorized();
-    } elseif (!$user->isAdmin()) {
-        $error = hasAccessToCard($cardId, $user, $database);
-        if ($error) {
-            return $error;
-        }
+    }
+    $error = hasAccessToCard($cardId, $user, $database);
+    if ($error) {
+        return $error;
     }
 
     $sql = <<<SQL
@@ -335,11 +334,10 @@ function deleteCard(Database $database): string
     $cardId = $database->getIntParam('cardId');
     if (!$user) {
         return $database->responseUnauthorized();
-    } elseif (!$user->isAdmin()) {
-        $error = hasAccessToCard($cardId, $user, $database);
-        if ($error) {
-            return $error;
-        }
+    }
+    $error = hasAccessToCard($cardId, $user, $database);
+    if ($error) {
+        return $error;
     }
 
     $sql = <<<SQL
