@@ -40,7 +40,9 @@ function getCards(Database $database): string
             nameSize,
             materialsSize,
             effectsSize,
-            expansionId
+            expansionId,
+            card.created_at,
+            card.updated_at
         FROM card
         JOIN user cardOwner
             ON cardOwner.id = card.ownerId
