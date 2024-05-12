@@ -80,7 +80,7 @@ function updateThumbnail(
     if (!file_exists($smallPath)) {
         mkdir($smallPath, 0777, true);
     }
-    $smallPath .= $imageName . '.png';
+    $smallPath .= $imageName . '.webp';
 
     imagewebp($smallImg, $smallPath);
 
