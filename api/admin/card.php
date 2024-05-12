@@ -173,7 +173,7 @@ function hasAccessToCard(int $cardId, User $user, Database $database): string|nu
 
 function hasAccessToExpansion(int $expansionId, User $user, Database $database): string|null {
     $sql = <<<SQL
-        SELECT ownerId
+        SELECT ownerId, isReleased
         FROM expansion
         WHERE id = :expansionId
     SQL;
@@ -184,6 +184,10 @@ function hasAccessToExpansion(int $expansionId, User $user, Database $database):
     if (!sizeof($expansion) || ($expansion[0]['ownerId'] != 0 && $expansion[0]['ownerId'] != $user->getId())) {
         return $database->responseUnauthorized(array(
             'error' => 'You do not own this expansion.'
+        ));
+    } elseif ($expansion[0]['isReleased'] == 1) {
+        return $database->responseForbidden(array(
+            'error' => 'Released expansion cannot be altered.'
         ));
     }
     return null;
