@@ -18,7 +18,7 @@ function getFullSizeFolderPath(int $ownerId, int $cardId): string {
     if (!file_exists($base)) {
         mkdir($base, 0777, true);
     }
-    return $base . $ownerId . '/';
+    return $base . '/' . $ownerId . '/';
 }
 function getThumbnailFolderPath(int $ownerId, int $cardId): string {
     $base = ASSETS_PATH . 'small-art/' . $cardId . '/';
