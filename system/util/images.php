@@ -92,7 +92,7 @@ function updateThumbnail(
     }
     $smallImg = imagescale($croppedImg, RESULT_SCALE * IMAGE_WIDTH, RESULT_SCALE * IMAGE_HEIGHT);
 
-    $smallPath = THUMBNAILS_PATH . $ownerId . '/';
+    $smallPath = getThumbnailPath($ownerId, $cardId, $imageName);
     if (!file_exists($smallPath)) {
         mkdir($smallPath, 0777, true);
     }
