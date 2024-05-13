@@ -190,6 +190,11 @@ class Database
         http_response_code(200);
         return json_encode($json);
     }
+    public static function responseError(array $json): string {
+        http_response_code(400);
+        return json_encode($json);
+    }
+
 
     public static function responseNotFound(array $json): string {
         http_response_code(404);

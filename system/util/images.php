@@ -16,8 +16,15 @@ const RESULT_SCALE = 2.5;
 function getFullSizeFolderPath(int $ownerId): string {
     return ASSETS_PATH . 'card-art/' . $ownerId . '/';
 }
+function getThumbnailFolderPath(int $ownerId): string {
+    return ASSETS_PATH . 'small-art/' . $ownerId . '/';
+}
 function getFullSizePath(int $ownerId, string $imageName): string {
     return getFullSizeFolderPath($ownerId) . $imageName;
+}
+
+function getThumbnailPath(int $ownerId, string $imageName): string {
+    return getThumbnailFolderPath($ownerId) . $imageName;
 }
 
 function updateThumbnail(
@@ -88,4 +95,26 @@ function updateThumbnail(
     imagedestroy($croppedImg);
     imagedestroy($smallImg);
     return '';
+}
+
+function renameCardArt(string $oldName, string $newName, int $ownerId): string|null {
+    $oldFullSizePath = getFullSizePath($ownerId, $oldName);
+    $newFullSizeName = getFullSizePath($ownerId, $newName);
+    $oldThumbnailPath = getThumbnailPath($ownerId, $oldName);
+    $newThumbnailPath = getThumbnailPath($ownerId, $newName);
+    if (file_exists($oldFullSizePath)) {
+        if (!rename($oldFullSizePath, $newFullSizeName)) {
+            return "Failed to rename full-size image from $oldFullSizePath to $newFullSizeName";
+        }
+    } else {
+       return "Full-size image not found at $oldFullSizePath";
+    }
+    if (file_exists($oldThumbnailPath)) {
+        if (!rename($oldThumbnailPath, $newThumbnailPath)) {
+            return "Failed to rename thumbnail image from $oldThumbnailPath to $newThumbnailPath";
+        }
+    } else {
+        return "Thumbnail image not found at $oldThumbnailPath";
+    }
+    return null;
 }

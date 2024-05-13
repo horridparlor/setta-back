@@ -219,6 +219,7 @@ function putCard(Database $database): string
     $oldArtYOffset = floatval($oldCard[0]['artYOffset']);
 
     $cardName = $database->getStringParam('cardName');
+    $oldSerializedName = $database->getStringParam('oldSerializedName');
     $serializedName = $database->getStringParam('serializedName');
     $isAce = $database->getBooleanParam('isAce');
     $cardClass = $database->getStringParam('cardClass');
@@ -320,6 +321,14 @@ function putCard(Database $database): string
 
     $ownerId = intval($card[0]['ownerId']);
 
+    if ($serializedName != $oldSerializedName) {
+        $errorMessage = renameCardArt($oldSerializedName, $serializedName, $user->getId());
+        if ($errorMessage) {
+            return $database->responseError(array(
+               'error' => $errorMessage,
+            ));
+        }
+    }
     if ($artScale != $oldArtScale || $artXOffset != $oldArtXOffset || $artYOffset != $oldArtYOffset) {
         $error = updateThumbnail($ownerId, $serializedName, $artScale, $artXOffset, $artYOffset, $database);
         if (strlen($error)) {
