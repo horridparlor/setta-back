@@ -24,7 +24,7 @@ function getFullSizePath(int $ownerId, string $imageName): string {
 }
 
 function getThumbnailPath(int $ownerId, string $imageName): string {
-    return getThumbnailFolderPath($ownerId) . $imageName;
+    return getThumbnailFolderPath($ownerId) . $imageName . 'webp';
 }
 
 function updateThumbnail(
