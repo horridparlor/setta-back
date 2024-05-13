@@ -14,10 +14,18 @@ const HEIGHT_MULTIPLIER = IMAGE_HEIGHT / IMAGE_WIDTH;
 const RESULT_SCALE = 2.5;
 
 function getFullSizeFolderPath(int $ownerId, int $cardId): string {
-    return ASSETS_PATH . 'card-art/' . $ownerId . '/';
+    $base = ASSETS_PATH . 'card-art/' . $cardId . '/';
+    if (!file_exists($base)) {
+        mkdir($base, 0777, true);
+    }
+    return $base . $ownerId . '/';
 }
 function getThumbnailFolderPath(int $ownerId, int $cardId): string {
-    return ASSETS_PATH . 'small-art/' . $ownerId . '/';
+    $base = ASSETS_PATH . 'small-art/' . $cardId . '/';
+    if (!file_exists($base)) {
+        mkdir($base, 0777, true);
+    }
+    return $base . '/' . $ownerId . '/';
 }
 function getFullSizePath(int $ownerId, int $cardId, string $imageName): string {
     return getFullSizeFolderPath($ownerId, $cardId) . $imageName;
