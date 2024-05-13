@@ -13,29 +13,30 @@ const WIDTH_MULTIPLIER = IMAGE_WIDTH / IMAGE_HEIGHT;
 const HEIGHT_MULTIPLIER = IMAGE_HEIGHT / IMAGE_WIDTH;
 const RESULT_SCALE = 2.5;
 
-function getFullSizeFolderPath(int $ownerId): string {
+function getFullSizeFolderPath(int $ownerId, int $cardId): string {
     return ASSETS_PATH . 'card-art/' . $ownerId . '/';
 }
-function getThumbnailFolderPath(int $ownerId): string {
+function getThumbnailFolderPath(int $ownerId, int $cardId): string {
     return ASSETS_PATH . 'small-art/' . $ownerId . '/';
 }
-function getFullSizePath(int $ownerId, string $imageName): string {
-    return getFullSizeFolderPath($ownerId) . $imageName;
+function getFullSizePath(int $ownerId, int $cardId, string $imageName): string {
+    return getFullSizeFolderPath($ownerId, $cardId) . $imageName;
 }
 
-function getThumbnailPath(int $ownerId, string $imageName): string {
-    return getThumbnailFolderPath($ownerId) . $imageName . '.webp';
+function getThumbnailPath(int $ownerId, int $cardId, string $imageName): string {
+    return getThumbnailFolderPath($ownerId, $cardId) . $imageName . '.webp';
 }
 
 function updateThumbnail(
     int $ownerId,
+    int $cardId,
     string $imageName,
     float $artScale,
     float $artXOffset,
     float $artYOffset,
     Database $database
 ): string {
-    $fullSizePath = getFullSizePath($ownerId, $imageName);
+    $fullSizePath = getFullSizePath($ownerId, $cardId, $imageName);
     if (!file_exists($fullSizePath)) {
         return $database->responseNotFound(array(
            'error' => 'Full size image not found, cannot make thumbnail'
@@ -97,11 +98,11 @@ function updateThumbnail(
     return '';
 }
 
-function renameCardArt(string $oldName, string $newName, int $ownerId): string|null {
-    $oldFullSizePath = getFullSizePath($ownerId, $oldName);
-    $newFullSizeName = getFullSizePath($ownerId, $newName);
-    $oldThumbnailPath = getThumbnailPath($ownerId, $oldName);
-    $newThumbnailPath = getThumbnailPath($ownerId, $newName);
+function renameCardArt(string $oldName, string $newName, int $ownerId, int $cardId): string|null {
+    $oldFullSizePath = getFullSizePath($ownerId, $cardId, $oldName);
+    $newFullSizeName = getFullSizePath($ownerId, $cardId, $newName);
+    $oldThumbnailPath = getThumbnailPath($ownerId, $cardId, $oldName);
+    $newThumbnailPath = getThumbnailPath($ownerId, $cardId, $newName);
     if (file_exists($oldFullSizePath)) {
         if (!rename($oldFullSizePath, $newFullSizeName)) {
             return "Failed to rename full-size image from $oldFullSizePath to $newFullSizeName";

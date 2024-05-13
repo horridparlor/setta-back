@@ -15,6 +15,7 @@ function postImage(Database $database): string
         return $database->responseUnauthorized();
     }
 
+    $cardId = $database->getIntParam('cardId');
     $ownerId = $database->getIntParam('ownerId');
     $imageName = $database->getStringParam('imageName');
     $imageMime = $database->getStringParam('imageMime');
@@ -24,15 +25,15 @@ function postImage(Database $database): string
     $base64String = $database->getRawStringParam('base64String');
 
     $imageData = base64_decode($base64String);
-    $fullSizeFolder = getFullSizeFolderPath($ownerId);
+    $fullSizeFolder = getFullSizeFolderPath($ownerId, $cardId);
     if (!file_exists($fullSizeFolder)) {
         mkdir($fullSizeFolder, 0777, true);
     }
-    $fullSizePath = getFullSizePath($ownerId, $imageName);
+    $fullSizePath = getFullSizePath($ownerId, $cardId, $imageName);
 
     file_put_contents($fullSizePath, $imageData);
 
-    $error = updateThumbnail($ownerId, $imageName, $artScale, $artXOffset, $artYOffset, $database);
+    $error = updateThumbnail($ownerId, $cardId, $imageName, $artScale, $artXOffset, $artYOffset, $database);
     if (strlen($error)) {
         return $error;
     }

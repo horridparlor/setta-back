@@ -322,10 +322,10 @@ function putCard(Database $database): string
     $ownerId = intval($card[0]['ownerId']);
 
     if ($serializedName != $oldSerializedName) {
-        $errorMessage = renameCardArt($oldSerializedName, $serializedName, $ownerId);
+        $errorMessage = renameCardArt($oldSerializedName, $serializedName, $ownerId, $cardId);
     }
     if ($artScale != $oldArtScale || $artXOffset != $oldArtXOffset || $artYOffset != $oldArtYOffset) {
-        $error = updateThumbnail($ownerId, $serializedName, $artScale, $artXOffset, $artYOffset, $database);
+        $error = updateThumbnail($ownerId, $cardId, $serializedName, $artScale, $artXOffset, $artYOffset, $database);
         if (strlen($error)) {
             return $error;
         }
