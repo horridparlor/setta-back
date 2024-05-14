@@ -29,6 +29,7 @@ function postCard(Database $database): string
     $primaryMaterialId  = $database->getIntParam('primaryMaterialId');
     $secondaryMaterialId = $database->getIntParam('secondaryMaterialId');;
     $tertiaryMaterialId = $database->getIntParam('tertiaryMaterialId');
+    $materialsReminder = $database->getStringParam('materialsReminder');
     $costText = $database->getStringParam('costText');
     $effectText = $database->getStringParam('effectText');
     $flavourText = $database->getStringParam('flavourText');
@@ -62,6 +63,7 @@ function postCard(Database $database): string
             primaryMaterialId,
             secondaryMaterialId,
             tertiaryMaterialId,
+            materialsReminder,
             costText,
             effectText,
             flavourText,
@@ -91,6 +93,7 @@ function postCard(Database $database): string
             :primaryMaterialId,
             :secondaryMaterialId,
             :tertiaryMaterialId,
+            :materialsReminder,
             :costText,
             :effectText,
             :flavourText,
@@ -121,6 +124,7 @@ function postCard(Database $database): string
         'primaryMaterialId' => ['value' => $primaryMaterialId, 'type' => PDO::PARAM_INT],
         'secondaryMaterialId' => ['value' => $secondaryMaterialId, 'type' => PDO::PARAM_INT],
         'tertiaryMaterialId' => ['value' => $tertiaryMaterialId, 'type' => PDO::PARAM_INT],
+        'materialsReminder' => ['value' => $materialsReminder, 'type' => PDO::PARAM_STR],
         'costText' => ['value' => $costText, 'type' => PDO::PARAM_STR],
         'effectText' => ['value' => $effectText, 'type' => PDO::PARAM_STR],
         'flavourText' => ['value' => $flavourText, 'type' => PDO::PARAM_STR],
@@ -233,6 +237,7 @@ function putCard(Database $database): string
     $primaryMaterialId  = $database->getIntParam('primaryMaterialId');
     $secondaryMaterialId = $database->getIntParam('secondaryMaterialId');;
     $tertiaryMaterialId = $database->getIntParam('tertiaryMaterialId');
+    $materialsReminder = $database->getStringParam('materialsReminder');
     $costText = $database->getStringParam('costText');
     $effectText = $database->getStringParam('effectText');
     $flavourText = $database->getStringParam('flavourText');
@@ -265,6 +270,7 @@ function putCard(Database $database): string
             primaryMaterialId = :primaryMaterialId,
             secondaryMaterialId = :secondaryMaterialId,
             tertiaryMaterialId = :tertiaryMaterialId,
+            materialsReminder = :materialsReminder,
             costText = :costText,
             effectText = :effectText,
             flavourText = :flavourText,
@@ -294,6 +300,7 @@ function putCard(Database $database): string
         'primaryMaterialId' => ['value' => $primaryMaterialId, 'type' => PDO::PARAM_INT],
         'secondaryMaterialId' => ['value' => $secondaryMaterialId, 'type' => PDO::PARAM_INT],
         'tertiaryMaterialId' => ['value' => $tertiaryMaterialId, 'type' => PDO::PARAM_INT],
+        'materialsReminder' => ['value' => $materialsReminder, 'type' => PDO::PARAM_STR],
         'costText' => ['value' => $costText, 'type' => PDO::PARAM_STR],
         'effectText' => ['value' => $effectText, 'type' => PDO::PARAM_STR],
         'flavourText' => ['value' => $flavourText, 'type' => PDO::PARAM_STR],

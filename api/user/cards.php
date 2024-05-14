@@ -30,6 +30,7 @@ function getCards(Database $database): string
             primaryMaterialId,
             secondaryMaterialId,
             tertiaryMaterialId,
+            materialsReminder,
             costText,
             effectText,
             flavourText,
