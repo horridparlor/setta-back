@@ -190,9 +190,9 @@ class Database
         http_response_code(200);
         return json_encode($json);
     }
-    public static function responseError(array $json): string {
+    public static function responseBadRequest(string $errorMessage): string {
         http_response_code(400);
-        return json_encode($json);
+        return json_encode(array('error' => $errorMessage));
     }
 
 
@@ -248,5 +248,8 @@ class Database
             return null;
         }
         return new User(intval($user[0]['id']), $user[0]['username'], boolval($user[0]['isAdmin']));
+    }
+    public function getRequestData(): \stdClass {
+        return json_decode(json_encode($this->params));
     }
 }
