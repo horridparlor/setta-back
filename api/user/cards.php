@@ -19,6 +19,7 @@ function getCards(Database $database): string
             WHERE created_at IN (
                 SELECT MAX(created_at)
                 FROM card
+                WHERE isDeleted = 0
                 GROUP BY errataOfId
             )
         ) newestErrata ON newestErrata.errataOfId = card.errataOfId
