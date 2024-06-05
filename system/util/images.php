@@ -107,23 +107,46 @@ function updateThumbnail(
 }
 
 function renameCardArt(string $oldName, string $newName, int $ownerId, int $cardId): string|null {
+    return copyCardArt($oldName, $newName, $ownerId, $cardId, $cardId, true);
+}
+
+function copyCardArt(string $oldName, string $newName, int $ownerId, int $cardId, int $newCardId, bool $doCut = false): string|null {
     $oldFullSizePath = getFullSizePath($ownerId, $cardId, $oldName);
-    $newFullSizeName = getFullSizePath($ownerId, $cardId, $newName);
+    $newFullSizeName = getFullSizePath($ownerId, $newCardId, $newName);
     $oldThumbnailPath = getThumbnailPath($ownerId, $cardId, $oldName);
-    $newThumbnailPath = getThumbnailPath($ownerId, $cardId, $newName);
+    $newThumbnailPath = getThumbnailPath($ownerId, $newCardId, $newName);
     if (file_exists($oldFullSizePath)) {
-        if (!rename($oldFullSizePath, $newFullSizeName)) {
+        if ($doCut ? !rename($oldFullSizePath, $newFullSizeName) : !copy($oldFullSizePath, $newFullSizeName)) {
             return "Failed to rename full-size image from $oldFullSizePath to $newFullSizeName";
         }
     } else {
        return "Full-size image not found at $oldFullSizePath";
     }
     if (file_exists($oldThumbnailPath)) {
-        if (!rename($oldThumbnailPath, $newThumbnailPath)) {
+        if ($doCut ? !rename($oldThumbnailPath, $newThumbnailPath) : !copy($oldThumbnailPath, $newThumbnailPath)) {
             return "Failed to rename thumbnail image from $oldThumbnailPath to $newThumbnailPath";
         }
     } else {
         return "Thumbnail image not found at $oldThumbnailPath";
     }
     return null;
+}
+
+function copyErrataArtwork(int $newId, Database $database): string {
+    $sql = <<<SQL
+        SELECT oldCard.id oldId, oldCard.cardName cardName, oldCard.ownerId ownerId
+        FROM card newCard
+        JOIN card oldCard
+            ON oldcard.id = newCard.errataOfId
+        WHERE newCard.id = :newId
+    SQL;
+    $replacements = array(
+        'newId' => ['value' => $newId, 'type' => PDO::PARAM_INT],
+    );
+    $result = $database->query($sql, $replacements)[0];
+    $oldId = $result['oldId'];
+    $cardName = $result['cardName'];
+    $ownerId = $result['ownerId'];
+
+    return copyCardArt($cardName, $cardName, $ownerId, $oldId, $newId);
 }

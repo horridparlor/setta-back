@@ -138,10 +138,9 @@ function postCard(Database $database): string
         'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT]
     );
     $database->query($sql, $replacements);
-    $result = $database->query('SELECT LAST_INSERT_ID() cardId;');
 
     return $database->responseSuccess(array(
-        'cardId' => $result[0]['cardId'],
+        'cardId' => $database->getInsertId(),
     ));
 }
 

@@ -11,6 +11,7 @@ include("../../system/Database.php");
 include("../../system/User.php");
 include("../../system/AccessBlock.php");
 include("../../system/sql/selectCard.php");
+include("../../system/util/images.php");
 
 function authenticate(Database $database): string
 {
@@ -150,6 +151,7 @@ function authenticate(Database $database): string
     );
     $database->query($sql, $replacements);
     $errataId = $database->getInsertId();
+    copyErrataArtwork($errataId, $database);
 
     $sql = SELECT_CARD . <<<SQL
         WHERE card.id = :errataId
