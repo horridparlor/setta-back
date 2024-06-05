@@ -134,10 +134,10 @@ function copyCardArt(string $oldName, string $newName, int $ownerId, int $cardId
 
 function copyErrataArtwork(int $newId, Database $database): string {
     $sql = <<<SQL
-        SELECT oldCard.id oldId, oldCard.cardName cardName, oldCard.ownerId ownerId
+        SELECT oldCard.id oldId, oldCard.normalizedName normalizedName, oldCard.ownerId ownerId
         FROM card newCard
         JOIN card oldCard
-            ON oldcard.id = newCard.errataOfId
+            ON oldCard.id = newCard.errataOfId
         WHERE newCard.id = :newId
     SQL;
     $replacements = array(
@@ -145,8 +145,8 @@ function copyErrataArtwork(int $newId, Database $database): string {
     );
     $result = $database->query($sql, $replacements)[0];
     $oldId = $result['oldId'];
-    $cardName = $result['cardName'];
+    $nowmalizedName = $result['normalizedName'];
     $ownerId = $result['ownerId'];
 
-    return copyCardArt($cardName, $cardName, $ownerId, $oldId, $newId);
+    return copyCardArt($nowmalizedName, $nowmalizedName, $ownerId, $oldId, $newId);
 }

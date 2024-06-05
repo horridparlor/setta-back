@@ -17,6 +17,7 @@ function postCard(Database $database): string
     }
 
     $cardName = $database->getStringParam('cardName');
+    $normalizedName = $database->getStringParam('normalizedName');
     $isAce = $database->getBooleanParam('isAce');
     $cardClass = $database->getStringParam('cardClass');
     $cardType = $database->getStringParam('cardType');
@@ -51,6 +52,7 @@ function postCard(Database $database): string
         INSERT INTO card (
             ownerId,
             cardName,
+            normalizedName,
             isAce,
             cardClassId,
             cardTypeId,
@@ -81,6 +83,7 @@ function postCard(Database $database): string
         VALUES (
             :ownerId,
             :cardName,
+            :normalizedName,
             :isAce,
             (SELECT id FROM cardClass WHERE name = :cardClass),
             (SELECT id FROM cardType WHERE name = :cardType),
@@ -112,6 +115,7 @@ function postCard(Database $database): string
     $replacements = array(
         'ownerId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
+        'normalizedName' => ['value' => $normalizedName, 'type' => PDO::PARAM_STR],
         'isAce' => ['value' => $isAce, 'type' => PDO::PARAM_INT],
         'cardClass' => ['value' => $cardClass, 'type' => PDO::PARAM_STR],
         'cardType' => ['value' => $cardType, 'type' => PDO::PARAM_STR],
@@ -222,6 +226,7 @@ function putCard(Database $database): string
     $oldArtYOffset = floatval($oldCard[0]['artYOffset']);
 
     $cardName = $database->getStringParam('cardName');
+    $normalizedName = $database->getStringParam('normalizedName');
     $oldSerializedName = $database->getStringParam('oldSerializedName');
     $serializedName = $database->getStringParam('serializedName');
     $isAce = $database->getBooleanParam('isAce');
@@ -257,6 +262,7 @@ function putCard(Database $database): string
     $sql = <<<SQL
         UPDATE card SET
             cardName = :cardName,
+            normalizedName = :normalizedName,
             isAce = :isAce,
             cardClassId = (SELECT id FROM cardClass WHERE name = :cardClass),
             cardTypeId = (SELECT id FROM cardType WHERE name = :cardType),
@@ -287,6 +293,7 @@ function putCard(Database $database): string
     $replacements = array(
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
+        'normalizedName' => ['value' => $normalizedName, 'type' => PDO::PARAM_STR],
         'isAce' => ['value' => $isAce, 'type' => PDO::PARAM_INT],
         'cardClass' => ['value' => $cardClass, 'type' => PDO::PARAM_STR],
         'cardType' => ['value' => $cardType, 'type' => PDO::PARAM_STR],
