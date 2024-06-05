@@ -3,7 +3,6 @@
 use system\Database;
 
 const ASSETS_PATH = "../../../setta-assets/";
-const THUMBNAILS_PATH = "../../../setta-assets/small-art/";
 const PIXELS_PER_REM = 16;
 const OFFSET_MULTIPLIER = 0.25;
 const SCALE_MULTIPLIER = 2;
@@ -18,14 +17,22 @@ function getFullSizeFolderPath(int $ownerId, int $cardId): string {
     if (!file_exists($base)) {
         mkdir($base, 0777, true);
     }
-    return $base . '/' . $ownerId . '/';
+    $path = $base . $ownerId . '/';
+    if (!file_exists($path)) {
+        mkdir($path, 0777, true);
+    }
+    return $path;
 }
 function getThumbnailFolderPath(int $ownerId, int $cardId): string {
     $base = ASSETS_PATH . 'small-art/' . $cardId . '/';
     if (!file_exists($base)) {
         mkdir($base, 0777, true);
     }
-    return $base . '/' . $ownerId . '/';
+    $path = $base . $ownerId . '/';
+    if (!file_exists($path)) {
+        mkdir($path, 0777, true);
+    }
+    return $path;
 }
 function getFullSizePath(int $ownerId, int $cardId, string $imageName): string {
     return getFullSizeFolderPath($ownerId, $cardId) . $imageName;
@@ -132,7 +139,7 @@ function copyCardArt(string $oldName, string $newName, int $ownerId, int $cardId
     return null;
 }
 
-function copyErrataArtwork(int $newId, Database $database): string {
+function copyErrataArtwork(int $newId, Database $database): string|null {
     $sql = <<<SQL
         SELECT oldCard.id oldId, oldCard.serializedName serializedName, oldCard.ownerId ownerId
         FROM card newCard
