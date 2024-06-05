@@ -147,7 +147,7 @@ class SqlComparison {
         return $this->replacements;
     }
     public function eatReplacement(string $key, mixed $value): void {
-        $this->replacements[$key] = $value;
+        $this->replacements[$key] = ['value' => $value, 'type' => \PDO::PARAM_INT];
     }
 }
 class AccessBlock

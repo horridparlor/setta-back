@@ -18,7 +18,6 @@ function postImage(Database $database): string
     $cardId = $database->getIntParam('cardId');
     $ownerId = $database->getIntParam('ownerId');
     $imageName = $database->getStringParam('imageName');
-    $imageMime = $database->getStringParam('imageMime');
     $artScale = $database->getFloatParam('artScale');
     $artXOffset = $database->getFloatParam('artXOffset');
     $artYOffset = $database->getFloatParam('artYOffset');

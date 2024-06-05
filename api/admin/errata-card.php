@@ -3,34 +3,164 @@
 use system\Database;
 use system\AccessBlock;
 use system\StandardType;
+use system\SqlComparison;
 
 header('Content-Type: application/json');
 
 include("../../system/Database.php");
 include("../../system/User.php");
 include("../../system/AccessBlock.php");
+include("../../system/sql/selectCard.php");
 
 function authenticate(Database $database): string
 {
+    $user = $database->getUser();
+    if (!$user) {
+        return $database->responseUnauthorized();
+    }
+    $existsSql = <<<SQL
+        SELECT :comparedValue
+        FROM DUAL
+        WHERE NOT EXISTS (
+            SELECT card.id
+            FROM card
+            JOIN expansion
+            ON expansion.id = card.expansionId
+            WHERE card.id = :comparedValue
+            AND card.isDeleted = 0
+            AND expansion.isReleased = 1
+        )
+    SQL;
+
     $requiredParams = array(
       array(
           'param' => 'cardId',
-          'type' => StandardType::NUMBER
+          'type' => StandardType::NUMBER,
+          'exists' => new SqlComparison($existsSql)
       )
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
     if ($missingParam) {
         return $database->responseBadRequest($missingParam);
     }
-    $user = $database->getUser();
     $cardId = $database->getIntParam('cardId');
-    if (!$user) {
-        return $database->responseUnauthorized();
-    }
 
-    return $database->responseSuccess(array(
-        'cardId' => $cardId,
-    ));
+    $sql = <<<SQL
+        INSERT INTO card (
+            ownerId,
+            errataOfId,
+            cardName,
+            isAce,
+            cardClassId,
+            cardTypeId,
+            subtypeId,
+            supertypeId,
+            maximumPieceId,
+            level,
+            atk,
+            def,
+            primaryMaterialId,
+            secondaryMaterialId,
+            tertiaryMaterialId,
+            materialsReminder,
+            costText,
+            effectText,
+            flavourText,
+            countsAsId,
+            artScale,
+            artXOffset,
+            artYOffset,
+            nameSize,
+            materialsSize,
+            effectsSize,
+            expansionId,
+            isDeleted,
+            modifiedBy 
+        )
+        SELECT
+            c.ownerId,
+            :cardId,
+            c.cardName,
+            c.isAce,
+            c.cardClassId,
+            c.cardTypeId,
+            c.subtypeId,
+            c.supertypeId,
+            c.maximumPieceId,
+            c.level,
+            c.atk,
+            c.def,
+            c.primaryMaterialId,
+            c.secondaryMaterialId,
+            c.tertiaryMaterialId,
+            c.materialsReminder,
+            c.costText,
+            c.effectText,
+            c.flavourText,
+            c.countsAsId,
+            c.artScale,
+            c.artXOffset,
+            c.artYOffset,
+            c.nameSize,
+            c.materialsSize,
+            c.effectsSize,
+            e.expansionId,
+            0,
+            :userId
+        FROM (
+            SELECT
+                ownerId,
+                cardName,
+                isAce,
+                cardClassId,
+                cardTypeId,
+                subtypeId,
+                supertypeId,
+                maximumPieceId,
+                level,
+                atk,
+                def,
+                primaryMaterialId,
+                secondaryMaterialId,
+                tertiaryMaterialId,
+                materialsReminder,
+                costText,
+                effectText,
+                flavourText,
+                countsAsId,
+                artScale,
+                artXOffset,
+                artYOffset,
+                nameSize,
+                materialsSize,
+                effectsSize
+            FROM card
+            WHERE id = :cardId
+        ) AS c,
+        (
+            SELECT id AS expansionId
+            FROM expansion
+            WHERE ownerId = 0
+            LIMIT 1
+        ) AS e;
+    SQL;
+    $replacements = array(
+        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
+        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
+    );
+    $database->query($sql, $replacements);
+    $errataId = $database->getInsertId();
+
+    $sql = SELECT_CARD . <<<SQL
+        WHERE card.id = :errataId
+    SQL;
+
+    $replacements = array(
+        'errataId' => ['value' => $errataId, 'type' => PDO::PARAM_INT],
+    );
+    $newCard = $database->query($sql, $replacements)[0];
+
+    return $database->responseSuccess($newCard);
 }
 
 $database = new Database();

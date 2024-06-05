@@ -63,6 +63,9 @@ class Database
             return ['affected_rows' => $stmt->rowCount()];
         }
     }
+    public function getInsertId(): int {
+        return intval($this->query('SELECT LAST_INSERT_ID() id;')[0]['id']);
+    }
 
     public static function arrify(array $ids): string
     {
