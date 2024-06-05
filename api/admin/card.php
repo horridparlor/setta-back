@@ -115,7 +115,7 @@ function postCard(Database $database): string
     $replacements = array(
         'ownerId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
         'cardName' => ['value' => $cardName, 'type' => PDO::PARAM_STR],
-        'serializedName' => ['value' => serializedName, 'type' => PDO::PARAM_STR],
+        'serializedName' => ['value' => $serializedName, 'type' => PDO::PARAM_STR],
         'isAce' => ['value' => $isAce, 'type' => PDO::PARAM_INT],
         'cardClass' => ['value' => $cardClass, 'type' => PDO::PARAM_STR],
         'cardType' => ['value' => $cardType, 'type' => PDO::PARAM_STR],
