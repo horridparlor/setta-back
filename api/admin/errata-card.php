@@ -61,7 +61,14 @@ function authenticate(Database $database): string
         SET errataOfId = :cardId
         WHERE id = :cardId
         AND errataOfId IS NULL;
+    SQL;
+    $replacements = array(
+        'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
+        'serializedName' => ['value' => $serializedName, 'type' => PDO::PARAM_STR]
+    );
+    $database->query($sql, $replacements);
 
+    $sql = <<<SQL
         INSERT INTO card (
             ownerId,
             errataOfId,
@@ -128,7 +135,7 @@ function authenticate(Database $database): string
         FROM (
             SELECT
                 ownerId,
-                errataOfId
+                errataOfId,
                 cardName,
                 serializedName,
                 isAce,
@@ -166,8 +173,7 @@ function authenticate(Database $database): string
     SQL;
     $replacements = array(
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
-        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
-        'serializedName' => ['value' => $serializedName, 'type' => PDO::PARAM_STR],
+        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT]
     );
     $database->query($sql, $replacements);
     $errataId = $database->getInsertId();
