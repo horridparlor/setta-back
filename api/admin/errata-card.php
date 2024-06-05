@@ -38,15 +38,25 @@ function authenticate(Database $database): string
           'param' => 'cardId',
           'type' => StandardType::NUMBER,
           'exists' => new SqlComparison($existsSql)
-      )
+      ),
+        array(
+            'param' => 'serializedName',
+            'type' => StandardType::STRING
+        )
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
     if ($missingParam) {
         return $database->responseBadRequest($missingParam);
     }
     $cardId = $database->getIntParam('cardId');
+    $serializedName = $database->getStringParam('serializedName');
 
     $sql = <<<SQL
+        UPDATE card
+        SET serializedName = :serializedName
+        WHERE id = :cardId
+        AND serializedName = '';
+
         INSERT INTO card (
             ownerId,
             errataOfId,
@@ -151,6 +161,7 @@ function authenticate(Database $database): string
     $replacements = array(
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
         'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
+        'serializedName' => ['value' => $serializedName, 'type' => PDO::PARAM_STR],
     );
     $database->query($sql, $replacements);
     $errataId = $database->getInsertId();
