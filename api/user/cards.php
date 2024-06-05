@@ -19,6 +19,8 @@ function getCards(Database $database): string
     if (!$user) {
         $sql .= <<<SQL
             AND (expansionOwner.isAdmin = 1 AND expansion.isReleased = 1)
+            GROUP BY card.errataOfId
+            HAVING MAX(created_at);
         SQL;
     } elseif (!$user->isAdmin()) {
         $sql .= <<<SQL

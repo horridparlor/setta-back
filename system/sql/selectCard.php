@@ -4,7 +4,7 @@ const SELECT_CARD = <<<SQL
     SELECT
         card.id cardId,
         card.ownerId,
-        
+        card.errataOfId errataOfId,
         cardOwner.firstname ownerFirstname,
         cardOwner.lastname ownerLastname,
         cardName,

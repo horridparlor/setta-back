@@ -57,6 +57,11 @@ function authenticate(Database $database): string
         WHERE id = :cardId
         AND serializedName = '';
 
+        UPDATE card
+        SET errataOfId = :cardId
+        WHERE id = :cardId
+        AND errataOfId IS NULL;
+
         INSERT INTO card (
             ownerId,
             errataOfId,
@@ -91,7 +96,7 @@ function authenticate(Database $database): string
         )
         SELECT
             c.ownerId,
-            :cardId,
+            IF(c.errataOfId = :cardId, :cardId, c.errataOfId),
             c.cardName,
             c.serializedName,
             c.isAce,
@@ -123,6 +128,7 @@ function authenticate(Database $database): string
         FROM (
             SELECT
                 ownerId,
+                errataOfId
                 cardName,
                 serializedName,
                 isAce,
