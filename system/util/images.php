@@ -145,7 +145,7 @@ function copyErrataArtwork(int $newId, Database $database): string {
     );
     $result = $database->query($sql, $replacements)[0];
     $oldId = $result['oldId'];
-    $serializedName = $result['normalizedName'];
+    $serializedName = $result['serializedName'];
     $ownerId = $result['ownerId'];
 
     return copyCardArt($serializedName, $serializedName, $ownerId, $oldId, $newId);

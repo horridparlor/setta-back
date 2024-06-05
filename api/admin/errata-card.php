@@ -51,6 +51,7 @@ function authenticate(Database $database): string
             ownerId,
             errataOfId,
             cardName,
+            serializedName,
             isAce,
             cardClassId,
             cardTypeId,
@@ -82,6 +83,7 @@ function authenticate(Database $database): string
             c.ownerId,
             :cardId,
             c.cardName,
+            c.serializedName,
             c.isAce,
             c.cardClassId,
             c.cardTypeId,
@@ -112,6 +114,7 @@ function authenticate(Database $database): string
             SELECT
                 ownerId,
                 cardName,
+                serializedName,
                 isAce,
                 cardClassId,
                 cardTypeId,
