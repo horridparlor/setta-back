@@ -3,6 +3,7 @@
 namespace system;
 
 enum StandardType: string {
+    case BOOLEAN = 'boolean';
     case DATE = '^2[0-9][0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$';
     case DATETIME = '^2[0-9][0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])T([0-1][0-9]|[2][0-3]):[0-5][0-9]$';
     case NUMBER = 'number';
@@ -243,6 +244,7 @@ class AccessBlock
 
     private static function checkParamType(mixed $value, StandardType $type): bool {
         return match ($type) {
+            StandardType::BOOLEAN => is_bool($value),
             StandardType::NUMBER => is_int($value) or is_float($value),
             default => is_string($value) && preg_match('/' . $type->value . '/', $value),
         };

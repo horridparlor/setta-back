@@ -114,14 +114,14 @@ function updateThumbnail(
 }
 
 function renameCardArt(string $oldName, string $newName, int $ownerId, int $cardId): string|null {
-    return copyCardArt($oldName, $newName, $ownerId, $cardId, $cardId, true);
+    return copyCardArt($oldName, $newName, $ownerId, $ownerId, $cardId, $cardId, true);
 }
 
-function copyCardArt(string $oldName, string $newName, int $ownerId, int $cardId, int $newCardId, bool $doCut = false): string|null {
-    $oldFullSizePath = getFullSizePath($ownerId, $cardId, $oldName);
-    $newFullSizeName = getFullSizePath($ownerId, $newCardId, $newName);
-    $oldThumbnailPath = getThumbnailPath($ownerId, $cardId, $oldName);
-    $newThumbnailPath = getThumbnailPath($ownerId, $newCardId, $newName);
+function copyCardArt(string $oldName, string $newName, int $oldOwnerId, int $newOwnerId, int $cardId, int $newCardId, bool $doCut = false): string|null {
+    $oldFullSizePath = getFullSizePath($oldOwnerId, $cardId, $oldName);
+    $newFullSizeName = getFullSizePath($newOwnerId, $newCardId, $newName);
+    $oldThumbnailPath = getThumbnailPath($oldOwnerId, $cardId, $oldName);
+    $newThumbnailPath = getThumbnailPath($newOwnerId, $newCardId, $newName);
     if (file_exists($oldFullSizePath)) {
         if ($doCut ? !rename($oldFullSizePath, $newFullSizeName) : !copy($oldFullSizePath, $newFullSizeName)) {
             return "Failed to rename full-size image from $oldFullSizePath to $newFullSizeName";
@@ -139,21 +139,24 @@ function copyCardArt(string $oldName, string $newName, int $ownerId, int $cardId
     return null;
 }
 
-function copyErrataArtwork(int $newId, Database $database): string|null {
+function copyArtwork(int $oldId, int $newId, Database $database, bool $doErrata = false): string|null {
     $sql = <<<SQL
-        SELECT oldCard.id oldId, oldCard.serializedName serializedName, oldCard.ownerId ownerId
+        SELECT oldCard.id oldId, oldCard.serializedName serializedName, oldCard.ownerId oldOwnerId, newCard.ownerId newOwnerId
         FROM card newCard
         JOIN card oldCard
-            ON oldCard.id = newCard.errataOfId
+            ON oldCard.id = :oldId
         WHERE newCard.id = :newId
     SQL;
     $replacements = array(
         'newId' => ['value' => $newId, 'type' => PDO::PARAM_INT],
+        'oldId' => ['value' => $oldId, 'type' => PDO::PARAM_INT],
     );
+
     $result = $database->query($sql, $replacements)[0];
     $oldId = $result['oldId'];
     $serializedName = $result['serializedName'];
-    $ownerId = $result['ownerId'];
+    $oldOwnerId = $result['oldOwnerId'];
+    $newOwnerId = $result['newOwnerId'];
 
-    return copyCardArt($serializedName, $serializedName, $ownerId, $oldId, $newId);
+    return copyCardArt($serializedName, $serializedName, $oldOwnerId, $newOwnerId, $oldId, $newId);
 }

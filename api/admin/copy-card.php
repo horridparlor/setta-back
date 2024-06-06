@@ -13,12 +13,16 @@ include("../../system/AccessBlock.php");
 include("../../system/sql/selectCard.php");
 include("../../system/util/images.php");
 
-function authenticate(Database $database): string
+function copyCard(Database $database): string
 {
     $user = $database->getUser();
     if (!$user) {
         return $database->responseUnauthorized();
     }
+    $cardId = $database->getIntParam('cardId');
+    $serializedName = $database->getStringParam('serializedName');
+    $doErrata = $database->getBooleanParam('doErrata', false);
+
     $existsSql = <<<SQL
         SELECT :comparedValue
         FROM DUAL
@@ -29,27 +33,32 @@ function authenticate(Database $database): string
             ON expansion.id = card.expansionId
             WHERE card.id = :comparedValue
             AND card.isDeleted = 0
-            AND expansion.isReleased = 1
+            AND (expansion.isReleased = 1 OR :doErrata = 0)
         )
     SQL;
+    $existsReplacements = array(
+        'doErrata' => ['value' => $doErrata, 'type' => PDO::PARAM_BOOL],
+    );
 
     $requiredParams = array(
-      array(
+        array(
           'param' => 'cardId',
           'type' => StandardType::NUMBER,
-          'exists' => new SqlComparison($existsSql)
-      ),
+          'exists' => new SqlComparison($existsSql, $existsReplacements)
+        ),
         array(
             'param' => 'serializedName',
             'type' => StandardType::STRING
+        ),
+        array(
+            'param' => 'doErrata',
+            'type' => StandardType::BOOLEAN
         )
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
     if ($missingParam) {
         return $database->responseBadRequest($missingParam);
     }
-    $cardId = $database->getIntParam('cardId');
-    $serializedName = $database->getStringParam('serializedName');
 
     $sql = <<<SQL
         UPDATE card
@@ -102,8 +111,14 @@ function authenticate(Database $database): string
             modifiedBy 
         )
         SELECT
-            c.ownerId,
-            IF(c.errataOfId = :cardId, :cardId, c.errataOfId),
+            IF(:doErrata = 1,
+                c.ownerId,
+                :userId
+            ) AS ownerId,
+            IF(:doErrata = 1,
+                IF(c.errataOfId = :cardId, :cardId, c.errataOfId),
+                NULL
+            ) AS errataOfId,
             c.cardName,
             c.serializedName,
             c.isAce,
@@ -173,18 +188,19 @@ function authenticate(Database $database): string
     SQL;
     $replacements = array(
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT],
-        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT]
+        'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
+        'doErrata' => ['value' => intval($doErrata), 'type' => PDO::PARAM_BOOL],
     );
     $database->query($sql, $replacements);
-    $errataId = $database->getInsertId();
-    copyErrataArtwork($errataId, $database);
+    $copyId = $database->getInsertId();
+    copyArtwork($cardId, $copyId, $database, $doErrata);
 
     $sql = SELECT_CARD . <<<SQL
-        WHERE card.id = :errataId
+        WHERE card.id = :copyId
     SQL;
 
     $replacements = array(
-        'errataId' => ['value' => $errataId, 'type' => PDO::PARAM_INT],
+        'copyId' => ['value' => $copyId, 'type' => PDO::PARAM_INT],
     );
     $newCard = $database->query($sql, $replacements)[0];
 
@@ -192,5 +208,5 @@ function authenticate(Database $database): string
 }
 
 $database = new Database();
-$database->handleRequest(null, 'authenticate');
+$database->handleRequest(null, 'copyCard');
 
