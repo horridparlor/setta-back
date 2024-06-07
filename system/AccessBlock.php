@@ -62,12 +62,12 @@ Class StandardMessages {
         return sprintf(self::REQUIRED_PARAM_WITH_OPTION_MISSING, $param, $option, $tree ? ' ' . $tree : '');
     }
 
-    public static function paramInvalidType(mixed $value, StandardType $type, array $paramTree): string {
+    public static function paramInvalidType(mixed $value, StandardType $type, string $redux, array $paramTree): string {
         $typeOrRegex = self::typeOrRegex($value, $type);
         return sprintf(self::REQUIRED_PARAM_INVALID_TYPE, implode("->", $paramTree), $typeOrRegex,
-            ($typeOrRegex == self::REGEX or !in_array($type, REGEX_TYPES))
-                ? ($type === StandardType::STRING ? self::STRING : $type->value) : self::STRING,
-            $value, $typeOrRegex == self::REGEX ? self::NOT : ($value === '' ? self::EMPTY : gettype($value)));
+            ($typeOrRegex == self::REGEX or !in_array($type, REGEX_TYPES)) ? $redux : StandardType::STRING->value,
+            (is_array($value) || is_object($value)) ? json_encode($value) : $value,
+            $typeOrRegex == self::REGEX ? self::NOT : ($value === '' ? self::EMPTY : gettype($value)));
     }
 
     public static function paramNotUnique(mixed $value, array $paramTree): string {
@@ -117,6 +117,7 @@ class ParamCheck {
     public int $minSize;
     public int $maxSize;
     public StandardType $type;
+    public string $redux;
     public SqlComparison|null $unique;
     public SqlComparison|null $exists;
     public SqlComparison|null $cascade;
@@ -130,6 +131,7 @@ class ParamCheck {
         $this->minSize = NO_SIZE;
         $this->maxSize = NO_SIZE;
         $this->type = StandardType::UNKNOWN;
+        $this->redux = '';
         $this->unique = null;
         $this->exists = null;
         $this->cascade = null;
@@ -193,8 +195,8 @@ class AccessBlock
             }
         }
         if (!is_null($value)) {
-            if ($type != StandardType::UNKNOWN and !self::checkParamType($value, $type)) {
-                return StandardMessages::paramInvalidType($value, $type, $treeWithThis);
+            if (!$paramCheck->isIterative && $type != StandardType::UNKNOWN and !self::checkParamType($value, $type, $paramCheck->redux)) {
+                return StandardMessages::paramInvalidType($value, $type, $paramCheck->redux, $treeWithThis);
             }
             if (!self::checkParamUnique($value, $paramCheck->unique, $database)) {
                 return StandardMessages::paramNotUnique($value, $treeWithThis);
@@ -243,12 +245,12 @@ class AccessBlock
         return null;
     }
 
-    private static function checkParamType(mixed $value, StandardType $type): bool {
+    private static function checkParamType(mixed $value, StandardType $type, string $redux): bool {
         return match ($type) {
             StandardType::BOOLEAN => is_bool($value),
             StandardType::ID => is_int($value) and $value > 0,
             StandardType::NUMBER => is_int($value) or is_float($value),
-            default => is_string($value) && preg_match('/' . $type->value . '/', $value),
+            default => is_string($value) && preg_match('/' . $redux . '/s', $value),
         };
     }
 
@@ -360,7 +362,14 @@ class AccessBlock
             $paramCheck->maxSize = $array['maxSize'];
         }
         if (isset($array['type'])) {
-            $paramCheck->type = $array['type'];
+            $type = $array['type'];
+            if (is_string($type)) {
+                $paramCheck->type = StandardType::STRING;
+                $paramCheck->redux = $type;
+            } else {
+                $paramCheck->type = $type;
+                $paramCheck->redux = $type->value;
+            }
         }
         if (isset($array['unique'])) {
             $paramCheck->unique = $array['unique'];
