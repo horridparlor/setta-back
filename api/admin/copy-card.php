@@ -43,7 +43,7 @@ function copyCard(Database $database): string
     $requiredParams = array(
         array(
           'param' => 'cardId',
-          'type' => StandardType::NUMBER,
+          'type' => StandardType::ID,
           'exists' => new SqlComparison($existsSql, $existsReplacements)
         ),
         array(
