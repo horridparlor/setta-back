@@ -11,7 +11,7 @@ const IMAGE_HEIGHT = 24 * PIXELS_PER_REM;
 const WIDTH_MULTIPLIER = IMAGE_WIDTH / IMAGE_HEIGHT;
 const HEIGHT_MULTIPLIER = IMAGE_HEIGHT / IMAGE_WIDTH;
 const RESULT_SCALE = 2.5;
-
+umask(002);
 function getFullSizeFolderPath(int $ownerId, int $cardId): string {
     $base = ASSETS_PATH . 'card-art/' . $cardId . '/';
     if (!file_exists($base)) {
