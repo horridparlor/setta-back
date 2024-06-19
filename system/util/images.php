@@ -66,6 +66,7 @@ function updateThumbnail(
             echo $fullSizePath;
             echo json_encode(file_exists($fullSizePath));
             echo '_' . json_encode(is_readable($fullSizePath));
+            echo '_' . json_encode(@imagecreatefrompng($fullSizePath));
             $img = imagecreatefrompng($fullSizePath);
             break;
         case 'image/jpeg':

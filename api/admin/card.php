@@ -337,7 +337,7 @@ function putCard(Database $database): string
     if ($serializedName != $oldSerializedName) {
         $errorMessage = renameCardArt($oldSerializedName, $serializedName, $ownerId, $cardId);
     }
-    if ($artScale != $oldArtScale || $artXOffset != $oldArtXOffset || $artYOffset != $oldArtYOffset) {
+    if (true || $artScale != $oldArtScale || $artXOffset != $oldArtXOffset || $artYOffset != $oldArtYOffset) {
         $error = updateThumbnail($ownerId, $cardId, $serializedName, $artScale, $artXOffset, $artYOffset, $database);
         if (strlen($error)) {
             return $error;
