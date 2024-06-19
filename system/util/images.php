@@ -59,36 +59,24 @@ function updateThumbnail(
     $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
     $imageMime = finfo_file($fileInfo, $fullSizePath);
     finfo_close($fileInfo);
-    echo 1;
     switch ($imageMime) {
         case 'image/png':
-            error_reporting(E_ALL);
-            ini_set('display_errors', 1);
-            echo 3;
-            echo $fullSizePath;
-            echo json_encode(file_exists($fullSizePath));
-            echo '_' . json_encode(is_readable($fullSizePath));
             $img = imagecreatefrompng($fullSizePath);
             break;
         case 'image/jpeg':
-            echo 4;
             $img = imagecreatefromjpeg($fullSizePath);
             break;
         case 'image/gif':
-            echo 5;
             $img = imagecreatefromgif($fullSizePath);
             break;
         case 'image/webp':
-            echo 6;
             $img = imagecreatefromwebp($fullSizePath);
             break;
         default:
-            echo 7;
             return $database->responseUnsupported(array(
                 'error' => 'Unsupported image type: ' . $imageMime,
             ));
     }
-    echo 2;
     $imageWidth = imagesx($img);
     $imageHeight = imagesy($img);
     $originalSize = min($imageWidth, $imageHeight);
