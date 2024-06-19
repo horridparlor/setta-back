@@ -64,7 +64,8 @@ function updateThumbnail(
         case 'image/png':
             echo 3;
             echo $fullSizePath;
-            $img = imagecreatefrompng($fullSizePath . '.png');
+            echo json_encode(file_exists($fullSizePath));
+            $img = imagecreatefrompng($fullSizePath);
             break;
         case 'image/jpeg':
             echo 4;
