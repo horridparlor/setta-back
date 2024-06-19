@@ -64,7 +64,7 @@ function updateThumbnail(
         case 'image/png':
             echo 3;
             echo $fullSizePath;
-            $img = imagecreatefrompng($fullSizePath);
+            $img = imagecreatefrompng($fullSizePath . '.png');
             break;
         case 'image/jpeg':
             echo 4;
