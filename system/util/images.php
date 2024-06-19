@@ -51,77 +51,68 @@ function updateThumbnail(
     Database $database
 ): string {
     $fullSizePath = getFullSizePath($ownerId, $cardId, $imageName);
-    echo 111;
     if (!file_exists($fullSizePath)) {
         return $database->responseNotFound(array(
            'error' => 'Full size image not found, cannot make thumbnail'
         ));
     }
-    echo 2222;
     $fileInfo = finfo_open(FILEINFO_MIME_TYPE);
-    echo 333;
     $imageMime = finfo_file($fileInfo, $fullSizePath);
-    echo 444;
     finfo_close($fileInfo);
-    echo 555;
+    echo 1;
     switch ($imageMime) {
         case 'image/png':
+            echo 3;
             $img = imagecreatefrompng($fullSizePath);
             break;
         case 'image/jpeg':
+            echo 4;
             $img = imagecreatefromjpeg($fullSizePath);
             break;
         case 'image/gif':
+            echo 5;
             $img = imagecreatefromgif($fullSizePath);
             break;
         case 'image/webp':
-            echo 99;
+            echo 6;
             $img = imagecreatefromwebp($fullSizePath);
             break;
         default:
-            echo 1717;
+            echo 7;
             return $database->responseUnsupported(array(
                 'error' => 'Unsupported image type: ' . $imageMime,
             ));
     }
-    echo 2727;
+    echo 2;
     $imageWidth = imagesx($img);
     $imageHeight = imagesy($img);
-    echo 3737;
     $originalSize = min($imageWidth, $imageHeight);
     if ($imageWidth > $imageHeight) {
         $originalSize = WIDTH_MULTIPLIER * $originalSize;
-    }
-    echo 4747;
+    };
     $imageScale = 1 + $artScale / (SCALE_MULTIPLIER * PIXELS_PER_REM);
     $xOffset = $artXOffset * (PIXELS_PER_REM * OFFSET_MULTIPLIER / IMAGE_WIDTH) * $originalSize / $imageScale;
     $yOffset = $artYOffset * (PIXELS_PER_REM * OFFSET_MULTIPLIER / IMAGE_WIDTH) * $originalSize / $imageScale;
-    echo 5757;
     $cropRect = array(
         'x' => $xOffset,
         'y' => $yOffset,
         'width' => $originalSize / $imageScale,
         'height' => HEIGHT_MULTIPLIER * $originalSize / $imageScale,
     );
-    echo 6767;
     $croppedImg = imagecrop($img, $cropRect);
     if ($croppedImg === FALSE) {
         $croppedImg = $img;
     }
-    echo 8787;
     $smallImg = imagescale($croppedImg, RESULT_SCALE * IMAGE_WIDTH, RESULT_SCALE * IMAGE_HEIGHT);
 
-    echo 9797;
     $smallPath = getThumbnailFolderPath($ownerId, $cardId);
     if (!file_exists($smallPath)) {
         mkdir($smallPath, 0777, true);
     }
-    echo 1515;
     $smallPath .= $imageName . '.webp';
 
     imagewebp($smallImg, $smallPath);
 
-    echo 2525;
     imagedestroy($img);
     imagedestroy($croppedImg);
     imagedestroy($smallImg);
