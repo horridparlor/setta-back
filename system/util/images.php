@@ -63,6 +63,7 @@ function updateThumbnail(
     switch ($imageMime) {
         case 'image/png':
             echo 3;
+            echo $fullSizePath;
             $img = imagecreatefrompng($fullSizePath);
             break;
         case 'image/jpeg':
