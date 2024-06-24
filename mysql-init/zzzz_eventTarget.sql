@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3310
--- Generation Time: Jun 24, 2024 at 06:44 PM
+-- Generation Time: Jun 24, 2024 at 07:31 PM
 -- Server version: 8.0.37-0ubuntu0.24.04.1
 -- PHP Version: 8.2.20
 
@@ -44,7 +44,8 @@ CREATE TABLE `eventTarget` (
                                `turnPhaseId` int DEFAULT NULL,
                                `positionId` int DEFAULT NULL,
                                `amount` smallint DEFAULT NULL,
-                               `referencesSelf` tinyint DEFAULT NULL
+                               `referencesSelf` tinyint DEFAULT NULL,
+                               `nextEventTypeId` int DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -68,7 +69,8 @@ ALTER TABLE `eventTarget`
   ADD KEY `positionId` (`positionId`),
   ADD KEY `statId` (`statId`),
   ADD KEY `eventTarget_ibfk_12` (`keywordId`),
-  ADD KEY `eventId` (`eventId`);
+  ADD KEY `eventId` (`eventId`),
+  ADD KEY `nextEventTypeId` (`nextEventTypeId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
