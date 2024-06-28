@@ -51,7 +51,7 @@ function getCards(Database $database): string
             )
         SQL;
     }
-    $cards = $database->query($sql, $replacements, true);
+    $cards = $database->query($sql, $replacements);
     return $database->responseSuccess(array(
         'countOfCards' => count($cards),
         'cards' => $cards,
