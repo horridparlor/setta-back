@@ -17,11 +17,12 @@ function getCards(Database $database): string
             SELECT id, errataOfId
             FROM card
             WHERE created_at IN (
-                SELECT MAX(card.created_at)
-                FROM card
+                SELECT MAX(errata.created_at)
+                FROM card errata
                 JOIN expansion
-                    ON expansion.id = card.expansionId
-                WHERE expansion.isReleased = 1
+                    ON expansion.id = errata.expansionId
+                WHERE errata.errataOfId = card.errataOfId
+                AND expansion.isReleased = 1
                 AND isDeleted = 0
                 GROUP BY errataOfId
             )
@@ -50,7 +51,7 @@ function getCards(Database $database): string
             )
         SQL;
     }
-    $cards = $database->query($sql, $replacements);
+    $cards = $database->query($sql, $replacements, true);
     return $database->responseSuccess(array(
         'countOfCards' => count($cards),
         'cards' => $cards,
