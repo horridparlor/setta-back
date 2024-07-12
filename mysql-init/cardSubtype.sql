@@ -41,7 +41,7 @@ INSERT INTO `cardSubtype` (`id`, `name`) VALUES
 (3, 'Fusion'),
 (1, 'Normal'),
 (4, 'Revenge'),
-(7, 'Ritual'),
+(7, 'Killer Move'),
 (5, 'Royal'),
 (6, 'Time Traveller');
 
