@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 14, 2024 at 02:49 PM
+-- Generation Time: Jul 14, 2024 at 04:45 PM
 -- Server version: 10.6.18-MariaDB-cll-lve
 -- PHP Version: 8.3.8
 
@@ -39,6 +39,7 @@ CREATE TABLE `effectType` (
 INSERT INTO `effectType` (`id`, `name`) VALUES
 (1, 'Activate'),
 (2, 'Armor-up'),
+(50, 'Attacks'),
 (3, 'Can attack directly'),
 (4, 'Can be any material'),
 (5, 'Can set face-up'),
@@ -54,15 +55,22 @@ INSERT INTO `effectType` (`id`, `name`) VALUES
 (15, 'Discard'),
 (16, 'Don\'t have to tribute'),
 (17, 'Draw'),
+(51, 'Ends turn'),
+(52, 'Equip'),
 (19, 'Exile'),
 (18, 'Extramill'),
+(53, 'Flipped when attacked'),
 (20, 'Fuse from hand'),
 (21, 'Gain control'),
 (22, 'Give choice'),
+(54, 'In maximum mode'),
 (23, 'Instead'),
 (24, 'Keyword'),
+(55, 'Maximum summoned'),
 (25, 'Mill'),
 (26, 'Negate effects'),
+(56, 'No monsters'),
+(49, 'None'),
 (27, 'Pay life'),
 (28, 'Reborn'),
 (29, 'Repeat'),
@@ -81,10 +89,17 @@ INSERT INTO `effectType` (`id`, `name`) VALUES
 (42, 'Stat'),
 (43, 'Steals'),
 (44, 'Summon'),
+(57, 'Summoned this turn'),
+(58, 'Summons'),
 (45, 'Switch attack target'),
+(59, 'Take damage'),
 (46, 'Target'),
 (47, 'Tokenize'),
-(48, 'Top summon');
+(48, 'Top summon'),
+(60, 'When equipped removed'),
+(61, 'When removed'),
+(62, 'Whenever'),
+(63, 'You control only this');
 
 --
 -- Indexes for dumped tables
@@ -105,7 +120,7 @@ ALTER TABLE `effectType`
 -- AUTO_INCREMENT for table `effectType`
 --
 ALTER TABLE `effectType`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=49;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=64;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
