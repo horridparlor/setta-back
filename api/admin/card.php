@@ -287,7 +287,8 @@ function putCard(Database $database): string
             materialsSize = :materialsSize,
             effectsSize = :effectsSize,
             expansionId = :expansionId,
-            modifiedBy = :userId
+            modifiedBy = :userId,
+            updated_at = NOW()
         WHERE id = :cardId;
     SQL;
     $replacements = array(
