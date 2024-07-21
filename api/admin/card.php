@@ -34,7 +34,12 @@ function postCard(Database $database): string
     $costText = $database->getStringParam('costText');
     $effectText = $database->getStringParam('effectText');
     $flavourText = $database->getStringParam('flavourText');
+    $specialCountsAsId = null;
     $countsAsId = $database->getIntParam('countsAsId');
+    if (!is_null($countsAsId) && $countsAsId < 0) {
+        $specialCountsAsId = -$countsAsId;
+        $countsAsId = null;
+    }
     $artScale = $database->getFloatParam('artScale');
     $artXOffset = $database->getFloatParam('artXOffset');
     $artYOffset = $database->getFloatParam('artYOffset');
@@ -70,6 +75,7 @@ function postCard(Database $database): string
             effectText,
             flavourText,
             countsAsId,
+            specialCountsAsId,
             artScale,
             artXOffset,
             artYOffset,
@@ -101,6 +107,7 @@ function postCard(Database $database): string
             :effectText,
             :flavourText,
             :countsAsId,
+            :specialCountsAsId,
             :artScale,
             :artXOffset,
             :artYOffset,
@@ -133,6 +140,7 @@ function postCard(Database $database): string
         'effectText' => ['value' => $effectText, 'type' => PDO::PARAM_STR],
         'flavourText' => ['value' => $flavourText, 'type' => PDO::PARAM_STR],
         'countsAsId' => ['value' => $countsAsId, 'type' => PDO::PARAM_INT],
+        'specialCountsAsId' => ['value' => $specialCountsAsId, 'type' => PDO::PARAM_INT],
         'artScale' => ['value' => $artScale, 'type' => PDO::PARAM_INT],
         'artXOffset' => ['value' => $artXOffset, 'type' => PDO::PARAM_INT],
         'artYOffset' => ['value' => $artYOffset, 'type' => PDO::PARAM_INT],
@@ -245,7 +253,12 @@ function putCard(Database $database): string
     $costText = $database->getStringParam('costText');
     $effectText = $database->getStringParam('effectText');
     $flavourText = $database->getStringParam('flavourText');
+    $specialCountsAsId = null;
     $countsAsId = $database->getIntParam('countsAsId');
+    if (!is_null($countsAsId) && $countsAsId < 0) {
+        $specialCountsAsId = -$countsAsId;
+        $countsAsId = null;
+    }
     $artScale = $database->getFloatParam('artScale');
     $artXOffset = $database->getFloatParam('artXOffset');
     $artYOffset = $database->getFloatParam('artYOffset');
@@ -280,6 +293,7 @@ function putCard(Database $database): string
             effectText = :effectText,
             flavourText = :flavourText,
             countsAsId = :countsAsId,
+            specialCountsAsId = :specialCountsAsId,
             artScale = :artScale,
             artXOffset = :artXOffset,
             artYOffset = :artYOffset,
@@ -312,6 +326,7 @@ function putCard(Database $database): string
         'effectText' => ['value' => $effectText, 'type' => PDO::PARAM_STR],
         'flavourText' => ['value' => $flavourText, 'type' => PDO::PARAM_STR],
         'countsAsId' => ['value' => $countsAsId, 'type' => PDO::PARAM_INT],
+        'specialCountsAsId' => ['value' => $specialCountsAsId, 'type' => PDO::PARAM_INT],
         'artScale' => ['value' => $artScale, 'type' => PDO::PARAM_INT],
         'artXOffset' => ['value' => $artXOffset, 'type' => PDO::PARAM_INT],
         'artYOffset' => ['value' => $artYOffset, 'type' => PDO::PARAM_INT],

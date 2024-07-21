@@ -24,7 +24,7 @@ const SELECT_CARD = <<<SQL
         costText,
         effectText,
         flavourText,
-        countsAsId,
+        IF(specialCountsAsId IS NULL, countsAsId, specialCountsAsId) countsAsId,
         artScale,
         artXOffset,
         artYOffset,
