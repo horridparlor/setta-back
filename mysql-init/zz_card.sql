@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 21, 2024 at 07:10 PM
+-- Generation Time: Jul 21, 2024 at 07:22 PM
 -- Server version: 10.6.18-MariaDB-cll-lve
 -- PHP Version: 8.3.8
 
@@ -28,54 +28,54 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `card` (
-                        `id` int(11) NOT NULL,
-                        `ownerId` int(11) NOT NULL,
-                        `errataOfId` int(11) DEFAULT NULL,
-                        `cardName` varchar(32) NOT NULL,
-                        `serializedName` varchar(32) NOT NULL,
-                        `isAce` tinyint(4) NOT NULL,
-                        `cardClassId` int(11) NOT NULL,
-                        `cardTypeId` int(11) NOT NULL,
-                        `subtypeId` int(11) NOT NULL,
-                        `supertypeId` int(11) NOT NULL,
-                        `maximumPieceId` int(11) NOT NULL,
-                        `level` tinyint(4) NOT NULL,
-                        `atk` smallint(6) NOT NULL,
-                        `def` smallint(6) NOT NULL,
-                        `primaryMaterialId` int(11) DEFAULT NULL,
-                        `secondaryMaterialId` int(11) DEFAULT NULL,
-                        `tertiaryMaterialId` int(11) DEFAULT NULL,
-                        `materialsReminder` varchar(32) NOT NULL,
-                        `costText` varchar(256) NOT NULL,
-                        `effectText` varchar(256) NOT NULL,
-                        `flavourText` varchar(256) NOT NULL,
-                        `countsAsId` int(11) DEFAULT NULL,
-                        `countsAsSpecialId` int(11) DEFAULT NULL,
-                        `artScale` smallint(6) NOT NULL,
-                        `artXOffset` smallint(6) NOT NULL,
-                        `artYOffset` smallint(6) NOT NULL,
-                        `nameSize` tinyint(4) NOT NULL,
-                        `materialsSize` tinyint(4) NOT NULL,
-                        `effectsSize` tinyint(4) NOT NULL,
-                        `expansionId` int(11) NOT NULL,
-                        `isDeleted` smallint(6) NOT NULL,
-                        `modifiedBy` int(11) NOT NULL,
-                        `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-                        `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
+  `id` int(11) NOT NULL,
+  `ownerId` int(11) NOT NULL,
+  `errataOfId` int(11) DEFAULT NULL,
+  `cardName` varchar(32) NOT NULL,
+  `serializedName` varchar(32) NOT NULL,
+  `isAce` tinyint(4) NOT NULL,
+  `cardClassId` int(11) NOT NULL,
+  `cardTypeId` int(11) NOT NULL,
+  `subtypeId` int(11) NOT NULL,
+  `supertypeId` int(11) NOT NULL,
+  `maximumPieceId` int(11) NOT NULL,
+  `level` tinyint(4) NOT NULL,
+  `atk` smallint(6) NOT NULL,
+  `def` smallint(6) NOT NULL,
+  `primaryMaterialId` int(11) DEFAULT NULL,
+  `secondaryMaterialId` int(11) DEFAULT NULL,
+  `tertiaryMaterialId` int(11) DEFAULT NULL,
+  `materialsReminder` varchar(32) NOT NULL,
+  `costText` varchar(256) NOT NULL,
+  `effectText` varchar(256) NOT NULL,
+  `flavourText` varchar(256) NOT NULL,
+  `countsAsId` int(11) DEFAULT NULL,
+  `specialCountsAsId` int(11) DEFAULT NULL,
+  `artScale` smallint(6) NOT NULL,
+  `artXOffset` smallint(6) NOT NULL,
+  `artYOffset` smallint(6) NOT NULL,
+  `nameSize` tinyint(4) NOT NULL,
+  `materialsSize` tinyint(4) NOT NULL,
+  `effectsSize` tinyint(4) NOT NULL,
+  `expansionId` int(11) NOT NULL,
+  `isDeleted` smallint(6) NOT NULL,
+  `modifiedBy` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `card`
 --
 
-INSERT INTO `card` (`id`, `ownerId`, `errataOfId`, `cardName`, `serializedName`, `isAce`, `cardClassId`, `cardTypeId`, `subtypeId`, `supertypeId`, `maximumPieceId`, `level`, `atk`, `def`, `primaryMaterialId`, `secondaryMaterialId`, `tertiaryMaterialId`, `materialsReminder`, `costText`, `effectText`, `flavourText`, `countsAsId`, `countsAsSpecialId`, `artScale`, `artXOffset`, `artYOffset`, `nameSize`, `materialsSize`, `effectsSize`, `expansionId`, `isDeleted`, `modifiedBy`, `created_at`, `updated_at`) VALUES
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             (15, 1, NULL, 'Undead Catalyst', '', 0, 4, 1, 4, 1, 1, 6, 1800, 200, 17, 18, NULL, '', '', '', 'Welcome the slime titan! If someone licks his juice, he turns them into a capybara.', NULL, NULL, 4, 0, 13, 2, 3, 5, 2, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             (16, 1, NULL, 'Hammer Waifu', 'HammerWaifu', 0, 2, 1, 2, 1, 1, 3, 1200, 0, NULL, NULL, NULL, '', 'Discard a card.{i}Hand{/i}', 'Target monster loses {sb}200{/sb} {b}atk{/b}.{i}All stat changes only last until the end of turn{/i}', '', NULL, NULL, 0, 0, 3, 4, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-21 03:24:20'),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             (17, 1, 17, '{i}The{/i}Guildmaster', 'Guildmaster', 0, 4, 1, 2, 1, 1, 7, 2100, 0, NULL, NULL, NULL, '', 'Mill {sb}2{/sb}.{i}From your deck{/i}', 'Gains {sb}400{/sb} {b}atk{/b} for each level-{sb}5{/sb} and {sb}higher{/sb} {sb}normal{/sb} {b}Slime{/b} in your grave.{i}Yellow{/i}', '', NULL, NULL, 0, 0, 0, 3, 5, 5, 2, 0, 1, '2024-05-12 07:27:49', '2024-06-25 12:55:04'),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             (18, 1, NULL, 'Pitch-Black Ooze', '', 0, 4, 1, 1, 1, 1, 5, 1300, 0, NULL, NULL, NULL, '', '', '', 'Monsters so black that everyone fears them. They eat all the light, making them even darker than yo\' asshole.', NULL, NULL, 1, 0, 14, 2, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
+INSERT INTO `card` (`id`, `ownerId`, `errataOfId`, `cardName`, `serializedName`, `isAce`, `cardClassId`, `cardTypeId`, `subtypeId`, `supertypeId`, `maximumPieceId`, `level`, `atk`, `def`, `primaryMaterialId`, `secondaryMaterialId`, `tertiaryMaterialId`, `materialsReminder`, `costText`, `effectText`, `flavourText`, `countsAsId`, `specialCountsAsId`, `artScale`, `artXOffset`, `artYOffset`, `nameSize`, `materialsSize`, `effectsSize`, `expansionId`, `isDeleted`, `modifiedBy`, `created_at`, `updated_at`) VALUES
+(15, 1, NULL, 'Undead Catalyst', '', 0, 4, 1, 4, 1, 1, 6, 1800, 200, 17, 18, NULL, '', '', '', 'Welcome the slime titan! If someone licks his juice, he turns them into a capybara.', NULL, NULL, 4, 0, 13, 2, 3, 5, 2, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
+(16, 1, NULL, 'Hammer Waifu', 'HammerWaifu', 0, 2, 1, 2, 1, 1, 3, 1200, 0, NULL, NULL, NULL, '', 'Discard a card.{i}Hand{/i}', 'Target monster loses {sb}200{/sb} {b}atk{/b}.{i}All stat changes only last until the end of turn{/i}', '', NULL, NULL, 0, 0, 3, 4, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-21 03:24:20'),
+(17, 1, 17, '{i}The{/i}Guildmaster', 'Guildmaster', 0, 4, 1, 2, 1, 1, 7, 2100, 0, NULL, NULL, NULL, '', 'Mill {sb}2{/sb}.{i}From your deck{/i}', 'Gains {sb}400{/sb} {b}atk{/b} for each level-{sb}5{/sb} and {sb}higher{/sb} {sb}normal{/sb} {b}Slime{/b} in your grave.{i}Yellow{/i}', '', NULL, NULL, 0, 0, 0, 3, 5, 5, 2, 0, 1, '2024-05-12 07:27:49', '2024-06-25 12:55:04'),
+(18, 1, NULL, 'Pitch-Black Ooze', '', 0, 4, 1, 1, 1, 1, 5, 1300, 0, NULL, NULL, NULL, '', '', '', 'Monsters so black that everyone fears them. They eat all the light, making them even darker than yo\' asshole.', NULL, NULL, 1, 0, 14, 2, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
 (19, 1, NULL, 'Cute Lady Anis', '', 0, 3, 1, 2, 1, 1, 6, 1600, 1600, NULL, NULL, NULL, '', 'None.{i}Tribute 1 monster to summon a level-5 or 6{/i}', 'Deal {sb}600{/sb} damage.{i}Opponent loses 600 life{/i}', '', NULL, NULL, 3, 9, 0, 4, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
 (20, 1, NULL, 'Apocalypse!', '', 0, 1, 3, 1, 1, 1, 1, 0, 0, NULL, NULL, NULL, '', 'Level-{sb}7{/sb} or {sb}8{/sb} attacks.', 'Reborn a {sb}normal{/sb} {b}Zombie{/b}.{i}Traps can only be used on the opponent\'s turn{/i}', '', NULL, NULL, 0, 0, 0, 4, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             (21, 1, NULL, 'Fernir\'s Curse', '', 0, 6, 1, 1, 1, 1, 5, 1700, 0, NULL, NULL, NULL, '', '', '', 'It has fangs so sharp that it can bite panties off highschool girls without them even noticing the rising wind.', NULL, NULL, 4, 9, 6, 4, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
+(21, 1, NULL, 'Fernir\'s Curse', '', 0, 6, 1, 1, 1, 1, 5, 1700, 0, NULL, NULL, NULL, '', '', '', 'It has fangs so sharp that it can bite panties off highschool girls without them even noticing the rising wind.', NULL, NULL, 4, 9, 6, 4, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
 (22, 1, NULL, 'Pet of Misery', '', 0, 6, 1, 1, 1, 1, 2, 200, 1200, NULL, NULL, NULL, '', '', '', 'Dan got depressed after reincarnating as a pidgeon in a zombie apocalypse where cute girls are long since dead.', NULL, NULL, 0, 0, 0, 4, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
 (23, 1, NULL, 'Furry Chicken', 'FurryChicken', 0, 6, 1, 3, 1, 1, 7, 2100, 0, 21, 22, NULL, '', 'None.{i}This is a Fusion{/i}', 'Opponent discards their hand.{i}All cards in hand{/i}', '', NULL, NULL, 2, 2, 0, 4, 4, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-21 03:23:26'),
 (24, 1, NULL, 'Venom Pit', '', 0, 1, 3, 1, 1, 1, 1, 0, 0, NULL, NULL, NULL, '', 'Summons a level-{sb}2{/sb} or {sb}lower{/sb}; pay {sb}500{/sb}.{i}Life points when opponent summons{/i}', 'Destroy it.{i}To grave{/i}', '', NULL, NULL, 3, 8, 8, 4, 5, 5, 1, 0, 1, '2024-05-12 07:27:49', '2024-06-05 16:08:19'),
@@ -118,7 +118,7 @@ INSERT INTO `card` (`id`, `ownerId`, `errataOfId`, `cardName`, `serializedName`,
 -- Indexes for table `card`
 --
 ALTER TABLE `card`
-    ADD PRIMARY KEY (`id`),
+  ADD PRIMARY KEY (`id`),
   ADD KEY `primaryMaterialId` (`primaryMaterialId`),
   ADD KEY `secondaryMaterialId` (`secondaryMaterialId`),
   ADD KEY `tertiaryMaterialId` (`tertiaryMaterialId`),
@@ -136,7 +136,7 @@ ALTER TABLE `card`
 -- AUTO_INCREMENT for table `card`
 --
 ALTER TABLE `card`
-    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=548;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=548;
 
 --
 -- Constraints for dumped tables
@@ -146,7 +146,7 @@ ALTER TABLE `card`
 -- Constraints for table `card`
 --
 ALTER TABLE `card`
-    ADD CONSTRAINT `card_ibfk_10` FOREIGN KEY (`secondaryMaterialId`) REFERENCES `card` (`id`),
+  ADD CONSTRAINT `card_ibfk_10` FOREIGN KEY (`secondaryMaterialId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_11` FOREIGN KEY (`tertiaryMaterialId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_12` FOREIGN KEY (`countsAsId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_5` FOREIGN KEY (`expansionId`) REFERENCES `expansion` (`id`),
