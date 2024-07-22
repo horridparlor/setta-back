@@ -37,14 +37,12 @@ CREATE TABLE `cardSubtype` (
 --
 
 INSERT INTO `cardSubtype` (`id`, `name`) VALUES
-(8, 'Domain'),
 (2, 'Effect'),
 (3, 'Fusion'),
 (1, 'Normal'),
 (4, 'Revenge'),
 (7, 'Killer Move'),
 (5, 'Royal'),
-(9, 'Swordmaster'),
 (6, 'Time Traveller');
 
 --

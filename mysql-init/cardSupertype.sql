@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: May 07, 2024 at 06:20 AM
--- Server version: 10.6.17-MariaDB-cll-lve
--- PHP Version: 8.1.27
+-- Generation Time: Jul 22, 2024 at 09:35 AM
+-- Server version: 10.6.18-MariaDB-cll-lve
+-- PHP Version: 8.3.8
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,8 +28,8 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `cardSupertype` (
-  `id` int(11) NOT NULL,
-  `name` varchar(16) NOT NULL
+                                 `id` int(11) NOT NULL,
+                                 `name` varchar(16) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -37,10 +37,11 @@ CREATE TABLE `cardSupertype` (
 --
 
 INSERT INTO `cardSupertype` (`id`, `name`) VALUES
-(2, 'Hand Trap'),
-(3, 'Maximum'),
-(1, 'None'),
-(4, 'Pendulum');
+                                               (5, 'Domain'),
+                                               (2, 'Hand Trap'),
+                                               (3, 'Maximum'),
+                                               (1, 'None'),
+                                               (4, 'Pendulum');
 
 --
 -- Indexes for dumped tables
@@ -50,7 +51,7 @@ INSERT INTO `cardSupertype` (`id`, `name`) VALUES
 -- Indexes for table `cardSupertype`
 --
 ALTER TABLE `cardSupertype`
-  ADD PRIMARY KEY (`id`),
+    ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `name` (`name`),
   ADD UNIQUE KEY `name_2` (`name`);
 
@@ -62,7 +63,7 @@ ALTER TABLE `cardSupertype`
 -- AUTO_INCREMENT for table `cardSupertype`
 --
 ALTER TABLE `cardSupertype`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
