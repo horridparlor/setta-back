@@ -129,6 +129,15 @@ class Database
         }
         return boolval($value);
     }
+    public function getArrayParam(string $id, mixed $default = null)
+    {
+        $value = $this->params[$id];
+        if (!is_array($value)) {
+            return $default;
+        }
+
+        return $value;
+    }
 
     public static function allowCORS(): void
     {

@@ -47,6 +47,7 @@ function postCard(Database $database): string
     $materialsSize = $database->getIntParam('materialsSize');
     $effectsSize = $database->getIntParam('effectsSize');
     $expansionId = $database->getIntParam('expansionId');
+    $cardEffects = $database->getArrayParam('cardEffects');
 
     $error = hasAccessToExpansion($expansionId, $user, $database);
     if ($error) {
@@ -83,6 +84,7 @@ function postCard(Database $database): string
             materialsSize,
             effectsSize,
             expansionId,
+            effectsJson,
             isDeleted,
             modifiedBy
         )
@@ -115,6 +117,7 @@ function postCard(Database $database): string
             :materialsSize,
             :effectsSize,
             :expansionId,
+            :effectsJson,
             0,
             :ownerId
         );
@@ -147,7 +150,8 @@ function postCard(Database $database): string
         'nameSize' => ['value' => $nameSize, 'type' => PDO::PARAM_INT],
         'materialsSize' => ['value' => $materialsSize, 'type' => PDO::PARAM_INT],
         'effectsSize' => ['value' => $effectsSize, 'type' => PDO::PARAM_INT],
-        'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT]
+        'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT],
+        'effectsJson' => ['value' => json_encode($cardEffects), 'type' => PDO::PARAM_STR],
     );
     $database->query($sql, $replacements);
 
@@ -266,6 +270,7 @@ function putCard(Database $database): string
     $materialsSize = $database->getIntParam('materialsSize');
     $effectsSize = $database->getIntParam('effectsSize');
     $expansionId = $database->getIntParam('expansionId');
+    $cardEffects = $database->getArrayParam('cardEffects');
 
     $error = hasAccessToExpansion($expansionId, $user, $database);
     if ($error) {
@@ -301,6 +306,7 @@ function putCard(Database $database): string
             materialsSize = :materialsSize,
             effectsSize = :effectsSize,
             expansionId = :expansionId,
+            effectsJson = :effectsJson,
             modifiedBy = :userId,
             updated_at = NOW()
         WHERE id = :cardId;
@@ -334,6 +340,7 @@ function putCard(Database $database): string
         'materialsSize' => ['value' => $materialsSize, 'type' => PDO::PARAM_INT],
         'effectsSize' => ['value' => $effectsSize, 'type' => PDO::PARAM_INT],
         'expansionId' => ['value' => $expansionId, 'type' => PDO::PARAM_INT],
+        'effectsJson' => ['value' => json_encode($cardEffects), 'type' => PDO::PARAM_STR],
         'userId' => ['value' => $user->getId(), 'type' => PDO::PARAM_INT],
     );
     $database->query($sql, $replacements);

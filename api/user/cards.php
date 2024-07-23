@@ -51,7 +51,13 @@ function getCards(Database $database): string
             )
         SQL;
     }
-    $cards = $database->query($sql, $replacements);
+    $cards = array();
+    $rawCards = $database->query($sql, $replacements);
+    foreach ($rawCards as $card) {
+        $card['cardEffects'] = json_decode($card['effectsJson']);
+        unset($card['effectsJson']);
+        $cards[] = $card;
+    }
     return $database->responseSuccess(array(
         'countOfCards' => count($cards),
         'cards' => $cards,
