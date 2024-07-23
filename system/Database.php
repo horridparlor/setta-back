@@ -130,7 +130,6 @@ class Database
 
     public function getBooleanParam(string $id, mixed $default = null)
     {
-        echo json_encode($this->params);
         if (!isset($this->params[$id])) {
             return $default;
         }
