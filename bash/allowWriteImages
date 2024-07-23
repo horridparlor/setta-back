@@ -1,0 +1,2 @@
+sudo chown -R $(whoami):$(whoami) ../setta-assets
+sudo chmod -R 777 ../setta-assets
