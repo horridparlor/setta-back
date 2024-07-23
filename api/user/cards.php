@@ -11,6 +11,7 @@ include("../../system/sql/selectCard.php");
 function getCards(Database $database): string
 {
     $user = $database->getUser();
+    $isGame = $database->getBooleanParam('isGame');
 
     $sql = SELECT_CARD . <<<SQL
         LEFT JOIN (
@@ -35,6 +36,11 @@ function getCards(Database $database): string
             OR card.ownerId = :userId
         )
     SQL;
+    if ($isGame) {
+        $sql .=  <<<SQL
+            AND originalExpansion.isReleasedForGame = 1
+        SQL;
+    }
     $replacements = array(
         'userId' => ['value' => $user ? $user->getId() : 0, 'type' => PDO::PARAM_INT]
     );

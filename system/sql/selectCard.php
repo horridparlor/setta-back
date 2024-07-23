@@ -55,4 +55,6 @@ const SELECT_CARD = <<<SQL
         ON maximumPiece.id = card.maximumPieceId
     LEFT JOIN card original
         ON original.id = card.errataOfId
+    JOIN expansion originalExpansion
+        ON originalExpansion.id = IFNULL(original.expansionId, card.expansionId) 
 SQL;

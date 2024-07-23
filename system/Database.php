@@ -67,11 +67,6 @@ class Database
         return intval($this->query('SELECT LAST_INSERT_ID() id;')[0]['id']);
     }
 
-    public static function arrify(array $ids): string
-    {
-        return "(" . implode(", ", $ids) . ")";
-    }
-
     private static function getRequestParams(RequestType $requestType): array {
         return match($requestType) {
             RequestType::GET => $_GET,
@@ -88,6 +83,9 @@ class Database
 
     public function getIntParam(string $id, mixed $default = null)
     {
+        if (!isset($this->params[$id])) {
+            return $default;
+        }
         $value = $this->params[$id];
         if (is_null($value) or $value === '') {
             return $default;
@@ -96,6 +94,9 @@ class Database
     }
     public function getFloatParam(string $id, mixed $default = null)
     {
+        if (!isset($this->params[$id])) {
+            return $default;
+        }
         $value = $this->params[$id];
         if (is_null($value)) {
             return $default;
@@ -105,6 +106,9 @@ class Database
 
     public function getStringParam(string $id, mixed $default = null)
     {
+        if (!isset($this->params[$id])) {
+            return $default;
+        }
         $value = $this->params[$id];
         if (is_null($value)) {
             return $default;
@@ -114,6 +118,9 @@ class Database
 
     public function getRawStringParam(string $id, mixed $default = null)
     {
+        if (!isset($this->params[$id])) {
+            return $default;
+        }
         $value = $this->params[$id];
         if (is_null($value)) {
             return $default;
@@ -123,6 +130,10 @@ class Database
 
     public function getBooleanParam(string $id, mixed $default = null)
     {
+        echo json_encode($this->params);
+        if (!isset($this->params[$id])) {
+            return $default;
+        }
         $value = $this->params[$id];
         if (is_null($value)) {
             return $default;
@@ -131,6 +142,9 @@ class Database
     }
     public function getArrayParam(string $id, mixed $default = null)
     {
+        if (!isset($this->params[$id])) {
+            return $default;
+        }
         $value = $this->params[$id];
         if (!is_array($value)) {
             return $default;
