@@ -108,6 +108,7 @@ function copyCard(Database $database): string
             materialsSize,
             effectsSize,
             expansionId,
+            effectsJson,
             isDeleted,
             modifiedBy 
         )
@@ -147,6 +148,7 @@ function copyCard(Database $database): string
             c.materialsSize,
             c.effectsSize,
             e.expansionId,
+            c.effectsJson,
             0,
             :userId
         FROM (
@@ -178,7 +180,8 @@ function copyCard(Database $database): string
                 artYOffset,
                 nameSize,
                 materialsSize,
-                effectsSize
+                effectsSize,
+                effectsJson
             FROM card
             WHERE id = :cardId
         ) AS c,
