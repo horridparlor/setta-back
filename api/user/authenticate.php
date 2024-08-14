@@ -11,7 +11,7 @@ function authenticate(Database $database): string
     $username = $database->getStringParam('username');
     $password = $database->getStringParam('password');
     $sql = <<<SQL
-        SELECT id, firstname, lastname, passwordHash
+        SELECT id, firstname, lastname, passwordHash, isAdmin
         FROM user
         WHERE username = :username
     SQL;
@@ -61,6 +61,7 @@ function authenticate(Database $database): string
         'userId' => $userId,
         'firstname' => $user['firstname'],
         'lastname' => $user['lastname'],
+        'isAdmin' => $user['isAdmin']
     ));
 }
 
