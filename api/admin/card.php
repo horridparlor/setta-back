@@ -308,7 +308,7 @@ function putCard(Database $database): string
             expansionId = :expansionId,
             effectsJson = :effectsJson,
             modifiedBy = :userId,
-            updated_at = NOW()
+            updatedAt = NOW()
         WHERE id = :cardId;
     SQL;
     $replacements = array(
