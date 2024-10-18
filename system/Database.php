@@ -258,10 +258,12 @@ class Database
             SELECT
                 user.id id,
                 username,
-                isAdmin
+                accessRights
             FROM authToken
             JOIN user
                 ON user.id = authToken.userId
+            JOIN userRole role
+                ON role.id = user.roleId
             WHERE token = :token
             AND expiration > NOW();
         SQL;
@@ -272,7 +274,7 @@ class Database
         if (!sizeof($user)) {
             return null;
         }
-        return new User(intval($user[0]['id']), $user[0]['username'], boolval($user[0]['isAdmin']));
+        return new User(intval($user[0]['id']), $user[0]['username'], json_decode($user[0]['accessRights']));
     }
     public function getRequestData(): \stdClass {
         return json_decode(json_encode($this->params));

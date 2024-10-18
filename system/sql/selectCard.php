@@ -43,6 +43,8 @@ const SELECT_CARD = <<<SQL
         ON expansion.id = card.expansionId
     LEFT JOIN user expansionOwner
         ON expansionOwner.id = expansion.ownerId
+    LEFT JOIN userRole expansionOwnerRole
+        ON expansionOwnerRole.id = expansionOwner.roleId
     JOIN cardClass
         ON cardClass.id = card.cardClassId
     JOIN cardType

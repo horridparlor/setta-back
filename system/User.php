@@ -6,13 +6,13 @@ class User
 {
     private int $id;
     private string $username;
-    private bool $isAdmin;
+    private \stdClass $accessRights;
 
-    public function __construct(int $id, string $username, bool $isAdmin)
+    public function __construct(int $id, string $username, \stdClass $accessRights)
     {
         $this->id = $id;
         $this->username = $username;
-        $this->isAdmin = $isAdmin;
+        $this->accessRights = $accessRights;
     }
 
     public function getId(): int
@@ -27,6 +27,9 @@ class User
 
     public function isAdmin(): bool
     {
-        return $this->isAdmin;
+        if (!property_exists($this->accessRights, 'isAdmin')) {
+            return false;
+        }
+        return $this->accessRights->isAdmin;
     }
 }

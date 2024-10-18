@@ -11,8 +11,10 @@ function authenticate(Database $database): string
     $username = $database->getStringParam('username');
     $password = $database->getStringParam('password');
     $sql = <<<SQL
-        SELECT id, firstname, lastname, passwordHash, isAdmin
+        SELECT user.id, firstname, lastname, passwordHash, accessRights 
         FROM user
+        JOIN userRole role
+            ON role.id = user.roleId
         WHERE username = :username
     SQL;
     $replacements = array(
@@ -61,7 +63,7 @@ function authenticate(Database $database): string
         'userId' => $userId,
         'firstname' => $user['firstname'],
         'lastname' => $user['lastname'],
-        'isAdmin' => $user['isAdmin']
+        'accessRights' => $user['accessRights']
     ));
 }
 
