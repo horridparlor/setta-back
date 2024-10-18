@@ -34,8 +34,8 @@ const SELECT_CARD = <<<SQL
         card.expansionId,
         IFNULL(original.expansionId, card.expansionId) originalExpansionId,
         IFNULL(card.effectsJson, '{"cost": {"amount": null, "costType": "None", "payment": null, "postCount": null, "preState": null, "subtype": null, "supertype": null, "target": null}, "effect": {"amount": null, "benefit": null, "chainedEffect": null, "direction": null, "effectType": "None", "hindrance": null, "maxAmount": null, "subtype": null, "supertype": null, "target": null}}') effectsJson,
-        card.created_at,
-        card.updated_at
+        card.createdAt,
+        card.updatedAt
     FROM card
     JOIN user cardOwner
         ON cardOwner.id = card.ownerId

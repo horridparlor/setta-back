@@ -35,15 +35,15 @@ CREATE TABLE `expansion` (
                              `isReleased` tinyint(4) NOT NULL DEFAULT 0,
                              `isReleasedForGame` tinyint(4) NOT NULL DEFAULT 0,
                              `modifiedBy` int(11) NOT NULL,
-                             `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-                             `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+                             `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+                             `updatedAt` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
 -- Dumping data for table `expansion`
 --
 
-INSERT INTO `expansion` (`id`, `ownerId`, `name`, `releaseYear`, `isReleased`, `isReleasedForGame`, `modifiedBy`, `created_at`, `updated_at`) VALUES
+INSERT INTO `expansion` (`id`, `ownerId`, `name`, `releaseYear`, `isReleased`, `isReleasedForGame`, `modifiedBy`, `createdAt`, `updatedAt`) VALUES
                                                                                                                                                   (1, 1, 'Set 1', 2023, 1, 0, 0, '2024-05-12 10:29:42', '2024-06-21 06:28:59'),
                                                                                                                                                   (2, 1, 'Mini 1', 2024, 1, 0, 0, '2024-05-12 10:29:42', '2024-06-23 10:56:26'),
                                                                                                                                                   (3, 1, 'Mini 2', 2024, 1, 0, 0, '2024-05-12 10:29:42', '2024-07-10 14:23:19'),

@@ -17,8 +17,8 @@ function getCards(Database $database): string
         LEFT JOIN (
             SELECT id, errataOfId
             FROM card
-            WHERE created_at IN (
-                SELECT MAX(errata.created_at)
+            WHERE createdAt IN (
+                SELECT MAX(errata.createdAt)
                 FROM card errata
                 JOIN expansion
                     ON expansion.id = errata.expansionId
