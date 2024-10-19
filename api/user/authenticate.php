@@ -63,7 +63,7 @@ function authenticate(Database $database): string
         'userId' => $userId,
         'firstname' => $user['firstname'],
         'lastname' => $user['lastname'],
-        'accessRights' => $user['accessRights']
+        'accessRights' => json_decode($user['accessRights'])
     ));
 }
 
