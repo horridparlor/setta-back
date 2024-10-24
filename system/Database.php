@@ -245,9 +245,7 @@ class Database
 
     public function getUser(): User|null {
         $headers = apache_request_headers();
-        $authHeader = $headers["Authorization"] ?? $headers["authorization"] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? null;
-
-        $token = null;
+        $authHeader = $headers["Authorization"] ?? $headers["authorization"] ?? $_SERVER['HTTP_AUTHORIZATION'] ?? $_SERVER['REDIRECT_HTTP_AUTHORIZATION'] ?? null;        $token = null;
         if ($authHeader && preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
             $token = $matches[1];
         }
