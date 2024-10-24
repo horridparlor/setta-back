@@ -38,6 +38,13 @@ class Database
         }
     }
 
+    public function queryWithDecode(string $sql, array $columnsToDecode, ?array $replacements = array(), ?bool $debug = false): array {
+        return $this->decodeColumns(
+            $this->query($sql, $replacements, $debug),
+            $columnsToDecode
+        );
+    }
+
     public function query(string $sql, ?array $replacements = array(), ?bool $debug = false): array
     {
         if ($debug) {
@@ -221,7 +228,9 @@ class Database
     }
 
 
-    public static function responseNotFound(array $json): string {
+    public static function responseNotFound(array $json = array(
+        'error' => 'Not found'
+    )): string {
         http_response_code(404);
         return json_encode($json);
     }
@@ -276,5 +285,17 @@ class Database
     }
     public function getRequestData(): \stdClass {
         return json_decode(json_encode($this->params));
+    }
+
+    public function decodeColumns(array $rows, array $columnsToDecode): array {
+        if (!$rows || !sizeof($columnsToDecode)) {
+            return $rows;
+        }
+        foreach ($rows as &$row) {
+            foreach ($columnsToDecode as $column) {
+                $row[$column] = $row[$column] ? json_decode($row[$column]) : null;
+            }
+        }
+        return $rows;
     }
 }
