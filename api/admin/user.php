@@ -37,12 +37,30 @@ function getUser(Database $database): string {
     ));
 }
 
-function createNewRole(array $accessRights, Database $database): int {
-
+function createNewRole(string|null $roleName, array $accessRights, Database $database): int {
+    $sql = <<<SQL
+        INSERT INTO userRole (
+            name,
+            accessRights
+        ) VALUES (
+            :roleName,
+            :accessRights 
+        )
+    SQL;
+    $replacements = array(
+        'roleName' => ['value' => $roleName, 'type' => PDO::PARAM_STR],
+        'accessRights' => ['value' => $database->arrayToObjectString($accessRights), 'type' => PDO::PARAM_STR]
+    );
+    $database->query($sql, $replacements);
+    return $database->getInsertId();
 }
 
 function postUser(Database $database): string
 {
+    $user = $database->getUser();
+    if (!$user || !$user->canManageUsers()) {
+        return $database->responseUnauthorized();
+    }
     $uniqueUsernameSql = <<<SQL
         SELECT :comparedValue
         FROM user
@@ -69,7 +87,25 @@ function postUser(Database $database): string
             'type' => StandardType::STRING
         ),
         array(
-            'param' => 'isActive',
+            'param' => 'firstname',
+            'type' => StandardType::STRING
+        ),
+        array(
+            'param' => 'lastname',
+            'type' => StandardType::STRING
+        ),
+        array(
+            'param' => 'penName',
+            'type' => StandardType::STRING,
+            'required' => false
+        ),
+        array(
+            'param' => 'email',
+            'type' => StandardType::STRING,
+            'required' => false
+        ),
+        array(
+            'param' => 'phoneNumber',
             'type' => StandardType::BOOLEAN,
             'required' => false
         ),
@@ -79,7 +115,99 @@ function postUser(Database $database): string
             'exists' => new SqlComparison($roleExistsSql),
             'option' => array(
                 'param' => 'accessRights',
+                'children' => array(
+                    array(
+                        'param' => 'isAdmin',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canRelease',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canManageAdmins',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canManageUsers',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canClearContent',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'hasUnlimitedTokens',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canShareTokens',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canMessageAdmins',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canMassExport',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canCreateContent',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canGenerateImages',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canMessage',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'autoRefillTokens',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'isRegularUser',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'isPriorityUser',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'isEmployee',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'isContentCreator',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                )
             )
+        ),
+        array(
+            'param' => 'roleName',
+            'type' => StandardType::STRING,
+            'required' => false
         )
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
@@ -98,9 +226,10 @@ function postUser(Database $database): string
     $phoneNumber = $database->getStringParam('phoneNumber');
     $isActive = $database->getBooleanParam('isActive', true);
     $roleId = $database->getIntParam('roleId');
+    $roleName = $database->getStringParam('roleName');
     $accessRights = $database->getArrayParam('accessRights');
-    if ($roleId = null) {
-        $roleId = createNewRole($accessRights, $database);
+    if (is_null($roleId)) {
+        $roleId = createNewRole($roleName, $accessRights, $database);
     }
     $sql = <<<SQL
         INSERT INTO user (

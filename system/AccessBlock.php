@@ -223,6 +223,9 @@ class AccessBlock
             if ($missing) { return $missing; }
         }
         foreach ($paramCheck->children as $child) {
+            if (is_array($value)) {
+                $value = new \stdClass();
+            }
             $missing = self::handleParamCheck($child, $value, $database, $treeWithThis);
             if ($missing) { return $missing; }
         }

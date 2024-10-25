@@ -298,4 +298,11 @@ class Database
         }
         return $rows;
     }
+
+    public function arrayToObjectString(array $object): string {
+        if (empty($object)) {
+            return json_encode(new \stdClass());
+        }
+        return json_encode($object);
+    }
 }
