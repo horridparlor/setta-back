@@ -151,8 +151,11 @@ class ParamCheck {
 class SqlComparison {
     private string $sql;
     private array $replacements;
-    public function __construct(string $sql, array $replacements = []) {
+    public function __construct(string $sql, array $replacements = [], \stdClass $requestData = null) {
         $this->sql = $sql;
+        if ($requestData) {
+            $replacements = $this->fillReplacements($replacements, $requestData);
+        }
         $this->replacements = $replacements;
     }
     public function getSql(): string {
@@ -163,6 +166,20 @@ class SqlComparison {
     }
     public function eatReplacement(string $key, mixed $value, int $pdoType): void {
         $this->replacements[$key] = ['value' => $value, 'type' => $pdoType];
+    }
+    public function fillReplacements(array $source, \stdClass $requestData): array {
+        $replacements = array();
+        foreach ($source as $key => $replacement) {
+            $value = $replacement['value'];
+            $replacements[$key] = $replacement;
+            if (is_string($value) && strpos($value, '$') === 0) {
+                $replace = substr($value, 1);
+                if (isset($requestData->$replace)) {
+                    $replacements[$key]['value'] = $requestData->$replace;
+                }
+            }
+        }
+        return $replacements;
     }
 }
 class AccessBlock

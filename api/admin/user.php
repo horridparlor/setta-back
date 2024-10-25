@@ -18,6 +18,17 @@ function getUser(Database $database): string {
     if (!$user) {
         return $database->responseUnauthorized();
     }
+    $requiredParams = array(
+        array(
+          'param' => 'userId',
+          'type' => StandardType::ID,
+          'exists' => new SqlComparison(USER_EXISTS_SQL)
+        )
+    );
+    $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
+    if ($missingParam) {
+        return $database->responseBadRequest($missingParam);
+    }
     $userId = $database->getIntParam('userId', $user->getId());
     if ($userId != $user->getId() && !$user->isAdmin()) {
         return $database->responseUnauthorized();
@@ -29,9 +40,6 @@ function getUser(Database $database): string {
         'userId' => ['value' => $userId, 'type' => PDO::PARAM_INT]
     );
     $user = $database->queryWithDecode($sql, USER_COLUMNS_TO_DECODE, $replacements);
-    if (!$user) {
-        return $database->responseNotFound();
-    }
 
     return $database->responseSuccess(array(
         'user' => $user[0]
@@ -307,9 +315,179 @@ function postUser(Database $database): string
     $result = $database->query('SELECT LAST_INSERT_ID() userId;');
 
     return $database->responseSuccess(array(
-        'userId' => $result[0]['userId'],
+        'userId' => $result[0]['userId']
+    ));
+}
+
+function putUser(Database $database): string
+{
+    $user = $database->getUser();
+    if (!$user || !$user->canManageUsers()) {
+        return $database->responseUnauthorized();
+    }
+    $uniqueUsernameSql = <<<SQL
+        SELECT :comparedValue
+        FROM user
+        WHERE username = :comparedValue
+        AND NOT id = :userId
+    SQL;
+    $uniqueUsernameReplacements = array(
+        'userId' => ['value' => '$userId', 'type' => PDO::PARAM_INT]
+    );
+    $roleExistsSql = <<<SQL
+        SELECT :comparedValue
+        FROM DUAL
+        WHERE NOT EXISTS (
+            SELECT id
+            FROM userRole
+            WHERE id = :comparedValue
+        )
+    SQL;
+
+    $requiredParams = array(
+        array(
+            'param' => 'userId',
+            'type' => StandardType::ID,
+            'exists' => new SqlComparison(USER_EXISTS_SQL)
+        ),
+        array(
+          'param' => 'username',
+          'type' => StandardType::STRING,
+          'unique' => new SqlComparison($uniqueUsernameSql, $uniqueUsernameReplacements, $database->getRequestData())
+        ),
+        array(
+            'param' => 'firstname',
+            'type' => StandardType::STRING
+        ),
+        array(
+            'param' => 'lastname',
+            'type' => StandardType::STRING
+        ),
+        array(
+            'param' => 'penName',
+            'type' => StandardType::STRING,
+            'required' => false
+        ),
+        array(
+            'param' => 'email',
+            'type' => StandardType::STRING,
+            'required' => false
+        ),
+        array(
+            'param' => 'phoneNumber',
+            'type' => StandardType::BOOLEAN,
+            'required' => false
+        ),
+        array(
+            'param' => 'roleId',
+            'type' => StandardType::NUMBER,
+            'exists' => new SqlComparison($roleExistsSql),
+            'option' => array(
+                'param' => 'accessRights',
+                'children' => array(
+                    array(
+                        'param' => 'isAdmin',
+                        'type' => StandardType::BOOLEAN,
+                        'forbidden' => true
+                    ),
+                    array(
+                        'param' => 'canRelease',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canManageAdmins',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canManageUsers',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canClearContent',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'hasUnlimitedTokens',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canShareTokens',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canMessageAdmins',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canMassExport',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canCreateContent',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canGenerateImages',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'canMessage',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'autoRefillTokens',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'isRegularUser',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'isPriorityUser',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'isEmployee',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                    array(
+                        'param' => 'isContentCreator',
+                        'type' => StandardType::BOOLEAN,
+                        'required' => false
+                    ),
+                )
+            )
+        ),
+        array(
+            'param' => 'roleName',
+            'type' => StandardType::STRING,
+            'required' => false
+        )
+    );
+    $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
+    if ($missingParam) {
+        return $database->responseBadRequest($missingParam);
+    }
+    $userId = $database->getIntParam('userId');
+    return $database->responseSuccess(array(
+        'userId' => $userId
     ));
 }
 
 $database = new Database();
-$database->handleRequest('getUser', 'postUser');
+$database->handleRequest('getUser', 'postUser', 'putUser');

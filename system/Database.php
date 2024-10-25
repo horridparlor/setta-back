@@ -83,6 +83,11 @@ class Database
 
     public function getGetParams(): void {
         $this->params = self::getRequestParams(RequestType::GET);
+        foreach ($this->params as $key => &$value) {
+            if (is_numeric($value)) {
+                $value = str_contains($value, '.') ? (float) $value : (int) $value;
+            }
+        }
     }
     public function getPostParams(): void {
         $this->params = self::getRequestParams(RequestType::POST);

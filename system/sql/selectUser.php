@@ -4,6 +4,17 @@ const USER_COLUMNS_TO_DECODE = [
     'accessRights',
     'tokenRequest'
 ];
+
+const USER_EXISTS_SQL = <<<SQL
+    SELECT :comparedValue
+    FROM DUAL
+    WHERE NOT EXISTS (
+        SELECT id
+        FROM user
+        WHERE id = :comparedValue
+    )
+SQL;
+
 const SELECT_USER = <<<SQL
     SELECT
         user.id,
