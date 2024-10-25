@@ -13,6 +13,113 @@ include("../../system/User.php");
 include "../../system/sql/selectUser.php";
 include("../../system/AccessBlock.php");
 
+function getAccessRightsMissingParams(): array {
+    $roleExistsSql = <<<SQL
+        SELECT :comparedValue
+        FROM DUAL
+        WHERE NOT EXISTS (
+            SELECT id
+            FROM userRole
+            WHERE id = :comparedValue
+        )
+    SQL;
+    return array(
+        'param' => 'roleId',
+        'type' => StandardType::NUMBER,
+        'exists' => new SqlComparison($roleExistsSql),
+        'option' => array(
+            'param' => 'accessRights',
+            'children' => array(
+                array(
+                    'param' => 'isAdmin',
+                    'type' => StandardType::BOOLEAN,
+                    'forbidden' => true
+                ),
+                array(
+                    'param' => 'canRelease',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canManageAdmins',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canManageUsers',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canClearContent',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'hasUnlimitedTokens',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canShareTokens',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canMessageAdmins',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canMassExport',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canCreateContent',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canGenerateImages',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'canMessage',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'autoRefillTokens',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'isRegularUser',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'isPriorityUser',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'isEmployee',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                ),
+                array(
+                    'param' => 'isContentCreator',
+                    'type' => StandardType::BOOLEAN,
+                    'required' => false
+                )
+            )
+        )
+    );
+}
+
 function getUser(Database $database): string {
     $user = $database->getUser();
     if (!$user) {
@@ -103,15 +210,6 @@ function postUser(Database $database): string
         FROM user
         WHERE username = :comparedValue
     SQL;
-    $roleExistsSql = <<<SQL
-        SELECT :comparedValue
-        FROM DUAL
-        WHERE NOT EXISTS (
-            SELECT id
-            FROM userRole
-            WHERE id = :comparedValue
-        )
-    SQL;
 
     $requiredParams = array(
         array(
@@ -146,101 +244,7 @@ function postUser(Database $database): string
             'type' => StandardType::BOOLEAN,
             'required' => false
         ),
-        array(
-            'param' => 'roleId',
-            'type' => StandardType::NUMBER,
-            'exists' => new SqlComparison($roleExistsSql),
-            'option' => array(
-                'param' => 'accessRights',
-                'children' => array(
-                    array(
-                        'param' => 'isAdmin',
-                        'type' => StandardType::BOOLEAN,
-                        'forbidden' => true
-                    ),
-                    array(
-                        'param' => 'canRelease',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canManageAdmins',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canManageUsers',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canClearContent',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'hasUnlimitedTokens',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canShareTokens',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canMessageAdmins',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canMassExport',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canCreateContent',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canGenerateImages',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canMessage',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'autoRefillTokens',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'isRegularUser',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'isPriorityUser',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'isEmployee',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'isContentCreator',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                )
-            )
-        ),
+        getAccessRightsMissingParams(),
         array(
             'param' => 'roleName',
             'type' => StandardType::STRING,
@@ -334,15 +338,6 @@ function putUser(Database $database): string
     $uniqueUsernameReplacements = array(
         'userId' => ['value' => '$userId', 'type' => PDO::PARAM_INT]
     );
-    $roleExistsSql = <<<SQL
-        SELECT :comparedValue
-        FROM DUAL
-        WHERE NOT EXISTS (
-            SELECT id
-            FROM userRole
-            WHERE id = :comparedValue
-        )
-    SQL;
 
     $requiredParams = array(
         array(
@@ -378,101 +373,7 @@ function putUser(Database $database): string
             'type' => StandardType::BOOLEAN,
             'required' => false
         ),
-        array(
-            'param' => 'roleId',
-            'type' => StandardType::NUMBER,
-            'exists' => new SqlComparison($roleExistsSql),
-            'option' => array(
-                'param' => 'accessRights',
-                'children' => array(
-                    array(
-                        'param' => 'isAdmin',
-                        'type' => StandardType::BOOLEAN,
-                        'forbidden' => true
-                    ),
-                    array(
-                        'param' => 'canRelease',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canManageAdmins',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canManageUsers',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canClearContent',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'hasUnlimitedTokens',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canShareTokens',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canMessageAdmins',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canMassExport',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canCreateContent',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canGenerateImages',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'canMessage',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'autoRefillTokens',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'isRegularUser',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'isPriorityUser',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'isEmployee',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                    array(
-                        'param' => 'isContentCreator',
-                        'type' => StandardType::BOOLEAN,
-                        'required' => false
-                    ),
-                )
-            )
-        ),
+        getAccessRightsMissingParams(),
         array(
             'param' => 'roleName',
             'type' => StandardType::STRING,
