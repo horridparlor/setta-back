@@ -20,6 +20,18 @@ const ACCESS_RIGHT_IS_PRIORITY_USER = 'isPriorityUser';
 const ACCESS_RIGHT_IS_EMPLOYEE = 'isEmployee';
 const ACCESS_RIGHT_IS_CONTENT_CREATOR = 'isContentCreator';
 
+const ADMIN_RIGHTS = array(
+    ACCESS_RIGHT_IS_ADMIN,
+    ACCESS_RIGHT_CAN_RELEASE,
+    ACCESS_RIGHT_CAN_MANAGE_ADMINS,
+    ACCESS_RIGHT_CAN_MANAGE_USERS,
+    ACCESS_RIGHT_CAN_CLEAR_CONTENT,
+    ACCESS_RIGHT_HAS_UNLIMITED_TOKENS,
+    ACCESS_RIGHT_CAN_SHARE_TOKENS,
+    ACCESS_RIGHT_CAN_MESSAGE_ADMINS,
+    ACCESS_RIGHT_CAN_MASS_EXPORT
+);
+
 class User
 {
     private int $id;
@@ -31,6 +43,10 @@ class User
         $this->id = $id;
         $this->username = $username;
         $this->accessRights = $accessRights;
+    }
+
+    public static function newDummyUser(\stdClass $accessRights): User {
+        return new User(0, '', $accessRights);
     }
 
     public function getId(): int
@@ -123,5 +139,15 @@ class User
             return false;
         }
         return $this->accessRights->isAdmin;
+    }
+
+    public function hasAdminRights(): bool
+    {
+        foreach (ADMIN_RIGHTS as $adminRight) {
+            if ($this->hasAccessRight($adminRight)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -10,7 +10,7 @@ include "../../system/sql/selectUser.php";
 
 function getUsers(Database $database): string {
     $user = $database->getUser();
-    if (!$user || !$user->isAdmin()) {
+    if (!$user || !$user->canManageUsers()) {
         return $database->responseUnauthorized();
     }
     $sql = SELECT_USER;

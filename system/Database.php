@@ -159,6 +159,15 @@ class Database
         return $value;
     }
 
+    public function getObjectParam(string $id, mixed $default = null)
+    {
+        $array = $this->getArrayParam($id, $default);
+        if ($array) {
+            return json_decode(json_encode($array));
+        }
+        return $array;
+    }
+
     public static function allowCORS(): void
     {
         if (isset($_SERVER['HTTP_ORIGIN'])) {
@@ -297,12 +306,5 @@ class Database
             }
         }
         return $rows;
-    }
-
-    public function arrayToObjectString(array $object): string {
-        if (empty($object)) {
-            return json_encode(new \stdClass());
-        }
-        return json_encode($object);
     }
 }

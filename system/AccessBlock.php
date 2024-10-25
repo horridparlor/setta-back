@@ -31,6 +31,7 @@ Class StandardMessages {
     const EMPTY = "empty";
     const STRING = "string";
     const REQUIRED_PARAM_MISSING = "Required parameter %s is missing";
+    const FORBIDDEN_PARAM = "Forbidden param %s";
     const PARAM_MISSING_REGEX = "/^Required parameter .* is missing$/";
     const REQUIRED_PARAM_WITH_OPTION_MISSING = "Requires parameter (%s or %s)%s";
     const REQUIRED_PARAM_ARRAY = "Parameter %s %s be an array";
@@ -57,6 +58,10 @@ Class StandardMessages {
 
     public static function paramMissing(array $paramTree): string {
         return sprintf(self::REQUIRED_PARAM_MISSING, implode("->", $paramTree));
+    }
+
+    public static function forbiddenParam(array $paramTree): string {
+        return sprintf(self::FORBIDDEN_PARAM, implode("->", $paramTree));
     }
 
     public static function paramWithOptionMissing(string $param, string $option, array $paramTree): string {
@@ -116,6 +121,7 @@ class ParamCheck {
     public array $iterative;
     public bool $isIterative;
     public bool $required;
+    public bool $forbidden;
     public int $minSize;
     public int $maxSize;
     public StandardType $type;
@@ -131,6 +137,7 @@ class ParamCheck {
         $this->iterative = array();
         $this->isIterative = false;
         $this->required = true;
+        $this->forbidden = false;
         $this->minSize = NO_SIZE;
         $this->maxSize = NO_SIZE;
         $this->type = StandardType::UNKNOWN;
@@ -188,6 +195,9 @@ class AccessBlock
                 return $paramCheck->required ? StandardMessages::paramMissing($treeWithThis) : null;
             }
         } else {
+            if ($paramCheck->forbidden) {
+                return StandardMessages::forbiddenParam($treeWithThis);
+            }
             $value = $request->$param;
             if (isset($paramCheck->option)) {
                 $option = $paramCheck->option;
@@ -360,6 +370,10 @@ class AccessBlock
             $paramCheck->isIterative = true;
         }
         if (isset($array['required']) && !$array['required']) {
+            $paramCheck->required = false;
+        }
+        if (isset($array['forbidden']) && $array['forbidden']) {
+            $paramCheck->forbidden = true;
             $paramCheck->required = false;
         }
         if (isset($array['notEmpty']) && $array['notEmpty']) {

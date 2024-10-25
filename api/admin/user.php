@@ -4,6 +4,7 @@ use system\Database;
 use system\AccessBlock;
 use system\StandardType;
 use system\SqlComparison;
+use system\User;
 
 header('Content-Type: application/json');
 
@@ -37,7 +38,7 @@ function getUser(Database $database): string {
     ));
 }
 
-function createNewRole(string|null $roleName, array $accessRights, Database $database): int {
+function createNewRole(string|null $roleName, stdClass $accessRights, Database $database): int {
     $sql = <<<SQL
         INSERT INTO userRole (
             name,
@@ -49,10 +50,38 @@ function createNewRole(string|null $roleName, array $accessRights, Database $dat
     SQL;
     $replacements = array(
         'roleName' => ['value' => $roleName, 'type' => PDO::PARAM_STR],
-        'accessRights' => ['value' => $database->arrayToObjectString($accessRights), 'type' => PDO::PARAM_STR]
+        'accessRights' => ['value' => json_encode($accessRights), 'type' => PDO::PARAM_STR]
     );
     $database->query($sql, $replacements);
     return $database->getInsertId();
+}
+
+function canGiveRole(User $user, stdClass $accessRights, Database $database): string|null {
+    $dummyUser = User::newDummyUser($accessRights);
+    if ($dummyUser->isAdmin()) {
+        return Database::responseForbidden(array(
+           'error' => 'New admins cannot be created'
+        ));
+    }
+    if (!$user->isAdmin() && $dummyUser->hasAdminRights()) {
+        return Database::responseUnauthorized(array(
+           'error' => 'You cannot give admin access rights'
+        ));
+    }
+    return null;
+}
+
+function canGiveExistingRole(User $user, int $roleId, Database $database): string|null {
+    $sql = <<<SQL
+        SELECT accessRights
+        FROM userRole role
+        WHERE role.id = :roleId
+    SQL;
+    $replacements = array(
+        'roleId' => ['value' => $roleId, 'type' => PDO::PARAM_INT]
+    );
+    $accessRights = json_decode($database->query($sql, $replacements)[0]['accessRights']);
+    return canGiveRole($user, $accessRights, $database);
 }
 
 function postUser(Database $database): string
@@ -119,7 +148,7 @@ function postUser(Database $database): string
                     array(
                         'param' => 'isAdmin',
                         'type' => StandardType::BOOLEAN,
-                        'required' => false
+                        'forbidden' => true
                     ),
                     array(
                         'param' => 'canRelease',
@@ -227,9 +256,18 @@ function postUser(Database $database): string
     $isActive = $database->getBooleanParam('isActive', true);
     $roleId = $database->getIntParam('roleId');
     $roleName = $database->getStringParam('roleName');
-    $accessRights = $database->getArrayParam('accessRights');
+    $accessRights = $database->getObjectParam('accessRights');
     if (is_null($roleId)) {
+        $error = canGiveRole($user, $accessRights, $database);
+        if ($error) {
+            return $error;
+        }
         $roleId = createNewRole($roleName, $accessRights, $database);
+    } else {
+        $error = canGiveExistingRole($user, $roleId, $database);
+        if ($error) {
+            return $error;
+        }
     }
     $sql = <<<SQL
         INSERT INTO user (
