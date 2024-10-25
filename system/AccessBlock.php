@@ -2,6 +2,8 @@
 
 namespace system;
 
+use PDO;
+
 enum StandardType: string {
     case BOOLEAN = 'boolean';
     case DATE = '^2[0-9][0-9][0-9]-(0[1-9]|1[0-2])-(0[1-9]|1[0-9]|2[0-9]|3[0-1])$';
@@ -117,6 +119,7 @@ class ParamCheck {
     public int $minSize;
     public int $maxSize;
     public StandardType $type;
+    public int $pdoType;
     public string $redux;
     public SqlComparison|null $unique;
     public SqlComparison|null $exists;
@@ -131,6 +134,7 @@ class ParamCheck {
         $this->minSize = NO_SIZE;
         $this->maxSize = NO_SIZE;
         $this->type = StandardType::UNKNOWN;
+        $this->pdoType = \PDO::PARAM_INT;
         $this->redux = '';
         $this->unique = null;
         $this->exists = null;
@@ -150,8 +154,8 @@ class SqlComparison {
     public function getReplacements(): array {
         return $this->replacements;
     }
-    public function eatReplacement(string $key, mixed $value): void {
-        $this->replacements[$key] = ['value' => $value, 'type' => \PDO::PARAM_INT];
+    public function eatReplacement(string $key, mixed $value, int $pdoType): void {
+        $this->replacements[$key] = ['value' => $value, 'type' => $pdoType];
     }
 }
 class AccessBlock
@@ -198,17 +202,17 @@ class AccessBlock
             if (!$paramCheck->isIterative && $type != StandardType::UNKNOWN and !self::checkParamType($value, $type, $paramCheck->redux)) {
                 return StandardMessages::paramInvalidType($value, $type, $paramCheck->redux, $treeWithThis);
             }
-            if (!self::checkParamUnique($value, $paramCheck->unique, $database)) {
+            if (!self::checkParamUnique($value, $paramCheck, $database)) {
                 return StandardMessages::paramNotUnique($value, $treeWithThis);
             }
             if (!is_null($paramCheck->exists)) {
-                $exists = self::checkParamExists($value, $paramCheck->exists, $database);
+                $exists = self::checkParamExists($value, $paramCheck, $database);
                 if (!is_null($exists)) {
                     return StandardMessages::paramNotExist($exists, $treeWithThis);
                 }
             }
             if (!is_null($paramCheck->cascade)) {
-                $cascadingEntity = self::checkParamCascade($value, $paramCheck->cascade, $database);
+                $cascadingEntity = self::checkParamCascade($value, $paramCheck, $database);
                 if (!is_null($cascadingEntity)) {
                     return StandardMessages::paramCascadingEntity($cascadingEntity['prefix'], $value, $cascadingEntity['suffix'], $treeWithThis);
                 }
@@ -254,22 +258,24 @@ class AccessBlock
         };
     }
 
-    private static function checkParamUnique(mixed $value, SqlComparison|null $comparison, Database $database): bool {
+    private static function checkParamUnique(mixed $value, ParamCheck $paramCheck, Database $database): bool {
+        $comparison = $paramCheck->unique;
         if (!$comparison) {
             return true;
         }
-        $comparison->eatReplacement('comparedValue', $value);
+        $comparison->eatReplacement('comparedValue', $value, $paramCheck->pdoType);
         return empty($database->query($comparison->getSql(), $comparison->getReplacements()));
     }
 
-    private static function checkParamExists(mixed $value, SqlComparison|null $comparison, Database $database): null|array
+    private static function checkParamExists(mixed $value, ParamCheck $paramCheck, Database $database): null|array
     {
+        $comparison = $paramCheck->exists;
         $exists = array(
             'prefix' => '',
             'suffix' => '',
             'entity' => ''
         );
-        $comparison->eatReplacement('comparedValue', $value);
+        $comparison->eatReplacement('comparedValue', $value, $paramCheck->pdoType);
         $result = $database->query($comparison->getSql(), $comparison->getReplacements());
         if (empty($result)) {
             return null;
@@ -285,12 +291,13 @@ class AccessBlock
         }
         return $exists;
     }
-    private static function checkParamCascade(mixed $value, SqlComparison|null $comparison, Database $database): null|array {
+    private static function checkParamCascade(mixed $value, ParamCheck $paramCheck, Database $database): null|array {
+        $comparison = $paramCheck->cascade;
         $cascadingEntity = array(
             'prefix' => '',
             'suffix' => ''
         );
-        $comparison->eatReplacement('comparedValue', $value);
+        $comparison->eatReplacement('comparedValue', $value, $paramCheck->pdoType);
         $result = $database->query($comparison->getSql(), $comparison->getReplacements());
         if (!sizeof($result)) {
             return null;
@@ -369,6 +376,9 @@ class AccessBlock
             } else {
                 $paramCheck->type = $type;
                 $paramCheck->redux = $type->value;
+            }
+            if ($paramCheck->type == StandardType::STRING) {
+                $paramCheck->pdoType = PDO::PARAM_STR;
             }
         }
         if (isset($array['unique'])) {

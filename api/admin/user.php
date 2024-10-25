@@ -1,12 +1,16 @@
 <?php
 
 use system\Database;
+use system\AccessBlock;
+use system\StandardType;
+use system\SqlComparison;
 
 header('Content-Type: application/json');
 
 include("../../system/Database.php");
 include("../../system/User.php");
 include "../../system/sql/selectUser.php";
+include("../../system/AccessBlock.php");
 
 function getUser(Database $database): string {
     $user = $database->getUser();
@@ -33,8 +37,56 @@ function getUser(Database $database): string {
     ));
 }
 
+function createNewRole(array $accessRights, Database $database): int {
+
+}
+
 function postUser(Database $database): string
 {
+    $uniqueUsernameSql = <<<SQL
+        SELECT :comparedValue
+        FROM user
+        WHERE username = :comparedValue
+    SQL;
+    $roleExistsSql = <<<SQL
+        SELECT :comparedValue
+        FROM DUAL
+        WHERE NOT EXISTS (
+            SELECT id
+            FROM userRole
+            WHERE id = :comparedValue
+        )
+    SQL;
+
+    $requiredParams = array(
+        array(
+          'param' => 'username',
+          'type' => StandardType::STRING,
+          'unique' => new SqlComparison($uniqueUsernameSql)
+        ),
+        array(
+            'param' => 'password',
+            'type' => StandardType::STRING
+        ),
+        array(
+            'param' => 'isActive',
+            'type' => StandardType::BOOLEAN,
+            'required' => false
+        ),
+        array(
+            'param' => 'roleId',
+            'type' => StandardType::NUMBER,
+            'exists' => new SqlComparison($roleExistsSql),
+            'option' => array(
+                'param' => 'accessRights',
+            )
+        )
+    );
+    $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
+    if ($missingParam) {
+        return $database->responseBadRequest($missingParam);
+    }
+
     $username = $database->getStringParam('username');
     $password = $database->getStringParam('password');
     $passwordHash = password_hash($password, PASSWORD_DEFAULT);
@@ -47,6 +99,9 @@ function postUser(Database $database): string
     $isActive = $database->getBooleanParam('isActive', true);
     $roleId = $database->getIntParam('roleId');
     $accessRights = $database->getArrayParam('accessRights');
+    if ($roleId = null) {
+        $roleId = createNewRole($accessRights, $database);
+    }
     $sql = <<<SQL
         INSERT INTO user (
             username,
