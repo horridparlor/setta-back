@@ -23,7 +23,7 @@ function getUser(Database $database): string {
         return $database->responseUnauthorized();
     }
     $sql = SELECT_USER . <<<SQL
-        WHERE user.id = :userId
+        AND user.id = :userId
     SQL;
     $replacements = array(
         'userId' => ['value' => $userId, 'type' => PDO::PARAM_INT]
