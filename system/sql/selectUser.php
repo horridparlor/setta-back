@@ -30,5 +30,5 @@ const SELECT_USER = <<<SQL
         ON role.id = user.roleId
     LEFT JOIN tokenRequest tr
         ON tr.userId = user.id
-    WHERE id > 0
+    WHERE user.id > 0
 SQL;
