@@ -8,6 +8,9 @@ enum RequestType: string {
     case POST = 'POST';
 }
 const POST_REQUEST = 'POST';
+const DEFAULT_UNAUTHORIZED_ERROR = array(
+    'error' => 'Please authenticate'
+);
 
 class Database
 {
@@ -259,11 +262,31 @@ class Database
         return json_encode($json);
     }
 
-    public static function responseUnauthorized(array $json = array(
-        'error' => 'Please authenticate'
-    )): string {
+    public static function responseUnauthorized(array $json = null): string {
+        if (!$json) {
+            $json = DEFAULT_UNAUTHORIZED_ERROR;
+        }
         http_response_code(401);
         return json_encode($json);
+    }
+
+    public function findUser(int $userId): User|null {
+        $sql = <<<SQL
+            user.id id,
+                username,
+                CASE
+                    WHEN role.id IS NOT NULL THEN role.accessRights
+                    ELSE IFNULL(user.accessRights, "{}")
+                END AS accessRights
+            FROM user
+            LEFT JOIN userRole role
+                ON role.id = userRole.roleId
+            WHERE user.id = :userId
+        SQL;
+        $replacements = array(
+           'userId' => ['value' => $userId, 'type' => \PDO::PARAM_INT],
+        );
+        return $this->buildUserFromQuery($sql, $replacements);
     }
 
     public function getUser(): User|null {
@@ -279,11 +302,14 @@ class Database
             SELECT
                 user.id id,
                 username,
-                accessRights
+                CASE
+                    WHEN role.id IS NOT NULL THEN role.accessRights
+                    ELSE IFNULL(user.accessRights, "{}")
+                END AS accessRights
             FROM authToken
             JOIN user
                 ON user.id = authToken.userId
-            JOIN userRole role
+            LEFT JOIN userRole role
                 ON role.id = user.roleId
             WHERE token = :token
             AND expiration > NOW();
@@ -291,6 +317,9 @@ class Database
         $replacements = array(
             'token' => ['value' => $token, 'type' => \PDO::PARAM_STR],
         );
+        return $this->buildUserFromQuery($sql, $replacements);
+    }
+    private function buildUserFromQuery(string $sql, array $replacements): User|null {
         $user = self::query($sql, $replacements);
         if (!sizeof($user)) {
             return null;

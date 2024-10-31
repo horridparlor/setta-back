@@ -172,13 +172,13 @@ function hasAccessToCard(int $cardId, User $user, Database $database): string|nu
         'cardId' => ['value' => $cardId, 'type' => PDO::PARAM_INT]
     );
     $result = $database->query($sql, $replacements);
-    if (!$user->isAdmin() && (!sizeof($result) || $result[0]['cardOwnerId'] != $user->getId())) {
+    if (!$user->isSuperAdmin() && (!sizeof($result) || $result[0]['cardOwnerId'] != $user->getId())) {
         return $database->responseUnauthorized(array(
             'error' => 'You do not own this card.'
         ));
     }
     $expansionOwnerId = $result[0]['expansionOwnerId'];
-    if (!$user->isAdmin() && $expansionOwnerId != 0 && $expansionOwnerId != $user->getId()) {
+    if (!$user->isSuperAdmin() && $expansionOwnerId != 0 && $expansionOwnerId != $user->getId()) {
         return $database->responseUnauthorized(array(
             'error' => 'The card is moved to an expansion not owned by you.'
         ));

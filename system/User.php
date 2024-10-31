@@ -2,7 +2,7 @@
 
 namespace system;
 
-const ACCESS_RIGHT_IS_ADMIN = 'isAdmin';
+const ACCESS_RIGHT_IS_SUPER_ADMIN = 'isSuperAdmin';
 const ACCESS_RIGHT_CAN_RELEASE = 'canRelease';
 const ACCESS_RIGHT_CAN_MANAGE_ADMINS = 'canManageAdmins';
 const ACCESS_RIGHT_CAN_MANAGE_USERS = 'canManageUsers';
@@ -19,9 +19,10 @@ const ACCESS_RIGHT_IS_REGULAR_USER = 'isRegularUser';
 const ACCESS_RIGHT_IS_PRIORITY_USER = 'isPriorityUser';
 const ACCESS_RIGHT_IS_EMPLOYEE = 'isEmployee';
 const ACCESS_RIGHT_IS_CONTENT_CREATOR = 'isContentCreator';
+const IS_MISSING_ACCESS_RIGHT = 'Access right {%s} missing';
 
 const ADMIN_RIGHTS = array(
-    ACCESS_RIGHT_IS_ADMIN,
+    ACCESS_RIGHT_IS_SUPER_ADMIN,
     ACCESS_RIGHT_CAN_RELEASE,
     ACCESS_RIGHT_CAN_MANAGE_ADMINS,
     ACCESS_RIGHT_CAN_MANAGE_USERS,
@@ -37,6 +38,8 @@ class User
     private int $id;
     private string $username;
     private \stdClass $accessRights;
+    private string $accessRightMissingString;
+    private string $adminAccessRight;
 
     public function __construct(int $id, string $username, \stdClass $accessRights)
     {
@@ -59,9 +62,9 @@ class User
         return $this->username;
     }
 
-    public function isAdmin(): bool
+    public function isSuperAdmin(): bool
     {
-        return $this->hasAccessRight(ACCESS_RIGHT_IS_ADMIN);
+        return $this->hasAccessRight(ACCESS_RIGHT_IS_SUPER_ADMIN);
     }
     public function canRelease(): bool
     {
@@ -130,7 +133,11 @@ class User
 
     private function checkAccess(string $key): bool
     {
-        return $this->isAdmin() || $this->hasAccessRight($key);
+        $hasAccess = $this->isSuperAdmin() || $this->hasAccessRight($key);
+        if (!$hasAccess) {
+            $this->accessRightMissingString = sprintf(IS_MISSING_ACCESS_RIGHT, $key);
+        }
+        return $hasAccess;
     }
 
     private function hasAccessRight(string $key): bool
@@ -138,16 +145,29 @@ class User
         if (!property_exists($this->accessRights, $key)) {
             return false;
         }
-        return $this->accessRights->isAdmin;
+        return $this->accessRights->$key;
     }
 
     public function hasAdminRights(): bool
     {
         foreach (ADMIN_RIGHTS as $adminRight) {
             if ($this->hasAccessRight($adminRight)) {
+                $this->adminAccessRight = $adminRight;
                 return true;
             }
         }
         return false;
+    }
+
+    public function getError(): array
+    {
+        return array(
+            'error' => $this->accessRightMissingString
+        );
+    }
+
+    public function getAdminAccessRight(): string
+    {
+        return $this->adminAccessRight;
     }
 }

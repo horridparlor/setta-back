@@ -46,12 +46,12 @@ function getCards(Database $database): string
     );
     if (!$user) {
         $sql .= <<<SQL
-            AND (JSON_EXTRACT(expansionOwnerRole.accessRights, "$.isAdmin") = 1 AND expansion.isReleased = 1)
+            AND (JSON_EXTRACT(expansionOwnerRole.accessRights, "$.isSuperAdmin") = 1 AND expansion.isReleased = 1)
         SQL;
-    } elseif (!$user->isAdmin()) {
+    } elseif (!$user->isSuperAdmin()) {
         $sql .= <<<SQL
             AND (
-                (JSON_EXTRACT(expansionOwnerRole.accessRights, "$.isAdmin") = 1 AND expansion.isReleased = 1 )
+                (JSON_EXTRACT(expansionOwnerRole.accessRights, "$.isSuperAdmin") = 1 AND expansion.isReleased = 1 )
                 OR cardOwner.id = :userId
                 OR expansionOwner.id = :userId
             )

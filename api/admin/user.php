@@ -25,13 +25,13 @@ function getAccessRightsMissingParams(): array {
     SQL;
     return array(
         'param' => 'roleId',
-        'type' => StandardType::NUMBER,
+        'type' => StandardType::ID,
         'exists' => new SqlComparison($roleExistsSql),
         'option' => array(
             'param' => 'accessRights',
             'children' => array(
                 array(
-                    'param' => 'isAdmin',
+                    'param' => 'isSuperAdmin',
                     'type' => StandardType::BOOLEAN,
                     'forbidden' => true
                 ),
@@ -137,7 +137,7 @@ function getUser(Database $database): string {
         return $database->responseBadRequest($missingParam);
     }
     $userId = $database->getIntParam('userId', $user->getId());
-    if ($userId != $user->getId() && !$user->isAdmin()) {
+    if ($userId != $user->getId() && !$user->isSuperAdmin()) {
         return $database->responseUnauthorized();
     }
     $sql = SELECT_USER . <<<SQL
@@ -153,7 +153,11 @@ function getUser(Database $database): string {
     ));
 }
 
-function createNewRole(string|null $roleName, stdClass $accessRights, Database $database): int {
+function createNewRole(User $user, string|null $roleName, int|null &$roleId, stdClass $accessRights, Database $database): string|null {
+    $error = canGiveRole($user, $accessRights, $database);
+    if ($error) {
+        return $error;
+    }
     $sql = <<<SQL
         INSERT INTO userRole (
             name,
@@ -168,25 +172,29 @@ function createNewRole(string|null $roleName, stdClass $accessRights, Database $
         'accessRights' => ['value' => json_encode($accessRights), 'type' => PDO::PARAM_STR]
     );
     $database->query($sql, $replacements);
-    return $database->getInsertId();
+    $roleId = $database->getInsertId();
+    return null;
 }
 
 function canGiveRole(User $user, stdClass $accessRights, Database $database): string|null {
     $dummyUser = User::newDummyUser($accessRights);
-    if ($dummyUser->isAdmin()) {
+    if ($dummyUser->isSuperAdmin()) {
         return Database::responseForbidden(array(
            'error' => 'New admins cannot be created'
         ));
     }
-    if (!$user->isAdmin() && $dummyUser->hasAdminRights()) {
+    if (!$user->isSuperAdmin() && $dummyUser->hasAdminRights()) {
         return Database::responseUnauthorized(array(
-           'error' => 'You cannot give admin access rights'
+           'error' => sprintf('You cannot give admin access right {%s}', $dummyUser->getAdminAccessRight())
         ));
     }
     return null;
 }
 
-function canGiveExistingRole(User $user, int $roleId, Database $database): string|null {
+function canGiveExistingRole(User $user, int|null $roleId, Database $database): string|null {
+    if (is_null($roleId)) {
+        return null;
+    }
     $sql = <<<SQL
         SELECT accessRights
         FROM userRole role
@@ -199,11 +207,25 @@ function canGiveExistingRole(User $user, int $roleId, Database $database): strin
     return canGiveRole($user, $accessRights, $database);
 }
 
+function canRemoveRights(User $user, int $userId, int|null $roleId, array $accessRights, Database $database): string|null {
+    $pastUser = $database->getUser($userId);
+    $isRemovingAdminRights = false;
+    if ($pastUser->wouldChangeAdminRights($roleId)) {
+        $isRemovingAdminRights = true;
+    }
+    if ($isRemovingAdminRights && !$user->isSuperAdmin()) {
+        Database::responseUnauthorized(array(
+           'error' => 'You cannot remove admin rights from a user'
+        ));
+    }
+    return null;
+}
+
 function postUser(Database $database): string
 {
     $user = $database->getUser();
     if (!$user || !$user->canManageUsers()) {
-        return $database->responseUnauthorized();
+        return $database->responseUnauthorized($user?->getError());
     }
     $uniqueUsernameSql = <<<SQL
         SELECT :comparedValue
@@ -244,12 +266,7 @@ function postUser(Database $database): string
             'type' => StandardType::BOOLEAN,
             'required' => false
         ),
-        getAccessRightsMissingParams(),
-        array(
-            'param' => 'roleName',
-            'type' => StandardType::STRING,
-            'required' => false
-        )
+        getAccessRightsMissingParams()
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
     if ($missingParam) {
@@ -267,19 +284,10 @@ function postUser(Database $database): string
     $phoneNumber = $database->getStringParam('phoneNumber');
     $isActive = $database->getBooleanParam('isActive', true);
     $roleId = $database->getIntParam('roleId');
-    $roleName = $database->getStringParam('roleName');
     $accessRights = $database->getObjectParam('accessRights');
-    if (is_null($roleId)) {
-        $error = canGiveRole($user, $accessRights, $database);
-        if ($error) {
-            return $error;
-        }
-        $roleId = createNewRole($roleName, $accessRights, $database);
-    } else {
-        $error = canGiveExistingRole($user, $roleId, $database);
-        if ($error) {
-            return $error;
-        }
+    $error = canGiveRole($user, $accessRights, $database) ?? canGiveExistingRole($user, $roleId, $database);
+    if ($error) {
+        return $error;
     }
     $sql = <<<SQL
         INSERT INTO user (
@@ -291,7 +299,8 @@ function postUser(Database $database): string
             email,
             phoneNumber,
             isActive,
-            roleId
+            roleId,
+            accessRights
         ) VALUES (
             :username,
             :passwordHash, 
@@ -301,7 +310,8 @@ function postUser(Database $database): string
             :email,
             :phoneNumber,
             :isActive,
-            :roleId
+            :roleId,
+            :accessRights
         )
     SQL;
     $replacements = array(
@@ -314,6 +324,7 @@ function postUser(Database $database): string
         'phoneNumber' => ['value' => $phoneNumber, 'type' => PDO::PARAM_STR],
         'isActive' => ['value' => $isActive, 'type' => PDO::PARAM_BOOL],
         'roleId' => ['value' => $roleId, 'type' => PDO::PARAM_INT],
+        'accessRights' => ['value' => json_encode($accessRights), 'type' => PDO::PARAM_STR]
     );
     $database->query($sql, $replacements);
     $result = $database->query('SELECT LAST_INSERT_ID() userId;');
@@ -321,6 +332,26 @@ function postUser(Database $database): string
     return $database->responseSuccess(array(
         'userId' => $result[0]['userId']
     ));
+}
+
+function updateUserRole(User $user, int $userId, int|null &$roleId,
+                        stdClass $accessRights, Database $database): string|null
+{
+    $sql = <<<SQL
+        SELECT role.id roleId, :accessRights
+        FROM user
+        JOIN userRole role
+            ON role.id = user.roleId
+        WHERE id = :userId
+    SQL;
+    $replacements = array(
+        'userId' => ['value' => $userId, 'type' => PDO::PARAM_INT],
+    );
+    $previousAccessRights = $database->query($sql, $replacements)[0];
+    if (intval($previousAccessRights['roleId']) == $roleId) {
+
+    }
+    return null;
 }
 
 function putUser(Database $database): string
@@ -373,18 +404,51 @@ function putUser(Database $database): string
             'type' => StandardType::BOOLEAN,
             'required' => false
         ),
-        getAccessRightsMissingParams(),
-        array(
-            'param' => 'roleName',
-            'type' => StandardType::STRING,
-            'required' => false
-        )
+        getAccessRightsMissingParams()
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
     if ($missingParam) {
         return $database->responseBadRequest($missingParam);
     }
     $userId = $database->getIntParam('userId');
+    $username = $database->getStringParam('username');
+    $firstname = $database->getStringParam('firstname');
+    $lastname = $database->getStringParam('lastname');
+    $penName = $database->getStringParam('penName');
+    $email = $database->getStringParam('email');
+    $phoneNumber = $database->getStringParam('phoneNumber');
+    $roleId = $database->getIntParam('roleId');
+    $accessRights = $database->getObjectParam('accessRights');
+    $error = canGiveRole($user, $accessRights, $database) ?? canGiveExistingRole($user, $roleId, $database) ?? canRemoveRights($user, $userId, $roleId, $accessRights, $database);
+    if ($error) {
+        return $error;
+    }
+    $sql = <<<SQL
+        UPDATE card SET
+            username = :username,
+            firstname = :firstname,
+            lastname = :lastname,
+            penName = :penName,
+            email = :email,
+            phoneNumber = :phoneNumber,
+            roleId = :roleId,
+            accessRights = :accessRights
+        WHERE id = :userId
+    SQL;
+    $replacements = array(
+        'userId' => ['value' => $userId, 'type' => PDO::PARAM_INT],
+        'username' => ['value' => $username, 'type' => PDO::PARAM_STR],
+        'firstname' => ['value' => $firstname, 'type' => PDO::PARAM_STR],
+        'lastname' => ['value' => $lastname, 'type' => PDO::PARAM_STR],
+        'penName' => ['value' => $penName, 'type' => PDO::PARAM_STR],
+        'email' => ['value' => $email, 'type' => PDO::PARAM_STR],
+        'phoneNumber' => ['value' => $phoneNumber, 'type' => PDO::PARAM_STR],
+        'roleId' => ['value' => $roleId, 'type' => PDO::PARAM_INT],
+        'accessRights' => ['value' => json_encode($accessRights), 'type' => PDO::PARAM_STR],
+    );
+    $database->query($sql, $replacements);
+
+
     return $database->responseSuccess(array(
         'userId' => $userId
     ));

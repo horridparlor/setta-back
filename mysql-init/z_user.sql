@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Oct 18, 2024 at 04:14 PM
+-- Generation Time: Oct 30, 2024 at 09:22 AM
 -- Server version: 10.6.19-MariaDB-cll-lve
 -- PHP Version: 8.3.12
 
@@ -36,7 +36,8 @@ CREATE TABLE `user` (
                         `email` varchar(32) DEFAULT NULL,
                         `phoneNumber` varchar(32) DEFAULT NULL,
                         `isActive` tinyint(4) NOT NULL DEFAULT 1,
-                        `roleId` int(11) NOT NULL,
+                        `roleId` int(11) DEFAULT NULL,
+                        `accessRights` text DEFAULT NULL,
                         `passwordHash` varchar(256) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
@@ -44,10 +45,10 @@ CREATE TABLE `user` (
 -- Dumping data for table `user`
 --
 
-INSERT INTO `user` (`id`, `username`, `firstname`, `lastname`, `penName`, `email`, `phoneNumber`, `isActive`, `roleId`, `passwordHash`) VALUES
-                                                                                                                                            (0, 'null', 'null', 'null', NULL, 'null', NULL, 1, 1, 'null'),
-                                                                                                                                            (1, 'metaRakuel', 'Eero', 'Laine', NULL, 'eero.laine.posti@gmail.com', NULL, 1, 2, '$2y$10$t.H.Gz0ZJ3MB2VLoYa8H0OB5EPSOPH0ySucULCDimOL3hVJz62dPe'),
-                                                                                                                                            (2, 'tuomas', 'Tuomas', 'Lehtonen', NULL, 'munEmail@gmail.com', NULL, 1, 1, '$2y$10$0NYZ73qlRqAHz1sSOfUS0.fYVdXJnvvu/uSf7BbTaG67ryV6mFbRe');
+INSERT INTO `user` (`id`, `username`, `firstname`, `lastname`, `penName`, `email`, `phoneNumber`, `isActive`, `roleId`, `accessRights`, `passwordHash`) VALUES
+                                                                                                                                                            (0, 'null', 'null', 'null', NULL, 'null', NULL, 1, 1, NULL, 'null'),
+                                                                                                                                                            (1, 'metaRakuel', 'Eero', 'Laine', NULL, 'eero.laine.posti@gmail.com', NULL, 1, 2, NULL, '$2y$10$t.H.Gz0ZJ3MB2VLoYa8H0OB5EPSOPH0ySucULCDimOL3hVJz62dPe'),
+                                                                                                                                                            (2, 'tuomas', 'Tuomas', 'Lehtonen', NULL, 'munEmail@gmail.com', NULL, 1, 1, NULL, '$2y$10$0NYZ73qlRqAHz1sSOfUS0.fYVdXJnvvu/uSf7BbTaG67ryV6mFbRe');
 
 --
 -- Indexes for dumped tables

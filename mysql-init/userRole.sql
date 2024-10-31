@@ -41,7 +41,7 @@ CREATE TABLE `userRole` (
 
 INSERT INTO `userRole` (`id`, `name`, `accessRights`, `createdAt`, `updatedAt`) VALUES
 (1, NULL, '{}', '2024-10-18 13:08:47', '2024-10-18 13:08:47'),
-(2, NULL, '{\"isAdmin\": 1}', '2024-10-18 13:11:04', '2024-10-18 13:11:04');
+(2, NULL, '{\"isSuperAdmin\": 1}', '2024-10-18 13:11:04', '2024-10-18 13:11:04');
 
 --
 -- Indexes for dumped tables

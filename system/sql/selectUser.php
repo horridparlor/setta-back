@@ -26,7 +26,10 @@ const SELECT_USER = <<<SQL
         phoneNumber,
         isActive,
         roleId,
-        accessRights,
+        CASE
+            WHEN role.id IS NOT NULL THEN role.accessRights
+            ELSE IFNULL(user.accessRights, "{}")
+        END AS accessRights,
         CASE
             WHEN tr.id IS NOT NULL THEN JSON_OBJECT(
                 'id', tr.id,
@@ -37,7 +40,7 @@ const SELECT_USER = <<<SQL
             ELSE null
         END AS tokenRequest
     FROM user
-    JOIN userRole role
+    LEFT JOIN userRole role
         ON role.id = user.roleId
     LEFT JOIN tokenRequest tr
         ON tr.userId = user.id
