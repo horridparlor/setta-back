@@ -35,7 +35,11 @@ const SELECT_CARD = <<<SQL
         IFNULL(original.expansionId, card.expansionId) originalExpansionId,
         IFNULL(card.effectsJson, '{"cost": {"amount": null, "costType": "None", "payment": null, "postCount": null, "preState": null, "subtype": null, "supertype": null, "target": null}, "effect": {"amount": null, "benefit": null, "chainedEffect": null, "direction": null, "effectType": "None", "hindrance": null, "maxAmount": null, "subtype": null, "supertype": null, "target": null}}') effectsJson,
         card.createdAt,
-        card.updatedAt
+        card.updatedAt,
+        CASE
+            WHEN expansionOwnerRole.id IS NOT NULL THEN expansionOwnerRole.accessRights
+            ELSE IFNULL(expansionOwner.accessRights, "{}")
+        END AS expansionOwnerAccessRights
     FROM card
     JOIN user cardOwner
         ON cardOwner.id = card.ownerId
