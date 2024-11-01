@@ -272,7 +272,8 @@ class Database
 
     public function findUser(int $userId): User|null {
         $sql = <<<SQL
-            user.id id,
+            SELECT
+                user.id id,
                 username,
                 CASE
                     WHEN role.id IS NOT NULL THEN role.accessRights
@@ -280,7 +281,7 @@ class Database
                 END AS accessRights
             FROM user
             LEFT JOIN userRole role
-                ON role.id = userRole.roleId
+                ON role.id = user.roleId
             WHERE user.id = :userId
         SQL;
         $replacements = array(

@@ -191,10 +191,7 @@ function canGiveRole(User $user, stdClass $accessRights, Database $database): st
     return null;
 }
 
-function canGiveExistingRole(User $user, int|null $roleId, Database $database): string|null {
-    if (is_null($roleId)) {
-        return null;
-    }
+function getAccessRightsByRoleId(int $roleId, Database $database): stdClass {
     $sql = <<<SQL
         SELECT accessRights
         FROM userRole role
@@ -203,20 +200,25 @@ function canGiveExistingRole(User $user, int|null $roleId, Database $database): 
     $replacements = array(
         'roleId' => ['value' => $roleId, 'type' => PDO::PARAM_INT]
     );
-    $accessRights = json_decode($database->query($sql, $replacements)[0]['accessRights']);
+    return json_decode($database->query($sql, $replacements)[0]['accessRights']);
+}
+
+function canGiveExistingRole(User $user, int|null $roleId, Database $database): string|null {
+    if (is_null($roleId)) {
+        return null;
+    }
+    $accessRights = getAccessRightsByRoleId($roleId, $database);
     return canGiveRole($user, $accessRights, $database);
 }
 
-function canRemoveRights(User $user, int $userId, int|null $roleId, array $accessRights, Database $database): string|null {
-    $pastUser = $database->getUser($userId);
-    $isRemovingAdminRights = false;
-    if ($pastUser->wouldChangeAdminRights($roleId)) {
-        $isRemovingAdminRights = true;
+function canAlterRights(User $user, int $userId, int|null $roleId, stdClass $accessRights, Database $database): string|null {
+    if ($user->canManageAdmins()) {
+        return null;
     }
-    if ($isRemovingAdminRights && !$user->isSuperAdmin()) {
-        Database::responseUnauthorized(array(
-           'error' => 'You cannot remove admin rights from a user'
-        ));
+    $pastUser = $database->findUser($userId);
+    $newAccessRights = $roleId ? getAccessRightsByRoleId($roleId, $database) : $accessRights;
+    if ($pastUser->wouldChangeAdminRights($newAccessRights)) {
+        return Database::responseUnauthorized($pastUser->getError());
     }
     return null;
 }
@@ -358,7 +360,7 @@ function putUser(Database $database): string
 {
     $user = $database->getUser();
     if (!$user || !$user->canManageUsers()) {
-        return $database->responseUnauthorized();
+        return $database->responseUnauthorized($user?->getError());
     }
     $uniqueUsernameSql = <<<SQL
         SELECT :comparedValue
@@ -419,12 +421,12 @@ function putUser(Database $database): string
     $phoneNumber = $database->getStringParam('phoneNumber');
     $roleId = $database->getIntParam('roleId');
     $accessRights = $database->getObjectParam('accessRights');
-    $error = canGiveRole($user, $accessRights, $database) ?? canGiveExistingRole($user, $roleId, $database) ?? canRemoveRights($user, $userId, $roleId, $accessRights, $database);
+    $error = canAlterRights($user, $userId, $roleId, $accessRights, $database);
     if ($error) {
         return $error;
     }
     $sql = <<<SQL
-        UPDATE card SET
+        UPDATE user SET
             username = :username,
             firstname = :firstname,
             lastname = :lastname,

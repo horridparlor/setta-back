@@ -20,6 +20,9 @@ const ACCESS_RIGHT_IS_PRIORITY_USER = 'isPriorityUser';
 const ACCESS_RIGHT_IS_EMPLOYEE = 'isEmployee';
 const ACCESS_RIGHT_IS_CONTENT_CREATOR = 'isContentCreator';
 const IS_MISSING_ACCESS_RIGHT = 'Access right {%s} missing';
+const ALTERING_ADMIN_RIGHT = 'You cannot %s admin access right {%s}';
+const ALTERING_REMOVE = 'remove';
+const ALTERING_ADD = 'add';
 
 const ADMIN_RIGHTS = array(
     ACCESS_RIGHT_IS_SUPER_ADMIN,
@@ -38,7 +41,7 @@ class User
     private int $id;
     private string $username;
     private \stdClass $accessRights;
-    private string $accessRightMissingString;
+    private string $accessRightErrorString;
     private string $adminAccessRight;
 
     public function __construct(int $id, string $username, \stdClass $accessRights)
@@ -135,7 +138,7 @@ class User
     {
         $hasAccess = $this->isSuperAdmin() || $this->hasAccessRight($key);
         if (!$hasAccess) {
-            $this->accessRightMissingString = sprintf(IS_MISSING_ACCESS_RIGHT, $key);
+            $this->accessRightErrorString = sprintf(IS_MISSING_ACCESS_RIGHT, $key);
         }
         return $hasAccess;
     }
@@ -162,12 +165,40 @@ class User
     public function getError(): array
     {
         return array(
-            'error' => $this->accessRightMissingString
+            'error' => $this->accessRightErrorString
         );
     }
 
     public function getAdminAccessRight(): string
     {
         return $this->adminAccessRight;
+    }
+
+    private function extractAdminRights(\stdClass $accessRights): array {
+        $adminRights = array();
+        foreach ($accessRights as $key => $value) {
+           if (in_array($key, ADMIN_RIGHTS) && !!$value) {
+               $adminRights[] = $key;
+           }
+        }
+        sort($adminRights);
+        return $adminRights;
+    }
+
+    public function wouldChangeAdminRights(\stdClass $accessRights): bool
+    {
+        $currentAdminRights = $this->extractAdminRights($this->accessRights);
+        $newAdminRights = $this->extractAdminRights($accessRights);
+        $removedRights = array_diff($currentAdminRights, $newAdminRights);
+        $addedRights = array_diff($newAdminRights, $currentAdminRights);
+        if ($removedRights) {
+            $this->accessRightErrorString = sprintf(ALTERING_ADMIN_RIGHT, ALTERING_REMOVE, $removedRights[0]);
+            return true;
+        }
+        if ($addedRights) {
+            $this->accessRightErrorString = sprintf(ALTERING_ADMIN_RIGHT, ALTERING_ADD, $addedRights[0]);
+            return true;
+        }
+        return false;
     }
 }
