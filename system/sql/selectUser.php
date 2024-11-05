@@ -6,7 +6,7 @@ const USER_COLUMNS_TO_DECODE = [
 ];
 
 const USER_EXISTS_SQL = <<<SQL
-    SELECT :comparedValue
+    SELECT :comparedValue, "User" entityType
     FROM DUAL
     WHERE NOT EXISTS (
         SELECT id

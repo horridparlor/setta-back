@@ -149,9 +149,7 @@ function getUser(Database $database): string {
     );
     $user = $database->queryWithDecode($sql, USER_COLUMNS_TO_DECODE, $replacements);
 
-    return $database->responseSuccess(array(
-        'user' => $user[0]
-    ));
+    return $database->responseSuccess($user[0]);
 }
 
 function createNewRole(User $user, string|null $roleName, int|null &$roleId, stdClass $accessRights, Database $database): string|null {
@@ -549,7 +547,7 @@ function deleteUsersContent(User $user, int $userId, Database $database) {
                 WHEN card.countsAsId = deletedCard.id AND deletedCard.ownerId = :userId THEN NULL
                 ELSE card.countsAsId
             END,
-            card.modifiedBy = :callingUserId
+            card.modifiedBy = :callingUserId,
             card.updatedAt = NOW();
     SQL;
     $replacements = array(

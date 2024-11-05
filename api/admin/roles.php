@@ -6,21 +6,21 @@ header('Content-Type: application/json');
 
 include("../../system/Database.php");
 include("../../system/User.php");
-include "../../system/sql/selectUser.php";
+include "../../system/sql/selectRole.php";
 
-function getUsers(Database $database): string {
+function getRoles(Database $database): string {
     $user = $database->getUser();
     if (!$user || !$user->canManageUsers()) {
         return $database->responseUnauthorized($user?->getError());
     }
-    $sql = SELECT_USER;
-    $users = $database->queryWithDecode($sql, USER_COLUMNS_TO_DECODE);
+    $sql = SELECT_ROLE;
+    $roles = $database->queryWithDecode($sql, ROLE_COLUMNS_TO_DECODE);
 
     return $database->responseSuccess(array(
-        'countOfUsers' => sizeof($users),
-        'users' => $users
+        'countOfRoles' => sizeof($roles),
+        'roles' => $roles
     ));
 }
 
 $database = new Database();
-$database->handleRequest('getUsers');
+$database->handleRequest('getRoles');
