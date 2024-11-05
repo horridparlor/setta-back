@@ -15,6 +15,19 @@ const USER_EXISTS_SQL = <<<SQL
     )
 SQL;
 
+const USER_CASCADE_SQL = <<<SQL
+    SELECT id cascadingId, name cascadingName, 'Expansion' entityType
+    FROM expansion
+    WHERE :cascadeExpansions = 0
+    AND ownerId = :comparedValue
+    UNION ALL
+        SELECT id cascadingId, cardName cascadingName, 'Card' entityType
+        FROM card
+    WHERE :cascadeCards = 0
+    AND ownerId = :comparedValue
+SQL;
+
+
 const SELECT_USER = <<<SQL
     SELECT
         user.id,

@@ -23,6 +23,7 @@ const IS_MISSING_ACCESS_RIGHT = 'Access right {%s} missing';
 const ALTERING_ADMIN_RIGHT = 'You cannot %s admin access right {%s}';
 const ALTERING_REMOVE = 'remove';
 const ALTERING_ADD = 'add';
+const NO_ERROR = 'No error, { User->getError() called. }';
 
 const ADMIN_RIGHTS = array(
     ACCESS_RIGHT_IS_SUPER_ADMIN,
@@ -43,16 +44,19 @@ class User
     private \stdClass $accessRights;
     private string $accessRightErrorString;
     private string $adminAccessRight;
+    private bool $isActive;
 
-    public function __construct(int $id, string $username, \stdClass $accessRights)
+    public function __construct(int $id, string $username, \stdClass $accessRights, bool $isActive)
     {
         $this->id = $id;
         $this->username = $username;
         $this->accessRights = $accessRights;
+        $this->isActive = $isActive;
+        $this->accessRightErrorString = NO_ERROR;
     }
 
     public static function newDummyUser(\stdClass $accessRights): User {
-        return new User(0, '', $accessRights);
+        return new User(0, '', $accessRights, true);
     }
 
     public function getId(): int
@@ -65,7 +69,16 @@ class User
         return $this->username;
     }
 
+    public function getIsActive(): bool
+    {
+        return $this->isActive;
+    }
+
     public function isSuperAdmin(): bool
+    {
+        return $this->checkAccess(ACCESS_RIGHT_IS_SUPER_ADMIN);
+    }
+    private function hasAllRights(): bool
     {
         return $this->hasAccessRight(ACCESS_RIGHT_IS_SUPER_ADMIN);
     }
@@ -136,7 +149,7 @@ class User
 
     private function checkAccess(string $key): bool
     {
-        $hasAccess = $this->isSuperAdmin() || $this->hasAccessRight($key);
+        $hasAccess = $this->hasAllRights() || $this->hasAccessRight($key);
         if (!$hasAccess) {
             $this->accessRightErrorString = sprintf(IS_MISSING_ACCESS_RIGHT, $key);
         }

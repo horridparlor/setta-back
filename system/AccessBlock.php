@@ -41,6 +41,7 @@ Class StandardMessages {
     const REQUIRED_PARAM_NOT_UNIQUE = "Parameter %s must be unique, {%s} already exists";
     const REQUIRED_PARAM_NOT_EXIST = "Parameter %s%s, %s with id {%s} does not exist";
     const PARAM_CASCADING_ENTITY = "With %s {%s}, related %s exists%s";
+    const REQUEST_DATA_PARAM_MISSING_FROM_SQL_QUERY = "SqlQuery {%s}, missing param requestData";
 
     public static function doesNotExist(string $itemName): string {
         return "Selected " . $itemName . " does not exist";
@@ -111,6 +112,10 @@ Class StandardMessages {
     private static function sIfMany(int $value): string {
         return $value > 1 ? 's' : '';
     }
+
+    public static function requestDataParamMissingFromSqlQuery(string $queryIdentifier) {
+        return sprintf(self::REQUEST_DATA_PARAM_MISSING_FROM_SQL_QUERY, $queryIdentifier);
+    }
 }
 const NO_SIZE = -1;
 class ParamCheck {
@@ -153,9 +158,7 @@ class SqlComparison {
     private array $replacements;
     public function __construct(string $sql, array $replacements = [], \stdClass $requestData = null) {
         $this->sql = $sql;
-        if ($requestData) {
-            $replacements = $this->fillReplacements($replacements, $requestData);
-        }
+        $replacements = $this->fillReplacements($replacements, $requestData);
         $this->replacements = $replacements;
     }
     public function getSql(): string {
@@ -167,13 +170,16 @@ class SqlComparison {
     public function eatReplacement(string $key, mixed $value, int $pdoType): void {
         $this->replacements[$key] = ['value' => $value, 'type' => $pdoType];
     }
-    public function fillReplacements(array $source, \stdClass $requestData): array {
+    public function fillReplacements(array $source, \stdClass|null $requestData): array {
         $replacements = array();
         foreach ($source as $key => $replacement) {
             $value = $replacement['value'];
             $replacements[$key] = $replacement;
             if (is_string($value) && strpos($value, '$') === 0) {
                 $replace = substr($value, 1);
+                if (is_null($requestData)) {
+                    echo StandardMessages::requestDataParamMissingFromSqlQuery($key) . ' ';
+                }
                 if (isset($requestData->$replace)) {
                     $replacements[$key]['value'] = $requestData->$replace;
                 }

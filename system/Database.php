@@ -48,6 +48,16 @@ class Database
         );
     }
 
+    public function queryIds(string $sql, ?array $replacements = array(), ?bool $debug = false): array
+    {
+        $ids = array();
+        $data = $this->query($sql, $replacements, $debug);
+        foreach ($data as $row) {
+            $ids []= $row['id'];
+        }
+        return $ids;
+    }
+
     public function query(string $sql, ?array $replacements = array(), ?bool $debug = false): array
     {
         if ($debug) {
@@ -278,7 +288,8 @@ class Database
                 CASE
                     WHEN role.id IS NOT NULL THEN role.accessRights
                     ELSE IFNULL(user.accessRights, "{}")
-                END AS accessRights
+                END AS accessRights,
+                user.isActive
             FROM user
             LEFT JOIN userRole role
                 ON role.id = user.roleId
@@ -306,7 +317,8 @@ class Database
                 CASE
                     WHEN role.id IS NOT NULL THEN role.accessRights
                     ELSE IFNULL(user.accessRights, "{}")
-                END AS accessRights
+                END AS accessRights,
+                user.isActive
             FROM authToken
             JOIN user
                 ON user.id = authToken.userId
@@ -325,7 +337,8 @@ class Database
         if (!sizeof($user)) {
             return null;
         }
-        return new User(intval($user[0]['id']), $user[0]['username'], json_decode($user[0]['accessRights']));
+        $user = $user[0];
+        return new User(intval($user['id']), $user['username'], json_decode($user['accessRights']), boolval($user['isActive']));
     }
     public function getRequestData(): \stdClass {
         return json_decode(json_encode($this->params));

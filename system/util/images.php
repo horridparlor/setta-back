@@ -11,23 +11,30 @@ const IMAGE_HEIGHT = 24 * PIXELS_PER_REM;
 const WIDTH_MULTIPLIER = IMAGE_WIDTH / IMAGE_HEIGHT;
 const HEIGHT_MULTIPLIER = IMAGE_HEIGHT / IMAGE_WIDTH;
 const RESULT_SCALE = 2.5;
+
+function getFullSizeRootFolder(int $cardId): string {
+    return ASSETS_PATH . 'card-art/' . $cardId . '/';
+}
 function getFullSizeFolderPath(int $ownerId, int $cardId): string {
-    $base = ASSETS_PATH . 'card-art/' . $cardId . '/';
-    if (!file_exists($base)) {
-        mkdir($base, 0777, true);
+    $root = getFullSizeRootFolder($cardId);
+    if (!file_exists($root)) {
+        mkdir($root, 0777, true);
     }
-    $path = $base . $ownerId . '/';
+    $path = $root . $ownerId . '/';
     if (!file_exists($path)) {
         mkdir($path, 0777, true);
     }
     return $path;
 }
+function getThumbnailRootFolder(int $cardId): string {
+    return ASSETS_PATH . 'small-art/' . $cardId . '/';
+}
 function getThumbnailFolderPath(int $ownerId, int $cardId): string {
-    $base = ASSETS_PATH . 'small-art/' . $cardId . '/';
-    if (!file_exists($base)) {
-        mkdir($base, 0777, true);
+    $root = getThumbnailRootFolder($cardId);
+    if (!file_exists($root)) {
+        mkdir($root, 0777, true);
     }
-    $path = $base . $ownerId . '/';
+    $path = $root . $ownerId . '/';
     if (!file_exists($path)) {
         mkdir($path, 0777, true);
     }
@@ -158,4 +165,55 @@ function copyArtwork(int $oldId, int $newId, Database $database, bool $doErrata 
     $newOwnerId = $result['newOwnerId'];
 
     return copyCardArt($serializedName, $serializedName, $oldOwnerId, $newOwnerId, $oldId, $newId);
+}
+
+function killFolder(string $folderPath): void {
+    if (!file_exists($folderPath)) {
+        return;
+    }
+    $files = array_diff(scandir($folderPath), ['.', '..']);
+    foreach ($files as $file) {
+        $filePath = $folderPath . DIRECTORY_SEPARATOR . $file;
+        if (is_dir($filePath)) {
+            killFolder($filePath);
+        } else {
+            unlink($filePath);
+        }
+    }
+    rmdir($folderPath);
+}
+
+function deleteCardAssets(array $cards): void {
+    foreach ($cards as $cardId) {
+        killFolder(getFullSizeRootFolder($cardId));
+        killFolder(getThumbnailRootFolder($cardId));
+    }
+}
+
+function renameFolder(string $oldPath, string $newPath): void {
+    if (!file_exists($oldPath) || !is_dir($oldPath)) {
+       return;
+    }
+    if (!file_exists($newPath)) {
+        mkdir($newPath, 0777, true);
+    }
+    $dirHandle = opendir($oldPath);
+    if ($dirHandle) {
+        while (($file = readdir($dirHandle)) !== false) {
+            if ($file !== '.' && $file !== '..') {
+                $oldFilePath = $oldPath . DIRECTORY_SEPARATOR . $file;
+                $newFilePath = $newPath . DIRECTORY_SEPARATOR . $file;
+                rename($oldFilePath, $newFilePath);
+            }
+        }
+        closedir($dirHandle);
+    }
+    rmdir($oldPath);
+}
+
+function reclaimCardAssets(array $cards, int $oldOwnerId, int $newOwnerId): void {
+    foreach ($cards as $cardId) {
+        renameFolder(getFullSizeFolderPath($oldOwnerId, $cardId), getFullSizeFolderPath($newOwnerId, $cardId));
+        renameFolder(getThumbnailFolderPath($oldOwnerId, $cardId), getThumbnailFolderPath($newOwnerId, $cardId));
+    }
 }
