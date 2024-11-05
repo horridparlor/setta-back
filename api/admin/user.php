@@ -597,6 +597,27 @@ function deleteUsersContent(User $user, int $userId, Database $database) {
     $database->query($sql, $replacements);
 }
 
+function canDeleteUser(User $user, int $userId, bool $deleteAllTheirContent, Database $database): string|null {
+    $editedUser = $database->findUser($userId);
+    if (!$editedUser) {
+        return $database->responseSuccess(array(
+            'userId' => $userId
+        ));
+    }
+    if (($editedUser->hasAdminRights() || $deleteAllTheirContent)
+        && !$user->canManageAdmins()
+    ) {
+        return $database->responseUnauthorized($user->getError());
+    }
+    if ($editedUser->getId() == $user->getId()) {
+        return $database->responseForbidden(array('error' => 'Cannot delete yourself'));
+    }
+    if ($editedUser->isSuperAdmin()) {
+        return $database->responseForbidden(array('error' => 'Cannot delete a super admin'));
+    }
+    return null;
+}
+
 function deleteUser (Database $database): string {
     $user = $database->getUser();
     if (!$user || !$user->canManageUsers() || !$user->canClearContent()) {
@@ -624,17 +645,9 @@ function deleteUser (Database $database): string {
     }
     $userId = $database->getIntParam('userId');
     $deleteAllTheirContent = $database->getBooleanParam('deleteAllTheirContent');
-    $response = $database->responseSuccess(array(
-        'userId' => $userId
-    ));
-    $editedUser = $database->findUser($userId);
-    if (!$editedUser) {
-        return $response;
-    }
-    if (($editedUser->hasAdminRights() && !$user->canManageAdmins())
-        || ($deleteAllTheirContent && !$user->isSuperAdmin())
-    ) {
-        return $database->responseUnauthorized($user->getError());
+    $error = canDeleteUser($user, $userId, $deleteAllTheirContent, $database);
+    if ($error) {
+        return $error;
     }
     if ($deleteAllTheirContent) {
         deleteUsersContent($user, $userId, $database);
@@ -652,7 +665,9 @@ function deleteUser (Database $database): string {
         'userId' => ['value' => $userId, 'type' => PDO::PARAM_INT],
     );
     $database->query($sql, $replacements);
-    return $response;
+    return $database->responseSuccess(array(
+        'userId' => $userId
+    ));
 }
 
 $database = new Database();
