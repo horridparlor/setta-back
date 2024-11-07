@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Nov 07, 2024 at 04:07 PM
+-- Generation Time: Nov 07, 2024 at 04:29 PM
 -- Server version: 10.6.19-MariaDB-cll-lve
 -- PHP Version: 8.3.13
 
@@ -33,6 +33,7 @@ CREATE TABLE `decklist` (
                             `formatId` int(11) NOT NULL,
                             `name` varchar(32) NOT NULL,
                             `isValid` tinyint(4) NOT NULL,
+                            `isPublished` int(11) NOT NULL,
                             `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
                             `modified_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
