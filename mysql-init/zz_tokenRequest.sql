@@ -30,7 +30,6 @@ SET time_zone = "+00:00";
 CREATE TABLE `tokenRequest` (
   `id` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
-  `cardsInQueue` int(11) NOT NULL,
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 

@@ -64,7 +64,7 @@ const SELECT_USER = <<<SQL
             WHEN tr.id IS NOT NULL THEN JSON_OBJECT(
                 'id', tr.id,
                 'userId', tr.userId,
-                'cardsInQueue', tr.cardsInQueue,
+                'cardsInQueue', 0,
                 'createdAt', tr.createdAt
             )
             ELSE null

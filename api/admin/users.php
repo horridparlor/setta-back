@@ -8,7 +8,7 @@ include("../../system/Database.php");
 include("../../system/User.php");
 include "../../system/sql/selectUser.php";
 
-function getUsers(Database $database): string {
+function listUsers(Database $database): string {
     $user = $database->getUser();
     if (!$user || !$user->canManageUsers()) {
         return $database->responseUnauthorized($user?->getError());
@@ -23,4 +23,4 @@ function getUsers(Database $database): string {
 }
 
 $database = new Database();
-$database->handleRequest('getUsers');
+$database->handleRequest('listUsers');

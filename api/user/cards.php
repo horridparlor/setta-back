@@ -8,7 +8,7 @@ include("../../system/Database.php");
 include("../../system/User.php");
 include("../../system/sql/selectCard.php");
 
-function getCards(Database $database): string
+function listCards(Database $database): string
 {
     $user = $database->getUser();
     $isGame = $database->getBooleanParam('isGame');
@@ -71,5 +71,5 @@ function getCards(Database $database): string
 }
 
 $database = new Database();
-$database->handleRequest('getCards');
+$database->handleRequest('listCards');
 

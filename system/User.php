@@ -6,6 +6,8 @@ const ACCESS_RIGHT_IS_SUPER_ADMIN = 'isSuperAdmin';
 const ACCESS_RIGHT_CAN_RELEASE = 'canRelease';
 const ACCESS_RIGHT_CAN_MANAGE_ADMINS = 'canManageAdmins';
 const ACCESS_RIGHT_CAN_MANAGE_USERS = 'canManageUsers';
+const ACCESS_RIGHT_CAN_MANAGE_CARDS = 'canManageCards';
+const ACCESS_RIGHT_CAN_MANAGE_IMAGE_GENERATION = 'canManageImageGeneration';
 const ACCESS_RIGHT_CAN_CLEAR_CONTENT = 'canClearContent';
 const ACCESS_RIGHT_HAS_UNLIMITED_TOKENS = 'hasUnlimitedTokens';
 const ACCESS_RIGHT_CAN_SHARE_TOKENS = 'canShareTokens';
@@ -19,6 +21,7 @@ const ACCESS_RIGHT_IS_REGULAR_USER = 'isRegularUser';
 const ACCESS_RIGHT_IS_PRIORITY_USER = 'isPriorityUser';
 const ACCESS_RIGHT_IS_EMPLOYEE = 'isEmployee';
 const ACCESS_RIGHT_IS_CONTENT_CREATOR = 'isContentCreator';
+const IS_MISSING_ANY_ACCESS_RIGHT = 'None of the accepted access rights %s';
 const IS_MISSING_ACCESS_RIGHT = 'Access right {%s} missing';
 const ALTERING_ADMIN_RIGHT = 'You cannot %s admin access right {%s}';
 const ALTERING_REMOVE = 'remove';
@@ -30,6 +33,8 @@ const ADMIN_RIGHTS = array(
     ACCESS_RIGHT_CAN_RELEASE,
     ACCESS_RIGHT_CAN_MANAGE_ADMINS,
     ACCESS_RIGHT_CAN_MANAGE_USERS,
+    ACCESS_RIGHT_CAN_MANAGE_CARDS,
+    ACCESS_RIGHT_CAN_MANAGE_IMAGE_GENERATION,
     ACCESS_RIGHT_CAN_CLEAR_CONTENT,
     ACCESS_RIGHT_HAS_UNLIMITED_TOKENS,
     ACCESS_RIGHT_CAN_SHARE_TOKENS,
@@ -94,6 +99,14 @@ class User
     {
         return $this->checkAccess(ACCESS_RIGHT_CAN_MANAGE_USERS);
     }
+    public function canManageCards(): bool
+    {
+        return $this->checkAccess(ACCESS_RIGHT_CAN_MANAGE_CARDS);
+    }
+    public function canManageImageGeneration(): bool
+    {
+        return $this->checkAccess(ACCESS_RIGHT_CAN_MANAGE_IMAGE_GENERATION);
+    }
     public function canClearContent(): bool
     {
         return $this->checkAccess(ACCESS_RIGHT_CAN_CLEAR_CONTENT);
@@ -147,6 +160,15 @@ class User
         return $this->checkAccess(ACCESS_RIGHT_IS_CONTENT_CREATOR);
     }
 
+    public function canManageUsersImageGeneration(int $userId): bool
+    {
+        return $this->hasAccessToUser($userId) || $this->checkAccess(ACCESS_RIGHT_CAN_MANAGE_IMAGE_GENERATION);
+    }
+    public function hasAccessToUser(int $userId): bool
+    {
+        return $this->id == $userId || $this->canManageUsers();
+    }
+
     private function checkAccess(string $key): bool
     {
         $hasAccess = $this->hasAllRights() || $this->hasAccessRight($key);
@@ -154,6 +176,21 @@ class User
             $this->accessRightErrorString = sprintf(IS_MISSING_ACCESS_RIGHT, $key);
         }
         return $hasAccess;
+    }
+
+    private function checkAccessAny(array $keys): bool
+    {
+        if ($this->hasAllRights()) {
+            return true;
+        }
+        foreach ($keys as $key) {
+            if ($this->hasAccessRight($key)) {
+                return true;
+            }
+        }
+        $keysString = '{' . implode('}/{', $keys) . '}';
+        $this->accessRightErrorString = sprintf(IS_MISSING_ANY_ACCESS_RIGHT, $keysString);
+        return false;
     }
 
     private function hasAccessRight(string $key): bool

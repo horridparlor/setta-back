@@ -32,8 +32,8 @@ function getUser(Database $database): string {
         return $database->responseBadRequest($missingParam);
     }
     $userId = $database->getIntParam('userId', $user->getId());
-    if ($userId != $user->getId() && !$user->isSuperAdmin()) {
-        return $database->responseUnauthorized();
+    if (!$user->hasAccessToUser($userId)) {
+        return $database->responseUnauthorized($user->getError());
     }
     $sql = SELECT_USER . <<<SQL
         AND user.id = :userId
@@ -415,8 +415,8 @@ function canDeleteUser(User $user, int $userId, bool $deleteAllTheirContent, Dat
             'userId' => $userId
         ));
     }
-    if (($editedUser->hasAdminRights() || $deleteAllTheirContent)
-        && !$user->canManageAdmins()
+    if (($editedUser->hasAdminRights() && !$user->canManageAdmins())
+        || ($deleteAllTheirContent && !$user->canManageCards())
     ) {
         return $database->responseUnauthorized($user->getError());
     }
@@ -466,6 +466,10 @@ function deleteUser (Database $database): string {
     $sql = <<<SQL
         DELETE
         FROM authToken
+        WHERE userId = :userId;
+        
+        DELETE
+        FROM tokenRequest
         WHERE userId = :userId;
         
         DELETE

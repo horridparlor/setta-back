@@ -8,7 +8,7 @@ include("../../system/Database.php");
 include("../../system/User.php");
 include "../../system/sql/selectRole.php";
 
-function getRoles(Database $database): string {
+function listRoles(Database $database): string {
     $user = $database->getUser();
     if (!$user || !$user->canManageUsers()) {
         return $database->responseUnauthorized($user?->getError());
@@ -23,4 +23,4 @@ function getRoles(Database $database): string {
 }
 
 $database = new Database();
-$database->handleRequest('getRoles');
+$database->handleRequest('listRoles');

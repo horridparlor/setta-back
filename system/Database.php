@@ -341,7 +341,8 @@ class Database
         return new User(intval($user['id']), $user['username'], json_decode($user['accessRights']), boolval($user['isActive']));
     }
     public function getRequestData(): \stdClass {
-        return json_decode(json_encode($this->params));
+        $requestData = json_decode(json_encode($this->params));
+        return $requestData == array() ? new \stdClass() : $requestData;
     }
 
     public function decodeColumns(array $rows, array $columnsToDecode): array {
