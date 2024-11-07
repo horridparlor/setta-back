@@ -5,6 +5,23 @@ const USER_COLUMNS_TO_DECODE = [
     'tokenRequest'
 ];
 
+const NEW_USERNAME_SQL = <<<SQL
+    SELECT :comparedValue
+    FROM user
+    WHERE username = :comparedValue
+SQL;
+
+const UNIQUE_USERNAME_REPLACEMENTS = array(
+    'userId' => ['value' => '$userId', 'type' => PDO::PARAM_INT]
+);
+
+const UNIQUE_USERNAME_SQL = <<<SQL
+    SELECT :comparedValue
+    FROM user
+    WHERE username = :comparedValue
+    AND NOT id = :userId
+SQL;
+
 const USER_EXISTS_SQL = <<<SQL
     SELECT :comparedValue, "User" entityType
     FROM DUAL

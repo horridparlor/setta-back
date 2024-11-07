@@ -13,113 +13,7 @@ include("../../system/User.php");
 include "../../system/sql/selectUser.php";
 include("../../system/AccessBlock.php");
 include("../../system/util/images.php");
-
-function getAccessRightsMissingParams(): array {
-    $roleExistsSql = <<<SQL
-        SELECT :comparedValue
-        FROM DUAL
-        WHERE NOT EXISTS (
-            SELECT id
-            FROM userRole
-            WHERE id = :comparedValue
-        )
-    SQL;
-    return array(
-        'param' => 'roleId',
-        'type' => StandardType::ID,
-        'exists' => new SqlComparison($roleExistsSql),
-        'option' => array(
-            'param' => 'accessRights',
-            'children' => array(
-                array(
-                    'param' => 'isSuperAdmin',
-                    'type' => StandardType::BOOLEAN,
-                    'forbidden' => true
-                ),
-                array(
-                    'param' => 'canRelease',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canManageAdmins',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canManageUsers',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canClearContent',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'hasUnlimitedTokens',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canShareTokens',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canMessageAdmins',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canMassExport',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canCreateContent',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canGenerateImages',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'canMessage',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'autoRefillTokens',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'isRegularUser',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'isPriorityUser',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'isEmployee',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                ),
-                array(
-                    'param' => 'isContentCreator',
-                    'type' => StandardType::BOOLEAN,
-                    'required' => false
-                )
-            )
-        )
-    );
-}
+include("../../system/util/accessRights.php");
 
 function getUser(Database $database): string {
     $user = $database->getUser();
@@ -152,92 +46,18 @@ function getUser(Database $database): string {
     return $database->responseSuccess($user[0]);
 }
 
-function createNewRole(User $user, string|null $roleName, int|null &$roleId, stdClass $accessRights, Database $database): string|null {
-    $error = canGiveRole($user, $accessRights, $database);
-    if ($error) {
-        return $error;
-    }
-    $sql = <<<SQL
-        INSERT INTO userRole (
-            name,
-            accessRights
-        ) VALUES (
-            :roleName,
-            :accessRights 
-        )
-    SQL;
-    $replacements = array(
-        'roleName' => ['value' => $roleName, 'type' => PDO::PARAM_STR],
-        'accessRights' => ['value' => json_encode($accessRights), 'type' => PDO::PARAM_STR]
-    );
-    $database->query($sql, $replacements);
-    $roleId = $database->getInsertId();
-    return null;
-}
-
-function canGiveRole(User $user, stdClass $accessRights, Database $database): string|null {
-    $dummyUser = User::newDummyUser($accessRights);
-    if ($dummyUser->isSuperAdmin()) {
-        return Database::responseForbidden(array(
-           'error' => 'New admins cannot be created'
-        ));
-    }
-    if (!$user->isSuperAdmin() && $dummyUser->hasAdminRights()) {
-        return Database::responseUnauthorized(array(
-           'error' => sprintf('You cannot give admin access right {%s}', $dummyUser->getAdminAccessRight())
-        ));
-    }
-    return null;
-}
-
-function getAccessRightsByRoleId(int $roleId, Database $database): stdClass {
-    $sql = <<<SQL
-        SELECT accessRights
-        FROM userRole role
-        WHERE role.id = :roleId
-    SQL;
-    $replacements = array(
-        'roleId' => ['value' => $roleId, 'type' => PDO::PARAM_INT]
-    );
-    return json_decode($database->query($sql, $replacements)[0]['accessRights']);
-}
-
-function canGiveExistingRole(User $user, int|null $roleId, Database $database): string|null {
-    if (is_null($roleId)) {
-        return null;
-    }
-    $accessRights = getAccessRightsByRoleId($roleId, $database);
-    return canGiveRole($user, $accessRights, $database);
-}
-
-function canAlterRights(User $user, User $editedUser, int|null $roleId, stdClass $accessRights, Database $database): string|null {
-    if ($user->canManageAdmins()) {
-        return null;
-    }
-    $newAccessRights = $roleId ? getAccessRightsByRoleId($roleId, $database) : $accessRights;
-    if ($editedUser->wouldChangeAdminRights($newAccessRights)) {
-        return Database::responseUnauthorized($editedUser->getError());
-    }
-    return null;
-}
-
 function postUser(Database $database): string
 {
     $user = $database->getUser();
     if (!$user || !$user->canManageUsers()) {
         return $database->responseUnauthorized($user?->getError());
     }
-    $uniqueUsernameSql = <<<SQL
-        SELECT :comparedValue
-        FROM user
-        WHERE username = :comparedValue
-    SQL;
 
     $requiredParams = array(
         array(
           'param' => 'username',
           'type' => StandardType::STRING,
-          'unique' => new SqlComparison($uniqueUsernameSql)
+          'unique' => new SqlComparison(NEW_USERNAME_SQL)
         ),
         array(
             'param' => 'password',
@@ -271,7 +91,7 @@ function postUser(Database $database): string
             'type' => StandardType::BOOLEAN,
             'required' => false
         ),
-        getAccessRightsMissingParams()
+        getUserAccessRightsMissingParams()
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
     if ($missingParam) {
@@ -365,15 +185,6 @@ function putUser(Database $database): string
     if (!$user || !$user->canManageUsers()) {
         return $database->responseUnauthorized($user?->getError());
     }
-    $uniqueUsernameSql = <<<SQL
-        SELECT :comparedValue
-        FROM user
-        WHERE username = :comparedValue
-        AND NOT id = :userId
-    SQL;
-    $uniqueUsernameReplacements = array(
-        'userId' => ['value' => '$userId', 'type' => PDO::PARAM_INT]
-    );
 
     $requiredParams = array(
         array(
@@ -384,7 +195,7 @@ function putUser(Database $database): string
         array(
           'param' => 'username',
           'type' => StandardType::STRING,
-          'unique' => new SqlComparison($uniqueUsernameSql, $uniqueUsernameReplacements, $database->getRequestData())
+          'unique' => new SqlComparison(UNIQUE_USERNAME_SQL, UNIQUE_USERNAME_REPLACEMENTS, $database->getRequestData())
         ),
         array(
             'param' => 'firstname',
@@ -414,7 +225,7 @@ function putUser(Database $database): string
             'type' => StandardType::BOOLEAN,
             'required' => false
         ),
-        getAccessRightsMissingParams()
+        getUserAccessRightsMissingParams()
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
     if ($missingParam) {
@@ -431,7 +242,7 @@ function putUser(Database $database): string
     $roleId = $database->getIntParam('roleId');
     $accessRights = $database->getObjectParam('accessRights');
     $editedUser = $database->findUser($userId);;
-    $error = canAlterRights($user, $editedUser, $roleId, $accessRights, $database);
+    $error = canAlterUserRights($user, $editedUser, $roleId, $accessRights, $database);
     if ($error) {
         return $error;
     }

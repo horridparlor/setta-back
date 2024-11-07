@@ -205,11 +205,12 @@ class User
         $removedRights = array_diff($currentAdminRights, $newAdminRights);
         $addedRights = array_diff($newAdminRights, $currentAdminRights);
         if ($removedRights) {
-            $this->accessRightErrorString = sprintf(ALTERING_ADMIN_RIGHT, ALTERING_REMOVE, $removedRights[0]);
+            $this->accessRightErrorString = sprintf(ALTERING_ADMIN_RIGHT, ALTERING_REMOVE, reset($removedRights));
             return true;
         }
         if ($addedRights) {
-            $this->accessRightErrorString = sprintf(ALTERING_ADMIN_RIGHT, ALTERING_ADD, $addedRights[0]);
+            echo json_encode($addedRights);
+            $this->accessRightErrorString = sprintf(ALTERING_ADMIN_RIGHT, ALTERING_ADD, reset($addedRights));
             return true;
         }
         return false;
