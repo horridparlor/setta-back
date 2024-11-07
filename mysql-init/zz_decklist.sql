@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Jul 19, 2024 at 05:27 PM
--- Server version: 10.6.18-MariaDB-cll-lve
--- PHP Version: 8.3.8
+-- Generation Time: Nov 07, 2024 at 04:07 PM
+-- Server version: 10.6.19-MariaDB-cll-lve
+-- PHP Version: 8.3.13
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,12 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `decklist` (
-  `id` int(11) NOT NULL,
-  `ownerId` int(11) NOT NULL,
-  `name` varchar(32) NOT NULL,
-  `isValid` tinyint(4) NOT NULL,
-  `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `modifiedAt` timestamp NOT NULL DEFAULT current_timestamp()
+                            `id` int(11) NOT NULL,
+                            `ownerId` int(11) NOT NULL,
+                            `formatId` int(11) NOT NULL,
+                            `name` varchar(32) NOT NULL,
+                            `isValid` tinyint(4) NOT NULL,
+                            `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+                            `modified_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -44,8 +45,9 @@ CREATE TABLE `decklist` (
 -- Indexes for table `decklist`
 --
 ALTER TABLE `decklist`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `ownerId` (`ownerId`);
+    ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `ownerId` (`ownerId`,`name`),
+  ADD KEY `formatId` (`formatId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -55,7 +57,7 @@ ALTER TABLE `decklist`
 -- AUTO_INCREMENT for table `decklist`
 --
 ALTER TABLE `decklist`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
@@ -65,7 +67,8 @@ ALTER TABLE `decklist`
 -- Constraints for table `decklist`
 --
 ALTER TABLE `decklist`
-  ADD CONSTRAINT `decklist_ibfk_1` FOREIGN KEY (`ownerId`) REFERENCES `user` (`id`);
+    ADD CONSTRAINT `decklist_ibfk_1` FOREIGN KEY (`ownerId`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `decklist_ibfk_2` FOREIGN KEY (`formatId`) REFERENCES `format` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

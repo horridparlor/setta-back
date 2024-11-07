@@ -1,51 +1,43 @@
 <?php
 
-const USER_COLUMNS_TO_DECODE = [
-    'accessRights',
-    'tokenRequest'
+const DECKLIST_COLUMNS_TO_DECODE = [
+    'cardList'
 ];
-
-const NEW_USERNAME_SQL = <<<SQL
+const NEW_DECKLIST_NAME_SQL = <<<SQL
     SELECT :comparedValue
-    FROM user
-    WHERE username = :comparedValue
+    FROM decklist
+    WHERE name = :comparedValue
+    AND ownerId = :ownerId
 SQL;
 
-const UNIQUE_USERNAME_REPLACEMENTS = array(
-    'userId' => ['value' => '$userId', 'type' => PDO::PARAM_INT]
+const NEW_DECKLIST_NAME_REPLACEMENTS = array(
+    'ownerId' => ['value' => '$ownerId', 'type' => PDO::PARAM_INT]
 );
 
-const UNIQUE_USERNAME_SQL = <<<SQL
+const UNIQUE_DECKLIST_NAME_SQL = <<<SQL
     SELECT :comparedValue
-    FROM user
-    WHERE username = :comparedValue
-    AND NOT id = :userId
+    FROM decklist
+    WHERE name = :comparedValue
+    AND ownerId = :ownerId
+    AND NOT id = :decklistId
 SQL;
 
-const USER_EXISTS_SQL = <<<SQL
-    SELECT :comparedValue, "User" entityType
+const UNIQUE_DECKLIST_NAME_REPLACEMENTS = array(
+    'decklistId' => ['value' => '$decklistId', 'type' => PDO::PARAM_INT],
+    'ownerId' => ['value' => '$ownerId', 'type' => PDO::PARAM_INT]
+);
+
+const DECKLIST_EXISTS_SQL = <<<SQL
+    SELECT :comparedValue, "Decklist" entityType
     FROM DUAL
     WHERE NOT EXISTS (
         SELECT id
-        FROM user
+        FROM decklist
         WHERE id = :comparedValue
     )
 SQL;
 
-const USER_CASCADE_SQL = <<<SQL
-    SELECT id cascadingId, name cascadingName, 'Expansion' entityType
-    FROM expansion
-    WHERE :cascadeExpansions = 0
-    AND ownerId = :comparedValue
-    UNION ALL
-        SELECT id cascadingId, cardName cascadingName, 'Card' entityType
-        FROM card
-    WHERE :cascadeCards = 0
-    AND ownerId = :comparedValue
-SQL;
-
-
-const SELECT_USER = <<<SQL
+const SELECT_DECKLIST = <<<SQL
     SELECT
         user.id,
         username,

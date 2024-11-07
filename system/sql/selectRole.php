@@ -10,17 +10,16 @@ const NEW_ROLE_NAME_SQL = <<<SQL
     WHERE name = :comparedValue
 SQL;
 
-
-const UNIQUE_ROLE_NAME_REPLACEMENTS = array(
-    'roleId' => ['value' => '$roleId', 'type' => PDO::PARAM_INT]
-);
-
 const UNIQUE_ROLE_NAME_SQL = <<<SQL
     SELECT :comparedValue
     FROM userRole
     WHERE name = :comparedValue
     AND NOT id = :roleId
 SQL;
+
+const UNIQUE_ROLE_NAME_REPLACEMENTS = array(
+    'roleId' => ['value' => '$roleId', 'type' => PDO::PARAM_INT]
+);
 
 const ROLE_EXISTS_SQL = <<<SQL
     SELECT :comparedValue, "Role" entityType
