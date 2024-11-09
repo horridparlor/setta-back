@@ -183,7 +183,7 @@ class Database
         if ($array) {
             return json_decode(json_encode($array));
         }
-        return $array;
+        return new \stdClass();
     }
 
     public static function allowCORS(): void
