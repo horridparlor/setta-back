@@ -1,0 +1,135 @@
+sudo apt update
+sudo apt upgrade
+
+sudo apt install mysql-server
+sudo mysql_secure_installation
+sudo nano /etc/mysql/mysql.conf.d/mysqld.cnf
+
+bind-address = 0.0.0.0
+
+sudo systemctl restart mysql
+sudo ufw enable
+sudo ufw allow 3306
+sudo ufw allow 80/tcp
+sudo ufw allow ssh
+sudo ufw reload
+
+sudo mysql -u root -p
+CREATE USER 'setta-user'@'localhost' IDENTIFIED BY 'SettasSauceFarnin450-30';
+
+CREATE DATABASE setta;
+use setta;
+GRANT ALL PRIVILEGES ON `setta`.* TO 'setta-user'@'localhost';
+EXIT
+
+sudo apt install apache2
+sudo apt install unzip
+sudo nano /var/www/html/.htaccess
+
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [QSA,L]
+
+sudo nano /etc/apache2/apache2.conf
+
+<Directory /var/www/html>
+       Options Indexes FollowSymLinks
+       AllowOverride All
+       Require all granted
+</Directory>
+
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+
+ssh-keygen -t rsa -b 4096 -C "eero.laine.posti@gmail.com"
+cd /home/azureuser/.ssh
+cat id_rsa.pub
+
+cd /home/azureuser
+git clone git@github.com:horridparlor/setta-back.git
+nano setta-back/system/.env
+
+DB_HOST=localhost
+DB_USER=setta-user
+DB_PASS=SettasSauceFarnin450-30
+DB_NAME=setta
+
+sudo mv setta-back /var/www/html/setta-back
+
+#Php
+sudo apt install apache2 php libapache2-mod-php php-mysql
+sudo a2enmod proxy_fcgi setenvif
+sudo systemctl restart apache2
+sudo nano /etc/apache2/sites-available/000-default.conf
+
+<FilesMatch ".php$">
+  SetHandler "proxy:unix:/var/run/php/php8.1-fpm.sock|fcgi://localhost/"
+</FilesMatch>
+
+sudo systemctl restart apache2
+
+#Error logging
+sudo tail -f /var/log/apache2/error.log
+sudo tail -f /var/log/auth.log
+
+#SSL
+
+openssl req -new -newkey rsa:2048 -nodes -keyout stag.fi.key -out stag.fi.csr
+
+FI
+Pirkanmaa
+Tampere
+horridparlor
+Setta
+stag.fi
+
+sudo mkdir -p /root/cert/
+sudo mv stag.fi.csr /root/cert/
+sudo mv stag.fi.key /root/cert/
+sudo chmod 400 /root/cert/stag.fi.csr
+sudo chmod 400 /root/cert/stag.fi.key
+sudo chmod 500 /root/cert/
+sudo nano /etc/apache2/sites-available/000-default.conf
+
+<VirtualHost *:443>
+
+ DocumentRoot /var/www/html
+    ServerName stag.fi
+        SSLEngine on
+        SSLCertificateFile /root/cert/stag.fi.csr
+        SSLCertificateKeyFile /root/cert/stag.fi.key
+        SSLCertificateChainFile /root/cert/DigiCertCA.crt
+
+sudo a2enmod ssl
+sudo systemctl restart apache2
+
+#Certificate
+sudo nano /etc/apache2/sites-available/000-default
+
+ServerName stag.fi
+
+sudo mv /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/stag.fi.conf
+sudo a2dissite 000-default.conf
+sudo a2ensite stag.fi.conf
+
+sudo apt install certbot python3-certbot-apache
+sudo certbot install --apache --cert-name stag.fi
+
+horridparlormaster@gmail.com
+
+Successfully received certificate.
+Certificate is saved at: /etc/letsencrypt/live/stag.fi/fullchain.pem
+Key is saved at:         /etc/letsencrypt/live/stag.fi/privkey.pem
+
+sudo certbot delete --cert-name stag.fi
+
+#.htaccess
+
+Options -MultiViews
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^ index.html [QSA,L]
+
+sudo a2enmod headers
+sudo systemctl restart apache2
