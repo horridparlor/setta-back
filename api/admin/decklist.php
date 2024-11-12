@@ -19,6 +19,12 @@ function getDecklist(Database $database): string
 
 function postDecklist(Database $database): string
 {
+    $ownerId;
+    $formatId;
+    $name;
+    $isValid;
+    $isPublished;
+
     return "222";
 }
 

@@ -5,14 +5,14 @@ use system\Database;
 header('Content-Type: application/json');
 
 include("../../system/Database.php");
-include("../../system/sql/selectExpansion.php");
+include("../../system/sql/selectFormat.php");
 
 function getExpansions(Database $database): string
 {
-    $expansions = $database->query(SELECT_EXPANSION_SQL);
+    $formats = $database->query(SELECT_FORMAT_SQL);
     return $database->responseSuccess(array(
-        'countOfExpansions' => count($expansions),
-        'expansions' => $expansions,
+        'countOfFormats' => count($formats),
+        'formats' => $formats,
     ));
 }
 
