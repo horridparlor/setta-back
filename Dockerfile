@@ -11,5 +11,6 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install gd mysqli pdo pdo_mysql
 
 RUN a2enmod rewrite
+RUN a2enmod headers
 
 EXPOSE 80

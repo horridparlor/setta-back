@@ -10,6 +10,8 @@ services:
       - "8000:80"
     depends_on:
       - mysql
+    networks:
+      - setta-network
 
   mysql:
     image: mysql:8.0
@@ -23,13 +25,38 @@ services:
     volumes:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
-  assets:
-    image: nginx:latest
+    networks:
+      - setta-network
+
+  setta-front:
+    build:
+      context: ../setta-front
+      dockerfile: Dockerfile
+    command: npm run dev -- --host 0.0.0.0
     volumes:
-      - ../setta-assets:/usr/share/nginx/html:ro
+      - ../setta-front:/app
     ports:
-      - "8010:80"
-    restart: always
+      - "5173:5173"
+    networks:
+      - setta-network
+
+  ubuntu-vnc:
+    image: dorowu/ubuntu-desktop-lxde-vnc
+    container_name: ubuntu-vnc
+    ports:
+      - "5900:5900"
+    volumes:
+      - ./shared:/home/ubuntu/shared
+    environment:
+      - USER=ubuntu
+      - PASSWORD=ubuntu
+    restart: unless-stopped
+    networks:
+      - setta-network
 
 volumes:
   mysql_data:
+  shared:
+
+networks:
+  setta-network:
