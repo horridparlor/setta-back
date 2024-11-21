@@ -34,8 +34,7 @@ function getRole(Database $database): string {
           'param' => 'roleId',
           'type' => StandardType::ID,
           'exists' => new SqlComparison(ROLE_EXISTS_SQL)
-        ),
-        getAccessRightsMissingParams()
+        )
     );
     $missingParam = AccessBlock::findMissingParam($requiredParams, $database);
     if ($missingParam) {
