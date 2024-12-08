@@ -24,6 +24,8 @@ function postCard(Database $database): string
     $subtype = $database->getStringParam('subtype');
     $supertype = $database->getStringParam('supertype');
     $maximumPiece = $database->getStringParam('maximumPiece');
+    $primaryClass = $database->getStringParam('primaryClass', '');
+    $secondaryClass = $database->getStringParam('secondaryClass', '');
     $level = $database->getIntParam('level');
     $atk = $database->getIntParam('atk');
     $def = $database->getIntParam('def');
@@ -65,6 +67,8 @@ function postCard(Database $database): string
             subtypeId,
             supertypeId,
             maximumPieceId,
+            primaryClassId,
+            secondaryClassId,
             level,
             atk,
             def,
@@ -98,6 +102,8 @@ function postCard(Database $database): string
             (SELECT id FROM cardSubtype WHERE name = :subtype),
             (SELECT id FROM cardSupertype WHERE name = :supertype),
             (SELECT id FROM maximumPiece WHERE name = :maximumPiece),
+            (SELECT id FROM cardClass WHERE name = :primaryClass),
+            (SELECT id FROM cardClass WHERE name = :secondaryClass),
             :level,
             :atk,
             :def,
@@ -132,6 +138,8 @@ function postCard(Database $database): string
         'subtype' => ['value' => $subtype, 'type' => PDO::PARAM_STR],
         'supertype' => ['value' => $supertype, 'type' => PDO::PARAM_STR],
         'maximumPiece' => ['value' => $maximumPiece, 'type' => PDO::PARAM_STR],
+        'primaryClass' => ['value' => $primaryClass, 'type' => PDO::PARAM_STR],
+        'secondaryClass' => ['value' => $secondaryClass, 'type' => PDO::PARAM_STR],
         'level' => ['value' => $level, 'type' => PDO::PARAM_INT],
         'atk' => ['value' => $atk, 'type' => PDO::PARAM_INT],
         'def' => ['value' => $def, 'type' => PDO::PARAM_INT],
@@ -247,6 +255,8 @@ function putCard(Database $database): string
     $subtype = $database->getStringParam('subtype');
     $supertype = $database->getStringParam('supertype');
     $maximumPiece = $database->getStringParam('maximumPiece');
+    $primaryClass = $database->getStringParam('primaryClass', '');
+    $secondaryClass = $database->getStringParam('secondaryClass', '');
     $level = $database->getIntParam('level');
     $atk = $database->getIntParam('atk');
     $def = $database->getIntParam('def');
@@ -287,6 +297,8 @@ function putCard(Database $database): string
             subtypeId = (SELECT id FROM cardSubtype WHERE name = :subtype),
             supertypeId = (SELECT id FROM cardSupertype WHERE name = :supertype),
             maximumPieceId = (SELECT id FROM maximumPiece WHERE name = :maximumPiece),
+            primaryClassId = (SELECT id FROM cardClass WHERE name = :primaryClass),
+            secondaryClassId = (SELECT id FROM cardClass WHERE name = :secondaryClass),
             level = :level,
             atk = :atk,
             def = :def,
@@ -321,6 +333,8 @@ function putCard(Database $database): string
         'subtype' => ['value' => $subtype, 'type' => PDO::PARAM_STR],
         'supertype' => ['value' => $supertype, 'type' => PDO::PARAM_STR],
         'maximumPiece' => ['value' => $maximumPiece, 'type' => PDO::PARAM_STR],
+        'primaryClass' => ['value' => $primaryClass, 'type' => PDO::PARAM_STR],
+        'secondaryClass' => ['value' => $secondaryClass, 'type' => PDO::PARAM_STR],
         'level' => ['value' => $level, 'type' => PDO::PARAM_INT],
         'atk' => ['value' => $atk, 'type' => PDO::PARAM_INT],
         'def' => ['value' => $def, 'type' => PDO::PARAM_INT],

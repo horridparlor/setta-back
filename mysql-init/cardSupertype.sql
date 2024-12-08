@@ -37,6 +37,7 @@ CREATE TABLE `cardSupertype` (
 --
 
 INSERT INTO `cardSupertype` (`id`, `name`) VALUES
+                                               (6, 'Deck Master'),
                                                (5, 'Domain'),
                                                (2, 'Hand Trap'),
                                                (3, 'Maximum'),

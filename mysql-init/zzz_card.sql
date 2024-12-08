@@ -39,6 +39,8 @@ CREATE TABLE `card` (
                         `subtypeId` int(11) NOT NULL,
                         `supertypeId` int(11) NOT NULL,
                         `maximumPieceId` int(11) NOT NULL,
+                        `primaryClassId` int(11) DEFAULT NULL,
+                        `secondaryClassId` int(11) DEFAULT NULL,
                         `level` tinyint(4) NOT NULL,
                         `atk` smallint(6) NOT NULL,
                         `def` smallint(6) NOT NULL,
@@ -127,7 +129,9 @@ ALTER TABLE `card`
   ADD KEY `expansionId` (`expansionId`),
   ADD KEY `userId` (`ownerId`),
   ADD KEY `modifiedBy` (`modifiedBy`),
-  ADD KEY `errataOfId` (`errataOfId`);
+  ADD KEY `errataOfId` (`errataOfId`),
+  ADD KEY `primaryClassId` (`primaryClassId`),
+  ADD KEY `secondaryClassId` (`secondaryClassId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -155,6 +159,8 @@ ALTER TABLE `card`
   ADD CONSTRAINT `card_ibfk_7` FOREIGN KEY (`modifiedBy`) REFERENCES `user` (`id`),
   ADD CONSTRAINT `card_ibfk_8` FOREIGN KEY (`errataOfId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_9` FOREIGN KEY (`primaryMaterialId`) REFERENCES `card` (`id`);
+  ADD CONSTRAINT `card_ibfk_13` FOREIGN KEY (`primaryClassId`) REFERENCES `cardClass` (`id`);
+  ADD CONSTRAINT `card_ibfk_14` FOREIGN KEY (`secondaryClassId`) REFERENCES `cardClass` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

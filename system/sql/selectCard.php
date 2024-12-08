@@ -14,6 +14,8 @@ const SELECT_CARD = <<<SQL
         cardSubtype.name subtype,
         cardSupertype.name supertype,
         maximumPiece.name maximumPiece,
+        COALESCE(primaryClass.name, "None") primaryClass,
+        COALESCE(secondaryClass.name, "None") secondaryClass,
         card.level,
         card.atk,
         card.def,
@@ -59,6 +61,10 @@ const SELECT_CARD = <<<SQL
         ON cardSupertype.id = card.supertypeId
     JOIN maximumPiece
         ON maximumPiece.id = card.maximumPieceId
+    LEFT JOIN cardClass primaryClass
+        ON primaryClass.id = card.primaryClassId
+    LEFT JOIN cardClass secondaryClass
+        ON secondaryClass.id = card.secondaryClassId
     LEFT JOIN card original
         ON original.id = card.errataOfId
     JOIN expansion originalExpansion
