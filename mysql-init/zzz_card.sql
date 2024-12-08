@@ -44,7 +44,6 @@ CREATE TABLE `card` (
                         `level` tinyint(4) NOT NULL,
                         `atk` smallint(6) NOT NULL,
                         `def` smallint(6) NOT NULL,
-                        `primaryMaterialId` int(11) DEFAULT NULL,
                         `secondaryMaterialId` int(11) DEFAULT NULL,
                         `tertiaryMaterialId` int(11) DEFAULT NULL,
                         `materialsReminder` varchar(32) NOT NULL,
@@ -130,7 +129,6 @@ ALTER TABLE `card`
   ADD KEY `userId` (`ownerId`),
   ADD KEY `modifiedBy` (`modifiedBy`),
   ADD KEY `errataOfId` (`errataOfId`),
-  ADD KEY `primaryClassId` (`primaryClassId`),
   ADD KEY `secondaryClassId` (`secondaryClassId`);
 
 --
@@ -159,7 +157,6 @@ ALTER TABLE `card`
   ADD CONSTRAINT `card_ibfk_7` FOREIGN KEY (`modifiedBy`) REFERENCES `user` (`id`),
   ADD CONSTRAINT `card_ibfk_8` FOREIGN KEY (`errataOfId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `card_ibfk_9` FOREIGN KEY (`primaryMaterialId`) REFERENCES `card` (`id`);
-  ADD CONSTRAINT `card_ibfk_13` FOREIGN KEY (`primaryClassId`) REFERENCES `cardClass` (`id`);
   ADD CONSTRAINT `card_ibfk_14` FOREIGN KEY (`secondaryClassId`) REFERENCES `cardClass` (`id`);
 COMMIT;
 
