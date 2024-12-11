@@ -23,7 +23,10 @@ function listCards(Database $database): string
                 JOIN expansion
                     ON expansion.id = errata.expansionId
                 WHERE errata.errataOfId = card.errataOfId
-                AND expansion.isReleased = 1
+                AND (
+                    expansion.isReleased = 1
+                    OR expansion.isReleasedForGame = 1
+                )
                 AND isDeleted = 0
                 GROUP BY errataOfId
             )
@@ -38,7 +41,10 @@ function listCards(Database $database): string
     SQL;
     if ($isGame) {
         $sql .=  <<<SQL
-            AND originalExpansion.isReleasedForGame = 1
+            AND (
+                expansion.isReleasedForGame = 1
+                OR originalExpansion.isReleasedForGame = 1
+            )
         SQL;
     }
     $replacements = array(
@@ -46,12 +52,14 @@ function listCards(Database $database): string
     );
     if (!$user) {
         $sql .= <<<SQL
-            AND (JSON_EXTRACT(COALESCE(expansionOwnerRole.accessRights, expansionOwner.accessRights, "{}"), "$.isSuperAdmin") = 1 AND expansion.isReleased = 1)
+            AND (JSON_EXTRACT(COALESCE(expansionOwnerRole.accessRights, expansionOwner.accessRights, "{}"), "$.isSuperAdmin") = 1
+                AND expansion.isReleased = 1)
         SQL;
     } elseif (!$user->isSuperAdmin()) {
         $sql .= <<<SQL
             AND (
-                (JSON_EXTRACT(COALESCE(expansionOwnerRole.accessRights, expansionOwner.accessRights, "{}"), "$.isSuperAdmin") = 1 AND expansion.isReleased = 1 )
+                (JSON_EXTRACT(COALESCE(expansionOwnerRole.accessRights, expansionOwner.accessRights, "{}"), "$.isSuperAdmin") = 1
+                    AND expansion.isReleased = 1 )
                 OR cardOwner.id = :userId
                 OR expansionOwner.id = :userId
             )
