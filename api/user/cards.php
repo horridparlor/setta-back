@@ -53,7 +53,11 @@ function listCards(Database $database): string
     if (!$user) {
         $sql .= <<<SQL
             AND (JSON_EXTRACT(COALESCE(expansionOwnerRole.accessRights, expansionOwner.accessRights, "{}"), "$.isSuperAdmin") = 1
-                AND expansion.isReleased = 1)
+                AND (
+                    expansion.isReleased = 1
+                    OR expansion.isReleasedForGame = 1
+                )
+            )
         SQL;
     } elseif (!$user->isSuperAdmin()) {
         $sql .= <<<SQL
