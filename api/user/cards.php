@@ -54,8 +54,7 @@ function listCards(Database $database): string
         $sql .= <<<SQL
             AND (JSON_EXTRACT(COALESCE(expansionOwnerRole.accessRights, expansionOwner.accessRights, "{}"), "$.isSuperAdmin") = 1
                 AND (
-                    expansion.isReleased = 1
-                    OR expansion.isReleasedForGame = 1
+                    expansion.isReleasedForGame = 1
                 )
             )
         SQL;
@@ -63,7 +62,7 @@ function listCards(Database $database): string
         $sql .= <<<SQL
             AND (
                 (JSON_EXTRACT(COALESCE(expansionOwnerRole.accessRights, expansionOwner.accessRights, "{}"), "$.isSuperAdmin") = 1
-                    AND expansion.isReleased = 1 )
+                    AND expansion.isReleasedForGame = 1 )
                 OR cardOwner.id = :userId
                 OR expansionOwner.id = :userId
             )
