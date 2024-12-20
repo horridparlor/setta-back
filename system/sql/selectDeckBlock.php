@@ -11,7 +11,21 @@ enum DeckBlock: string {
     case TRAP = 'trap';
     case EXTRA = 'extra';
     case SIDE = 'side';
+
+    public static function fromString(string $value): ?DeckBlock {
+        return match($value) {
+            self::DECK_MASTER->value => self::DECK_MASTER,
+            self::MONSTER->value => self::MONSTER,
+            self::SPELL->value => self::SPELL,
+            self::TRAP->value => self::TRAP,
+            self::EXTRA->value => self::EXTRA,
+            self::SIDE->value => self::SIDE,
+            default => null,
+        };
+    }
 }
+
+
 
 const DECK_BLOCK_NAME_EXISTS_SQL = <<<SQL
     SELECT :comparedValue, "DeckBlock" entityType

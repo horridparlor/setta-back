@@ -252,4 +252,10 @@ class User
         }
         return false;
     }
+
+    public function getReplacements(): array {
+        return array(
+            'ownerId' => ['value' => $this->id, 'type' => \PDO::PARAM_INT],
+        );
+    }
 }

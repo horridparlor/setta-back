@@ -299,6 +299,8 @@ class AccessBlock
         if ($paramCheck->isIterative) {
             return self::handleArrayParamCheck($value, $paramCheck, $paramTree);
         }
+        $missing = self::handleArrayParamCheck($value, $paramCheck, $paramTree);
+        if ($missing) { return $missing; }
         foreach ($value as $iteration) {
             foreach ($paramCheck->iterative as $child) {
                 $missing = self::handleParamCheck($child, $iteration, $database, [...$paramTree, $param . sprintf('[%d]', $index)]);

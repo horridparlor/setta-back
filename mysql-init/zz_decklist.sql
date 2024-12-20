@@ -34,8 +34,9 @@ CREATE TABLE `decklist` (
                             `name` varchar(32) NOT NULL,
                             `isValid` tinyint(4) NOT NULL,
                             `isPublished` int(11) NOT NULL,
-                            `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-                            `modified_at` timestamp NOT NULL DEFAULT current_timestamp()
+                            `isDeleted` tinyint(4) DEFAULT 0,
+                            `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
+                            `updatedAt` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -46,8 +47,7 @@ CREATE TABLE `decklist` (
 -- Indexes for table `decklist`
 --
 ALTER TABLE `decklist`
-    ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `ownerId` (`ownerId`,`name`),
+  ADD PRIMARY KEY (`id`),
   ADD KEY `formatId` (`formatId`);
 
 --
