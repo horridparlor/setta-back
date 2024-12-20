@@ -38,6 +38,7 @@ Class StandardMessages {
     const REQUIRED_ARRAY_SHORT = "Parameter %s needs minimum %s item%s, %s given";
     const REQUIRED_ARRAY_LONG = "Parameter %s fits maximum %s item%s, %s given";
     const REQUIRED_PARAM_INVALID_TYPE = "Parameter %s should be %s %s, {%s} is %s";
+    const REQUIRED_PARAM_NUMBER_NOT_IN_RANGE = "Parameter %s should be %s, is {%s}";
     const REQUIRED_PARAM_NOT_UNIQUE = "Parameter %s must be unique, {%s} already exists";
     const REQUIRED_PARAM_NOT_EXIST = "Parameter %s%s, %s with id {%s} does not exist";
     const PARAM_CASCADING_ENTITY = "With %s {%s}, related %s exists%s";
@@ -68,6 +69,20 @@ Class StandardMessages {
     public static function paramWithOptionMissing(string $param, string $option, array $paramTree): string {
         $tree = implode("->", $paramTree);
         return sprintf(self::REQUIRED_PARAM_WITH_OPTION_MISSING, $param, $option, $tree ? ' ' . $tree : '');
+    }
+
+    public static function paramNumberNotInRange(int|float $value, int|null $min, int|null $max, array $paramTree): string {
+        $rangeString = self::getRangeString($min, $max);
+        return sprintf(self::REQUIRED_PARAM_NUMBER_NOT_IN_RANGE, implode("->", $paramTree), $rangeString, $value);
+    }
+
+    private static function getRangeString(int|null $min, int|null $max): string {
+        if (is_null($min)) {
+            return "maximum " . $max;
+        } elseif (is_null($max)) {
+            return "minimum " . $min;
+        }
+        return sprintf("between %s and %s", $min, $max);
     }
 
     public static function paramInvalidType(mixed $value, StandardType $type, string $redux, array $paramTree): string {
@@ -127,6 +142,8 @@ class ParamCheck {
     public bool $isIterative;
     public bool $required;
     public bool $forbidden;
+    public int|null $min;
+    public int|null $max;
     public int $minSize;
     public int $maxSize;
     public StandardType $type;
@@ -135,6 +152,7 @@ class ParamCheck {
     public SqlComparison|null $unique;
     public SqlComparison|null $exists;
     public SqlComparison|null $cascade;
+    public bool $debug;
 
     public function __construct() {
         $this->children = array();
@@ -143,6 +161,8 @@ class ParamCheck {
         $this->isIterative = false;
         $this->required = true;
         $this->forbidden = false;
+        $this->min = null;
+        $this->max = null;
         $this->minSize = NO_SIZE;
         $this->maxSize = NO_SIZE;
         $this->type = StandardType::UNKNOWN;
@@ -151,6 +171,7 @@ class ParamCheck {
         $this->unique = null;
         $this->exists = null;
         $this->cascade = null;
+        $this->debug = false;
     }
 }
 class SqlComparison {
@@ -232,7 +253,10 @@ class AccessBlock
             }
         }
         if (!is_null($value)) {
-            if (!$paramCheck->isIterative && $type != StandardType::UNKNOWN and !self::checkParamType($value, $type, $paramCheck->redux)) {
+            if (!$paramCheck->isIterative && $type != StandardType::UNKNOWN and !self::checkParamType($value, $type, $paramCheck)) {
+                if ($type == StandardType::NUMBER && ($paramCheck->min != null || $paramCheck->max != null) && (is_int($value) || is_float($value))) {
+                    return StandardMessages::paramNumberNotInRange($value, $paramCheck->min, $paramCheck->max, $paramTree);
+                }
                 return StandardMessages::paramInvalidType($value, $type, $paramCheck->redux, $treeWithThis);
             }
             if (!self::checkParamUnique($value, $paramCheck, $database)) {
@@ -285,13 +309,18 @@ class AccessBlock
         return null;
     }
 
-    private static function checkParamType(mixed $value, StandardType $type, string $redux): bool {
+    private static function checkParamType(mixed $value, StandardType $type, ParamCheck $paramCheck): bool {
         return match ($type) {
             StandardType::BOOLEAN => is_bool($value),
             StandardType::ID => is_int($value) and $value > 0,
-            StandardType::NUMBER => is_int($value) or is_float($value),
-            default => is_string($value) && preg_match('/' . $redux . '/s', $value),
+            StandardType::NUMBER => (is_int($value) or is_float($value)) and self::isNumberInAllowedRange($value, $paramCheck),
+            default => is_string($value) && preg_match('/' . $paramCheck->redux . '/s', $value),
         };
+    }
+
+    private static function isNumberInAllowedRange(int|float $value, ParamCheck $paramCheck): bool {
+        return (is_null($paramCheck->min) || $value >= $paramCheck->min) &&
+            (is_null($paramCheck->max) || $value <= $paramCheck->max);
     }
 
     private static function checkParamUnique(mixed $value, ParamCheck $paramCheck, Database $database): bool {
@@ -300,7 +329,7 @@ class AccessBlock
             return true;
         }
         $comparison->eatReplacement('comparedValue', $value, $paramCheck->pdoType);
-        return empty($database->query($comparison->getSql(), $comparison->getReplacements()));
+        return empty($database->query($comparison->getSql(), $comparison->getReplacements(), $paramCheck->debug));
     }
 
     private static function checkParamExists(mixed $value, ParamCheck $paramCheck, Database $database): null|array
@@ -312,7 +341,7 @@ class AccessBlock
             'entity' => ''
         );
         $comparison->eatReplacement('comparedValue', $value, $paramCheck->pdoType);
-        $result = $database->query($comparison->getSql(), $comparison->getReplacements());
+        $result = $database->query($comparison->getSql(), $comparison->getReplacements(), $paramCheck->debug);
         if (empty($result)) {
             return null;
         }
@@ -334,7 +363,7 @@ class AccessBlock
             'suffix' => ''
         );
         $comparison->eatReplacement('comparedValue', $value, $paramCheck->pdoType);
-        $result = $database->query($comparison->getSql(), $comparison->getReplacements());
+        $result = $database->query($comparison->getSql(), $comparison->getReplacements(), $paramCheck->debug);
         if (!sizeof($result)) {
             return null;
         }
@@ -402,6 +431,12 @@ class AccessBlock
         if (isset($array['notEmpty']) && $array['notEmpty']) {
             $paramCheck->minSize = 1;
         }
+        if (isset($array['min'])) {
+            $paramCheck->min = $array['min'];
+        }
+        if (isset($array['max'])) {
+            $paramCheck->max = $array['max'];
+        }
         if (isset($array['minSize'])) {
             $paramCheck->minSize = $array['minSize'];
         }
@@ -429,6 +464,9 @@ class AccessBlock
         }
         if (isset($array['cascade'])) {
             $paramCheck->cascade = $array['cascade'];
+        }
+        if (isset($array['debug'])) {
+            $paramCheck->debug = $array['debug'];
         }
         return $paramCheck;
     }

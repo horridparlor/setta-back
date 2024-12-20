@@ -67,3 +67,17 @@ const SELECT_CARD = <<<SQL
     JOIN expansion originalExpansion
         ON originalExpansion.id = IFNULL(original.expansionId, card.expansionId) 
 SQL;
+
+const CARD_EXISTS_IN_GAME_SQL = <<<SQL
+    SELECT :comparedValue, "Card" entityType
+    FROM DUAL
+    WHERE NOT EXISTS (
+        SELECT card.id
+        FROM card
+        JOIN expansion
+            ON expansion.id = card.expansionId
+        WHERE card.id = :comparedValue
+        AND card.isDeleted = 0
+        AND expansion.isReleasedForGame = 1
+    )
+SQL;

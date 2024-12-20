@@ -11,3 +11,13 @@ const SELECT_FORMAT_SQL = <<<SQL
     FROM format
     WHERE isActive = 1
 SQL;
+
+const FORMAT_EXISTS_SQL = <<<SQL
+    SELECT :comparedValue, "Format" entityType
+    FROM DUAL
+    WHERE NOT EXISTS (
+        SELECT id
+        FROM format
+        WHERE id = :comparedValue
+    )
+SQL;

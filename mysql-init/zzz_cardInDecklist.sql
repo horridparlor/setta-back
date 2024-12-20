@@ -31,7 +31,8 @@ CREATE TABLE `cardInDecklist` (
   `id` int(11) NOT NULL,
   `deckId` int(11) NOT NULL,
   `cardId` int(11) NOT NULL,
-  `amount` tinyint(4) NOT NULL
+  `copies` tinyint(4) NOT NULL,
+  `deckBlockId` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -44,7 +45,8 @@ CREATE TABLE `cardInDecklist` (
 ALTER TABLE `cardInDecklist`
   ADD PRIMARY KEY (`id`),
   ADD KEY `deckId` (`deckId`),
-  ADD KEY `cardId` (`cardId`);
+  ADD KEY `cardId` (`cardId`),
+  ADD KEY `deckBlockId` (`deckBlockId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -65,7 +67,8 @@ ALTER TABLE `cardInDecklist`
 --
 ALTER TABLE `cardInDecklist`
   ADD CONSTRAINT `cardInDecklist_ibfk_1` FOREIGN KEY (`deckId`) REFERENCES `decklist` (`id`),
-  ADD CONSTRAINT `cardInDecklist_ibfk_2` FOREIGN KEY (`cardId`) REFERENCES `card` (`id`);
+  ADD CONSTRAINT `cardInDecklist_ibfk_2` FOREIGN KEY (`cardId`) REFERENCES `card` (`id`),
+  ADD CONSTRAINT `cardInDecklist_ibfk_3` FOREIGN KEY (`deckBlockId`) REFERENCES `deckBlock` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
