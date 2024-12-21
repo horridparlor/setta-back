@@ -31,7 +31,7 @@ CREATE TABLE `decklist` (
                             `id` int(11) NOT NULL,
                             `ownerId` int(11) NOT NULL,
                             `formatId` int(11) NOT NULL,
-                            `name` varchar(32) NOT NULL,
+                            `name` varchar(64) NOT NULL,
                             `isValid` tinyint(4) NOT NULL,
                             `isPublished` int(11) NOT NULL,
                             `isDeleted` tinyint(4) DEFAULT 0,

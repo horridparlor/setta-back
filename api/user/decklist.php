@@ -144,18 +144,18 @@ function validateDecklist(array $cards): bool {
     foreach ($cards as $card) {
         $copies = $card->copies;
         switch ($card->deckBlock) {
-            case DeckBlock::DECK_MASTER:
+            case DeckBlock::DECK_MASTER->value:
                 $deckMasterCount += $copies;
                 break;
-            case DeckBlock::MONSTER:
-            case DeckBlock::SPELL:
-            case DeckBlock::TRAP:
+            case DeckBlock::MONSTER->value:
+            case DeckBlock::SPELL->value:
+            case DeckBlock::TRAP->value:
                 $mainDeckCount += $copies;
                 break;
-            case DeckBlock::EXTRA:
+            case DeckBlock::EXTRA->value:
                 $extraDeckCount += $copies;
                 break;
-            case DeckBlock::SIDE:
+            case DeckBlock::SIDE->value:
                 $sideDeckCount += $copies;
                 break;
         }
