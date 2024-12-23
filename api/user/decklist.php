@@ -243,7 +243,7 @@ function putDecklist(Database $database): string
                 array(
                     'param' => 'copies',
                     'type' => StandardType::NUMBER,
-                    'min' => 0,
+                    'min' => 1,
                     'max' => 3
                 ),
                 array(
@@ -270,7 +270,8 @@ function putDecklist(Database $database): string
             formatId = :formatId,
             name = :name,
             isValid = :isValid,
-            isPublished = :isPublished
+            isPublished = :isPublished,
+            updatedAt = NOW()
         WHERE id = :decklistId;
         
         DELETE from cardInDecklist
@@ -313,8 +314,10 @@ function deleteDecklist(Database $database): string
     }
     $decklistId = $database->getIntParam('decklistId');
     $sql = <<<SQL
-        UPDATE decklist
-        SET isDeleted = 1
+        DELETE FROM cardInDecklist
+        WHERE deckId = :decklistId;
+    
+        DELETE FROM decklist
         WHERE id = :decklistId;
     SQL;
     $replacements = array(
@@ -322,7 +325,7 @@ function deleteDecklist(Database $database): string
     );
     $database->query($sql, $replacements);
     return $database->responseSuccess(array(
-        'decklistid' => $decklistId
+        'decklistId' => $decklistId
     ));
 }
 

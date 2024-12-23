@@ -76,7 +76,10 @@ const CARD_EXISTS_IN_GAME_SQL = <<<SQL
         FROM card
         JOIN expansion
             ON expansion.id = card.expansionId
-        WHERE card.id = :comparedValue
+        WHERE (
+            card.id = :comparedValue
+            OR card.errataOfId = :comparedValue
+        )
         AND card.isDeleted = 0
         AND expansion.isReleasedForGame = 1
     )

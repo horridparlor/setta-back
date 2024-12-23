@@ -65,7 +65,7 @@ SQL;
 
 const SELECT_DECKLIST = <<<SQL
     SELECT
-        decklist.id,
+        decklist.id decklistId,
         decklist.name,
         decklist.ownerId,
         owner.firstname ownerFirstname,
@@ -79,7 +79,7 @@ const SELECT_DECKLIST = <<<SQL
         decklist.isDeleted,
         (SELECT JSON_ARRAYAGG(
             JSON_OBJECT(
-                'id', cardInDecklist.cardId,
+                'cardId', cardInDecklist.cardId,
                 'name', card.serializedName,
                 'copies', cardInDecklist.copies,
                 'deckBlock', deckBlock.name
