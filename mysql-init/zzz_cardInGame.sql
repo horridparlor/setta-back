@@ -48,7 +48,7 @@ CREATE TABLE `cardInGame` (
   `canBeActivated` tinyint(4) NOT NULL DEFAULT 0,
   `canChangePosition` tinyint(4) NOT NULL DEFAULT 0,
   `summonedThisTurn` tinyint(4) DEFAULT 0,
-  `summonedFrom` int(11) DEFAULT NULL,
+  `summonedFromId` int(11) DEFAULT NULL,
   `keywordsJson` text DEFAULT NULL,
   `effectsJson` text DEFAULT NULL,
   `rulerEffectsJson` text DEFAULT NULL
@@ -68,7 +68,8 @@ ALTER TABLE `cardInGame`
   ADD KEY `controllerId` (`controllerId`),
   ADD KEY `cardId` (`cardId`),
   ADD KEY `zoneId` (`zoneId`),
-  ADD KEY `attachedToId` (`attachedToId`);
+  ADD KEY `attachedToId` (`attachedToId`),
+  ADD KEY `summonedFromId` (`summonedFromId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -93,7 +94,8 @@ ALTER TABLE `cardInGame`
   ADD CONSTRAINT `cardInGame_ibfk_3` FOREIGN KEY (`controllerId`) REFERENCES `user` (`id`),
   ADD CONSTRAINT `cardInGame_ibfk_4` FOREIGN KEY (`cardId`) REFERENCES `card` (`id`),
   ADD CONSTRAINT `cardInGame_ibfk_5` FOREIGN KEY (`zoneId`) REFERENCES `zone` (`id`),
-  ADD CONSTRAINT `cardInGame_ibfk_6` FOREIGN KEY (`attachedToId`) REFERENCES `cardInGame` (`id`);
+  ADD CONSTRAINT `cardInGame_ibfk_6` FOREIGN KEY (`attachedToId`) REFERENCES `cardInGame` (`id`),
+  ADD CONSTRAINT `cardInGame_ibfk_7` FOREIGN KEY (`summonedFromId`) REFERENCES `zone` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

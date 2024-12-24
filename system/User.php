@@ -253,9 +253,13 @@ class User
         return false;
     }
 
-    public function getReplacements(): array {
-        return array(
-            'ownerId' => ['value' => $this->id, 'type' => \PDO::PARAM_INT],
+    public function getReplacements(string $idKey = 'ownerId', array $additionalids = array()): array {
+        $replacements = array(
+            $idKey => ['value' => $this->id, 'type' => \PDO::PARAM_INT],
         );
+        foreach ($additionalids as $key => $value) {
+            $replacements[$key] = ['value' => $value, 'type' => \PDO::PARAM_INT];
+        }
+        return $replacements;
     }
 }

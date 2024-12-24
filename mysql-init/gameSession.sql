@@ -33,7 +33,7 @@ CREATE TABLE `gameSession` (
   `startingPlayer` tinyint(4) NOT NULL,
   `turnPlayer` tinyint(4) NOT NULL,
   `turnNumber` smallint(6) NOT NULL DEFAULT 0,
-  `lookingForPlayers` tinyint(4) NOT NULL DEFAULT 1,
+  `islookingForPlayers` tinyint(4) NOT NULL DEFAULT 1,
   `isOver` tinyint(4) NOT NULL DEFAULT 0,
   `createdAt` timestamp NOT NULL DEFAULT current_timestamp(),
   `updatedAt` timestamp NOT NULL DEFAULT current_timestamp()

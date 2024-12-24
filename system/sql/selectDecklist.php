@@ -30,6 +30,19 @@ const UNIQUE_DECKLIST_NAME_REPLACEMENTS = array(
 );
 
 
+const VALID_OWNED_DECKLIST_EXISTS_SQL = <<<SQL
+    SELECT :comparedValue, "Decklist" entityType
+    FROM DUAL
+    WHERE NOT EXISTS (
+        SELECT id
+        FROM decklist
+        WHERE id = :comparedValue
+        AND formatId = :formatId
+        AND ownerId = :ownerId
+        AND decklist.isValid = 1
+    )
+SQL;
+
 const PUBLISHED_DECKLIST_EXISTS_SQL = <<<SQL
     SELECT :comparedValue, "Decklist" entityType
     FROM DUAL
@@ -91,10 +104,30 @@ const SELECT_DECKLIST = <<<SQL
         JOIN card
             on card.id = cardInDecklist.cardId
         WHERE cardInDecklist.deckId = decklist.id
-    ) AS cards
+    ) cards
     FROM decklist
     JOIN user owner
         ON owner.id = decklist.ownerId
     JOIN format
         ON format.id = decklist.formatId
+SQL;
+
+const SELECT_DECKLIST_CARDS = <<<SQL
+    SELECT (SELECT JSON_ARRAYAGG(
+            JSON_OBJECT(
+                'cardId', cardInDecklist.cardId,
+                'name', card.serializedName,
+                'copies', cardInDecklist.copies,
+                'deckBlock', deckBlock.name
+            )
+        ) cards
+        FROM cardInDecklist
+        JOIN deckBlock
+            on deckBlock.id = cardInDecklist.deckBlockId
+        JOIN card
+            on card.id = cardInDecklist.cardId
+        WHERE cardInDecklist.deckId = decklist.id
+    ) cards
+    FROM decklist
+    WHERE decklist.id = :decklistId
 SQL;

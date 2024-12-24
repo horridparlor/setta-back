@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost:3306
--- Generation Time: Dec 23, 2024 at 11:26 PM
+-- Generation Time: Dec 24, 2024 at 01:27 AM
 -- Server version: 10.6.20-MariaDB-cll-lve
 -- PHP Version: 8.3.14
 
@@ -24,18 +24,15 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Table structure for table `gameAction`
+-- Table structure for table `gameAnimation`
 --
 
-CREATE TABLE `gameAction` (
-  `id` int(11) NOT NULL,
-  `actionTypeId` int(11) NOT NULL,
-  `gameId` int(11) NOT NULL,
-  `playerId` int(11) NOT NULL,
-  `index` int(11) NOT NULL,
-  `wasCancelled` tinyint(4) NOT NULL DEFAULT 0,
-  `activatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `actionData` text NOT NULL
+CREATE TABLE `gameAnimation` (
+                                 `id` int(11) NOT NULL,
+                                 `gameId` int(11) NOT NULL,
+                                 `playerId` int(11) NOT NULL,
+                                 `index` int(11) NOT NULL,
+                                 `animationData` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --
@@ -43,35 +40,33 @@ CREATE TABLE `gameAction` (
 --
 
 --
--- Indexes for table `gameAction`
+-- Indexes for table `gameAnimation`
 --
-ALTER TABLE `gameAction`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `actionTypeId` (`actionTypeId`),
-  ADD KEY `playerId` (`playerId`),
-  ADD KEY `gameId` (`gameId`);
+ALTER TABLE `gameAnimation`
+    ADD PRIMARY KEY (`id`),
+  ADD KEY `gameId` (`gameId`),
+  ADD KEY `playerId` (`playerId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT for table `gameAction`
+-- AUTO_INCREMENT for table `gameAnimation`
 --
-ALTER TABLE `gameAction`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+ALTER TABLE `gameAnimation`
+    MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- Constraints for dumped tables
 --
 
 --
--- Constraints for table `gameAction`
+-- Constraints for table `gameAnimation`
 --
-ALTER TABLE `gameAction`
-  ADD CONSTRAINT `gameAction_ibfk_1` FOREIGN KEY (`actionTypeId`) REFERENCES `actionType` (`id`),
-  ADD CONSTRAINT `gameAction_ibfk_2` FOREIGN KEY (`playerId`) REFERENCES `user` (`id`),
-  ADD CONSTRAINT `gameAction_ibfk_3` FOREIGN KEY (`gameId`) REFERENCES `gameSession` (`id`);
+ALTER TABLE `gameAnimation`
+    ADD CONSTRAINT `gameAnimation_ibfk_1` FOREIGN KEY (`gameId`) REFERENCES `gameSession` (`id`),
+  ADD CONSTRAINT `gameAnimation_ibfk_2` FOREIGN KEY (`playerId`) REFERENCES `user` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
