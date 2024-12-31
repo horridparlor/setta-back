@@ -1,8 +1,8 @@
 <?php
 
 const DECK_MASTER_COUNT = 1;
-const MAIN_DECK_COUNT = 60;
-const EXTRA_DECK_MAX_COUNT = 15;
+const MAIN_DECK_COUNT = 50;
+const EXTRA_DECK_MAX_COUNT = 8;
 const SIDE_DECK_MAX_COUNT = 15;
 enum DeckBlock: string {
     case DECK_MASTER = 'deckMaster';
