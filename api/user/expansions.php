@@ -13,7 +13,13 @@ function getExpansions(Database $database): string
     $user = $database->getUser();
     $sql = SELECT_EXPANSION_SQL;
     $replacements = array();
-    if (!$user?->isSuperAdmin()) {
+    if (!$user) {
+       $sql .= <<<SQL
+            WHERE (
+                isReleasedForGame = 1
+            )
+    SQL;
+    } else if ($user->isSuperAdmin()) {
         $sql .= <<<SQL
             WHERE (
                 isReleasedForGame = 1

@@ -2,7 +2,7 @@
 
 use system\Database;
 
-const ASSETS_PATH = "../../setta-assets/";
+const ASSETS_PATH = "../../cinder-assets/";
 const PIXELS_PER_REM = 16;
 const OFFSET_MULTIPLIER = 0.25;
 const SCALE_MULTIPLIER = 2;

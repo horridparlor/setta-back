@@ -1,24 +1,24 @@
 services:
-  php:
+  cinder-back:
     build:
       context: .
       dockerfile: Dockerfile
     volumes:
       - .:/var/www/html/
-      - ../setta-assets:/var/www/setta-assets
+      - ../cinder-assets:/var/www/cinder-assets
     ports:
       - "8000:80"
     depends_on:
-      - mysql
+      - cinder-mysql
     networks:
-      - setta-network
+      - cinder-network
 
-  mysql:
+  cinder-mysql:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: setta
-      MYSQL_USER: setta_user
+      MYSQL_DATABASE: cinder
+      MYSQL_USER: cinder_user
       MYSQL_PASSWORD: password
     ports:
       - "3307:3306"
@@ -26,20 +26,20 @@ services:
       - mysql_data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
     networks:
-      - setta-network
+      - cinder-network
 
-  setta-front:
+  cinder-front:
     build:
-      context: ../setta-front
+      context: ../cinder-front
       dockerfile: Dockerfile
     volumes:
-      - ../setta-front:/app
+      - ../cinder-front:/app
     ports:
       - "5173:5173"
     networks:
-      - setta-network
+      - cinder-network
 
-  ubuntu-vnc:
+  cinder-vnc:
     image: dorowu/ubuntu-desktop-lxde-vnc
     container_name: ubuntu-vnc
     ports:
@@ -51,11 +51,11 @@ services:
       - PASSWORD=ubuntu
     restart: unless-stopped
     networks:
-      - setta-network
+      - cinder-network
 
 volumes:
   mysql_data:
   shared:
 
 networks:
-  setta-network:
+  cinder-network:
