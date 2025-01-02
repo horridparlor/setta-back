@@ -64,7 +64,7 @@ function findGameSession(Player $player, Database $database): array {
     return array(
         'gameSessionId' => $gameSession->getId(),
         'isLookingForPlayers' => $isLookingForPlayers,
-        'cardsInHand' => $isLookingForPlayers ? $cardsInHand : array()
+        'cardsInHand' => $isLookingForPlayers ? array() : $cardsInHand
     );
 }
 

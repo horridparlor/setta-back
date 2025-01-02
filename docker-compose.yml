@@ -41,9 +41,9 @@ services:
 
   cinder-vnc:
     image: dorowu/ubuntu-desktop-lxde-vnc
-    container_name: ubuntu-vnc
+    container_name: cinder-vnc
     ports:
-      - "5900:5900"
+      - "5901:5900"
     volumes:
       - ./shared:/home/ubuntu/shared
     environment:
