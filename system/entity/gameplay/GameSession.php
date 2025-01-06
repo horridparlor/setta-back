@@ -15,8 +15,9 @@ class GameSession {
     private int $turnNumber;
     private bool $isLookingForPlayers;
     private bool $isOver;
-    private Player $playerOne;
-    private Player $playerTwo;
+    private array $stack;
+    private Player|null $playerOne;
+    private Player|null $playerTwo;
 
     public function __construct(
         int $id,
@@ -26,8 +27,9 @@ class GameSession {
         int $turnNumber,
         bool $isLookingForPlayers,
         bool $isOver,
-        Player $playerOne,
-        Player $playerTwo
+        array $stack,
+        Player|null $playerOne,
+        Player|null $playerTwo
     ) {
        $this->id = $id;
        $this->format = $format;
@@ -36,6 +38,7 @@ class GameSession {
        $this->turnNumber = $turnNumber;
        $this->isLookingForPlayers = $isLookingForPlayers;
        $this->isOver = $isOver;
+       $this->stack = $stack;
        $this->playerOne = $playerOne;
        $this->playerTwo = $playerTwo;
     }
@@ -54,6 +57,7 @@ class GameSession {
             intval($gameSession['turnNumber']),
             boolval($gameSession['isLookingForPlayers']),
             boolval($gameSession['isOver']),
+            json_decode($gameSession['stack'] ?? '[]'),
             Player::fromId(intval($gameSession['playerOneId']), $database),
             Player::fromId(intval($gameSession['playerTwoId']), $database)
         );
@@ -77,7 +81,7 @@ class GameSession {
         return $this->isLookingForPlayers;
     }
 
-    public function output(): array {
+    public function output(int $userId): array {
         $default = array(
             'id' => $this->id,
             'isLookingForPlayers' => $this->isLookingForPlayers,
@@ -87,8 +91,9 @@ class GameSession {
         }
         return array_merge($default, array(
             'metaData' => $this->getMetaData(),
-            'playerOne' => $this->playerOne->output(),
-            'playerTwo' => $this->playerTwo->output()
+            'stack' => $this->stack,
+            'playerOne' => $this->playerOne->output($userId),
+            'playerTwo' => $this->playerTwo->output($userId)
         ));
     }
 
@@ -100,6 +105,6 @@ class GameSession {
                 'turnPlayer' => $this->turnPlayer,
                 'turnNumber' => $this->turnNumber,
                 'isOver' => $this->isOver
-            );
+        );
     }
 }

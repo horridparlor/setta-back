@@ -44,14 +44,12 @@ CREATE TABLE `cardInGame` (
   `atkGain` int(11) NOT NULL DEFAULT 0,
   `defGain` int(11) NOT NULL DEFAULT 0,
   `canBePlayed` tinyint(4) NOT NULL DEFAULT 0,
-  `canBeMaximumSummoned` tinyint(4) NOT NULL DEFAULT 0,
   `canBeActivated` tinyint(4) NOT NULL DEFAULT 0,
   `canChangePosition` tinyint(4) NOT NULL DEFAULT 0,
   `summonedThisTurn` tinyint(4) DEFAULT 0,
   `summonedFromId` int(11) DEFAULT NULL,
   `keywordsJson` text DEFAULT NULL,
-  `effectsJson` text DEFAULT NULL,
-  `rulerEffectsJson` text DEFAULT NULL
+  `effectsJson` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --

@@ -15,6 +15,7 @@ include("../../../system/AccessBlock.php");
 include("../../../system/sql/gameplay/selectGameSession.php");
 include("../../../system/entity/gameplay/GameSession.php");
 include("../../../system/entity/gameplay/Player.php");
+include("../../../system/sql/gameplay/selectCardInGame.php");
 
 function sendAction(Database $database): string {
     $user = $database->getUser();
@@ -35,7 +36,7 @@ function sendAction(Database $database): string {
     $gameId = $database->getIntParam('gameId');
     $gameSession = GameSession::fromId($gameId, $database);
 
-    return $database->responseSuccess($gameSession->output());
+    return $database->responseSuccess($gameSession->output($user->getId()));
 }
 
 

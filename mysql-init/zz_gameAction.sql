@@ -33,9 +33,10 @@ CREATE TABLE `gameAction` (
   `gameId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
   `index` int(11) NOT NULL,
+  `isResolved` tinyint(4) NOT NULL DEFAULT 0,
   `wasCancelled` tinyint(4) NOT NULL DEFAULT 0,
   `activatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
-  `actionData` text NOT NULL
+  `actionData` text DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
 
 --

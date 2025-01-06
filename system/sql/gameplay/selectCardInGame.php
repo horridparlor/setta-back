@@ -19,14 +19,12 @@ const SELECT_CARD_IN_GAME = <<<SQL
         card.atkGain,
         card.defGain,
         card.canBePlayed,
-        card.canBeMaximumSummoned,
         card.canBeActivated,
         card.canChangePosition,
         card.summonedThisTurn,
         summonedFromZone.name summonedFrom,
         card.keywordsJson,
-        card.effectsJson,
-        card.rulerEffectsJson
+        card.effectsJson
     FROM cardInGame card
     JOIN card cardData
         ON cardData.id = card.cardId

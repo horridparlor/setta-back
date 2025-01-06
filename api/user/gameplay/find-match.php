@@ -4,7 +4,6 @@ use system\Database;
 use system\AccessBlock;
 use system\StandardType;
 use system\SqlComparison;
-use system\User;
 use System\Entity\Gameplay\GameSession;
 use System\Entity\Gameplay\Player;
 
@@ -58,7 +57,7 @@ function findGameSession(Player $player, Database $database): array {
         ?? createNewGameSession($player, $database);
     $player->setGameId($gameSession->getId());
 
-    return $gameSession->output();
+    return $gameSession->output($player->getUserId());
 }
 
 function findExistingGameSession(Player $player, Database $database): GameSession|null {
@@ -130,7 +129,8 @@ function joinPlayerToGame(Player $player, int $index, int $gameSessionId, Databa
             UPDATE gameSession game
             SET 
                 isLookingForPlayers = 0,
-                updatedAt = NOW()
+                updatedAt = NOW(),
+                turnNumber = 1
             WHERE game.id = :gameId;
         SQL;
     }
@@ -149,7 +149,7 @@ function spawnDecklistToGame(Player $player, int $gameSessionId, Database $datab
     $deckmasterCards = array();
     $mainCards = array();
     $extraCards = array();
-    foreach ($player->getDecklistJson($database) as $cardInDeck) {
+    foreach ($player->getDecklist() as $cardInDeck) {
         switch ($cardInDeck->deckBlock) {
             case DeckBlock::DECK_MASTER->value:
                 $source = &$deckmasterCards;

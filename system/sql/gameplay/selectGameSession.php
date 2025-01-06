@@ -10,6 +10,22 @@ const SELECT_GAME_SESSION = <<<SQL
             game.turnNumber,
             game.isLookingForPlayers,
             game.isOver,
+            (
+                SELECT JSON_ARRAYAGG(
+                    JSON_OBJECT(
+                        'id', gameAction.id,
+                        'actionType', actionType.name,
+                        'userId', gameAction.userId,
+                        'index', gameAction.index,
+                        'actionData', gameAction.actionData
+                    )
+                )
+                FROM gameAction
+                JOIN actionType
+                    on actionType.id = gameAction.actionTypeId
+                WHERE gameAction.gameId = game.id
+                AND gameAction.isResolved = 0 
+            ) stack,
             playerOne.id playerOneId,
             playerTwo.id playerTwoId
         FROM gameSession game
