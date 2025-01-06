@@ -4,6 +4,7 @@ const SELECT_FORMAT_SQL = <<<SQL
     SELECT
         id,
         name,
+        isActive,
         mainDeckSize,
         hasExtraDeck,
         maxCopies,

@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `gameAnimation` (
                                  `id` int(11) NOT NULL,
                                  `gameId` int(11) NOT NULL,
-                                 `playerId` int(11) NOT NULL,
+                                 `userId` int(11) NOT NULL,
                                  `index` int(11) NOT NULL,
                                  `animationData` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
@@ -45,7 +45,7 @@ CREATE TABLE `gameAnimation` (
 ALTER TABLE `gameAnimation`
     ADD PRIMARY KEY (`id`),
   ADD KEY `gameId` (`gameId`),
-  ADD KEY `playerId` (`playerId`);
+  ADD KEY `userId` (`userId`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -66,7 +66,7 @@ ALTER TABLE `gameAnimation`
 --
 ALTER TABLE `gameAnimation`
     ADD CONSTRAINT `gameAnimation_ibfk_1` FOREIGN KEY (`gameId`) REFERENCES `gameSession` (`id`),
-  ADD CONSTRAINT `gameAnimation_ibfk_2` FOREIGN KEY (`playerId`) REFERENCES `user` (`id`);
+  ADD CONSTRAINT `gameAnimation_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

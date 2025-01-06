@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `playerInGame` (
   `id` int(11) NOT NULL,
-  `playerId` int(11) NOT NULL,
+  `userId` int(11) NOT NULL,
   `gameId` int(11) NOT NULL,
   `index` tinyint(4) NOT NULL,
   `lifePoints` int(11) NOT NULL DEFAULT 6000,
@@ -45,7 +45,7 @@ CREATE TABLE `playerInGame` (
 --
 ALTER TABLE `playerInGame`
   ADD PRIMARY KEY (`id`),
-  ADD KEY `playerId` (`playerId`),
+  ADD KEY `userId` (`userId`),
   ADD KEY `gameId` (`gameId`);
 
 --
@@ -66,7 +66,7 @@ ALTER TABLE `playerInGame`
 -- Constraints for table `playerInGame`
 --
 ALTER TABLE `playerInGame`
-  ADD CONSTRAINT `playerInGame_ibfk_1` FOREIGN KEY (`playerId`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `playerInGame_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`id`),
   ADD CONSTRAINT `playerInGame_ibfk_2` FOREIGN KEY (`gameId`) REFERENCES `gameSession` (`id`);
 COMMIT;
 

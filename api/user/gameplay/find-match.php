@@ -16,7 +16,6 @@ include("../../../system/AccessBlock.php");
 include("../../../system/entity/gameplay/GameSession.php");
 include("../../../system/sql/gameplay/selectGameSession.php");
 include("../../../system/sql/selectDecklist.php");
-include("../../../system/sql/selectFormat.php");
 include("../../../system/sql/selectDeckBlock.php");
 include("../../../system/sql/gameplay/selectCardInGame.php");
 include("../../../system/entity/gameplay/Player.php");
@@ -48,7 +47,7 @@ function findMatch(Database $database): string {
     }
     $formatId = $database->getIntParam('formatId', 1);
     $decklistId = $database->getIntParam('decklistId');
-    $player = new Player($user, $formatId, $decklistId);
+    $player = new Player($user, $database, $formatId, $decklistId);
     return $database->responseSuccess(findGameSession($player, $database));
 }
 
@@ -57,22 +56,16 @@ function findGameSession(Player $player, Database $database): array {
     $gameSession = findExistingGameSession($player, $database)
         ?? joinGameSession($player, $database)
         ?? createNewGameSession($player, $database);
-    $isLookingForPlayers = boolval($gameSession->getIsLookingForPlayers());
-    $player->setGameSessionId($gameSession->getId());
-    $cardsInHand = $player->getCardsInHand($database);
+    $player->setGameId($gameSession->getId());
 
-    return array(
-        'gameSessionId' => $gameSession->getId(),
-        'isLookingForPlayers' => $isLookingForPlayers,
-        'cardsInHand' => $isLookingForPlayers ? array() : $cardsInHand
-    );
+    return $gameSession->output();
 }
 
 function findExistingGameSession(Player $player, Database $database): GameSession|null {
     $sql = <<<SQL
         JOIN playerInGame player
         ON player.gameId = game.id
-        WHERE player.playerId = :userId
+        WHERE player.userId = :userId
         AND game.formatId = :formatId
         AND game.isOver = 0  
     SQL;
@@ -121,12 +114,12 @@ function createNewGameSession(Player $player, Database $database): GameSession|n
 function joinPlayerToGame(Player $player, int $index, int $gameSessionId, Database $database): void {
     $sql = <<<SQL
         INSERT INTO playerInGame(
-        playerId,
+        userId,
         gameId,
         `index`,
         decklistJson
        ) VALUES (
-        :playerId,
+        :userId,
         :gameId,
         :index,
         :decklistJson
@@ -142,10 +135,10 @@ function joinPlayerToGame(Player $player, int $index, int $gameSessionId, Databa
         SQL;
     }
     $replacements = array(
-        'playerId' => ['value' => $player->getId(), 'type' => PDO::PARAM_INT],
+        'userId' => ['value' => $player->getUserId(), 'type' => PDO::PARAM_INT],
         'gameId' => ['value' => $gameSessionId, 'type' => PDO::PARAM_INT],
         'index' => ['value' => $index, 'type' => PDO::PARAM_INT],
-        'decklistJson' => ['value' => json_encode($player->getDecklistJson($database)), 'type' => PDO::PARAM_STR]
+        'decklistJson' => ['value' => json_encode($player->getDecklist()), 'type' => PDO::PARAM_STR]
     );
     $database->query($sql, $replacements);
     spawnDecklistToGame($player, $gameSessionId, $database);
@@ -218,8 +211,8 @@ function spawnDecklistToGame(Player $player, int $gameSessionId, Database $datab
             '(%s, %s, %s, %s, %s, %s)',
             $card->cardId,
             $gameSessionId,
-            $player->getId(),
-            $player->getId(),
+            $player->getUserId(),
+            $player->getUserId(),
             $card->zoneId,
             $card->index
         );

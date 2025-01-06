@@ -31,7 +31,7 @@ CREATE TABLE `gameAction` (
   `id` int(11) NOT NULL,
   `actionTypeId` int(11) NOT NULL,
   `gameId` int(11) NOT NULL,
-  `playerId` int(11) NOT NULL,
+  `userId` int(11) NOT NULL,
   `index` int(11) NOT NULL,
   `wasCancelled` tinyint(4) NOT NULL DEFAULT 0,
   `activatedAt` timestamp NOT NULL DEFAULT current_timestamp(),
@@ -48,7 +48,7 @@ CREATE TABLE `gameAction` (
 ALTER TABLE `gameAction`
   ADD PRIMARY KEY (`id`),
   ADD KEY `actionTypeId` (`actionTypeId`),
-  ADD KEY `playerId` (`playerId`),
+  ADD KEY `userId` (`userId`),
   ADD KEY `gameId` (`gameId`);
 
 --
@@ -70,7 +70,7 @@ ALTER TABLE `gameAction`
 --
 ALTER TABLE `gameAction`
   ADD CONSTRAINT `gameAction_ibfk_1` FOREIGN KEY (`actionTypeId`) REFERENCES `actionType` (`id`),
-  ADD CONSTRAINT `gameAction_ibfk_2` FOREIGN KEY (`playerId`) REFERENCES `user` (`id`),
+  ADD CONSTRAINT `gameAction_ibfk_2` FOREIGN KEY (`userId`) REFERENCES `user` (`id`),
   ADD CONSTRAINT `gameAction_ibfk_3` FOREIGN KEY (`gameId`) REFERENCES `gameSession` (`id`);
 COMMIT;
 

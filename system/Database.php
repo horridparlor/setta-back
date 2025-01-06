@@ -7,6 +7,7 @@ enum RequestType: string {
     case GET = 'GET';
     case POST = 'POST';
 }
+const FORCE_DEBUG = false;
 const POST_REQUEST = 'POST';
 const DEFAULT_UNAUTHORIZED_ERROR = array(
     'error' => 'Please authenticate'
@@ -60,7 +61,7 @@ class Database
 
     public function query(string $sql, ?array $replacements = array(), ?bool $debug = false): array
     {
-        if ($debug) {
+        if ($debug || FORCE_DEBUG) {
             echo json_encode($replacements);
             echo $sql;
         }
@@ -285,6 +286,7 @@ class Database
             SELECT
                 user.id id,
                 username,
+                TRIM(CONCAT(user.firstname, ' ', user.lastname)) AS displayName,
                 CASE
                     WHEN role.id IS NOT NULL THEN role.accessRights
                     ELSE IFNULL(user.accessRights, "{}")
@@ -314,6 +316,7 @@ class Database
             SELECT
                 user.id id,
                 username,
+                TRIM(CONCAT(user.firstname, ' ', user.lastname)) AS displayName,
                 CASE
                     WHEN role.id IS NOT NULL THEN role.accessRights
                     ELSE IFNULL(user.accessRights, "{}")
@@ -338,7 +341,7 @@ class Database
             return null;
         }
         $user = $user[0];
-        return new User(intval($user['id']), $user['username'], json_decode($user['accessRights']), boolval($user['isActive']));
+        return new User(intval($user['id']), $user['username'], $user['displayName'], json_decode($user['accessRights']), boolval($user['isActive']));
     }
     public function getRequestData(): \stdClass {
         $requestData = json_decode(json_encode($this->params));

@@ -46,22 +46,24 @@ class User
 {
     private int $id;
     private string $username;
+    private string $displayName;
     private \stdClass $accessRights;
     private string $accessRightErrorString;
     private string $adminAccessRight;
     private bool $isActive;
 
-    public function __construct(int $id, string $username, \stdClass $accessRights, bool $isActive)
+    public function __construct(int $id, string $username, string $displayName, \stdClass $accessRights, bool $isActive)
     {
         $this->id = $id;
         $this->username = $username;
+        $this->displayName = $displayName;
         $this->accessRights = $accessRights;
         $this->isActive = $isActive;
         $this->accessRightErrorString = NO_ERROR;
     }
 
     public static function newDummyUser(\stdClass $accessRights): User {
-        return new User(0, '', $accessRights, true);
+        return new User(0, '', '', $accessRights, true);
     }
 
     public function getId(): int
@@ -261,5 +263,9 @@ class User
             $replacements[$key] = ['value' => $value, 'type' => \PDO::PARAM_INT];
         }
         return $replacements;
+    }
+
+    public function getDisplayName(): string {
+        return $this->displayName;
     }
 }
